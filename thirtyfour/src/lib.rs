@@ -204,6 +204,8 @@ pub mod extensions;
 pub mod session;
 /// Miscellaneous support functions for `thirtyfour` tests.
 pub mod support;
+/// Adapter to testing library
+pub mod screen;
 
 mod js;
 mod switch_to;

@@ -5,3 +5,5 @@ Cargo.lock
 thirtyfour.iml
 /ci/geckodriver.exe
 **/*.DS_Store
+testing-library/node_modules/
+testing-library/dist/

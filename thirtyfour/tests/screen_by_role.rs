@@ -2,7 +2,7 @@ mod common;
 use common::*;
 use rstest::rstest;
 use thirtyfour::prelude::*;
-use thirtyfour::screen::Screen;
+use thirtyfour::screen::{Screen, ByRoleOptions, TextMatch};
 use thirtyfour::support::block_on;
 
 #[rstest]
@@ -196,6 +196,87 @@ fn find_by_role_item_should_fail(test_harness: TestHarness) -> WebDriverResult<(
         let result = screen.find_by_role("item").await;
 
         assert!(result.is_err());
+
+        Ok(())
+    })
+}
+
+#[rstest]
+fn get_by_role_with_options_name_exact(test_harness: TestHarness) -> WebDriverResult<()> {
+    let c = test_harness.driver();
+    block_on(async {
+        let url = sample_page_url();
+        c.goto(&url).await?;
+
+        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        
+        // Test with exact name match
+        let options = ByRoleOptions::new()
+            .name(TextMatch::Exact("Copy".to_string()));
+        
+        let button = screen.get_by_role_with_options("button", &options).await?;
+        assert_eq!(button.text().await?, "Copy");
+
+        Ok(())
+    })
+}
+
+#[rstest]
+fn get_by_role_with_options_name_exact_specific(test_harness: TestHarness) -> WebDriverResult<()> {
+    let c = test_harness.driver();
+    block_on(async {
+        let url = sample_page_url();
+        c.goto(&url).await?;
+
+        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        
+        // Test with exact name match for specific button
+        let options = ByRoleOptions::new()
+            .name(TextMatch::Exact("Show alert".to_string()));
+        
+        let button = screen.get_by_role_with_options("button", &options).await?;
+        assert_eq!(button.text().await?, "Show alert");
+
+        Ok(())
+    })
+}
+
+#[rstest]
+fn get_by_role_with_options_name_another_button(test_harness: TestHarness) -> WebDriverResult<()> {
+    let c = test_harness.driver();
+    block_on(async {
+        let url = sample_page_url();
+        c.goto(&url).await?;
+
+        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        
+        // Test with exact name match for another button
+        let options = ByRoleOptions::new()
+            .name(TextMatch::Exact("Show confirm".to_string()));
+        
+        let button = screen.get_by_role_with_options("button", &options).await?;
+        assert_eq!(button.text().await?, "Show confirm");
+
+        Ok(())
+    })
+}
+
+#[rstest]
+fn get_by_role_with_options_multiple_options(test_harness: TestHarness) -> WebDriverResult<()> {
+    let c = test_harness.driver();
+    block_on(async {
+        let url = sample_page_url();
+        c.goto(&url).await?;
+
+        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        
+        // Test with multiple options
+        let options = ByRoleOptions::new()
+            .name(TextMatch::Exact("Copy".to_string()))
+            .hidden(false);
+        
+        let button = screen.get_by_role_with_options("button", &options).await?;
+        assert_eq!(button.text().await?, "Copy");
 
         Ok(())
     })

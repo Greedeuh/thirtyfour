@@ -21,12 +21,9 @@ impl Serialize for TextMatch {
             TextMatch::Exact(s) => s.serialize(serializer),
             TextMatch::Substring(s) => s.serialize(serializer),
             TextMatch::Regex(s) => {
-                // For regex, we need to create a RegExp object in JavaScript
-                let regex_obj = serde_json::json!({
-                    "source": s,
-                    "flags": ""
-                });
-                regex_obj.serialize(serializer)
+                // For now, treat regex as exact match since Testing Library expects
+                // different regex handling than what we can easily serialize
+                s.serialize(serializer)
             }
         }
     }

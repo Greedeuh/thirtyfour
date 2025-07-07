@@ -163,3 +163,7 @@ pub fn other_page_url() -> String {
 pub fn drag_to_url() -> String {
     format!("http://localhost:{PORT}/drag_to.html")
 }
+
+pub fn by_role_options_page_url() -> String {
+    format!("http://localhost:{PORT}/by_role_options.html")
+}

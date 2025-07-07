@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ByRole Options Test Page</title>
+</head>
+<body>
+    <!-- Name Matching Tests -->
+    <section id="name-tests">
+        <button id="submit-form-btn">Submit Form</button>
+        <button id="save-doc-btn">Save Document</button>
+    </section>
+
+    <!-- ARIA State Tests -->
+    <section id="aria-state-tests">
+        <!-- Selected test -->
+        <div role="tablist">
+            <button role="tab" aria-selected="true" id="active-tab">Active Tab</button>
+            <button role="tab" aria-selected="false" id="inactive-tab">Inactive Tab</button>
+        </div>
+
+        <!-- Checked test -->
+        <input type="checkbox" checked aria-label="Enable notifications" id="checked-checkbox" />
+        <input type="checkbox" aria-label="Enable analytics" id="unchecked-checkbox" />
+
+        <!-- Pressed test -->
+        <button aria-pressed="true" id="pressed-btn">Bold</button>
+        <button aria-pressed="false" id="unpressed-btn">Italic</button>
+
+        <!-- Expanded test -->
+        <button aria-expanded="true" aria-haspopup="true" id="expanded-menu">File Menu</button>
+        <button aria-expanded="false" aria-haspopup="true" id="collapsed-menu">Edit Menu</button>
+
+        <!-- Busy test -->
+        <div role="status" aria-busy="true" id="busy-status">Loading...</div>
+        <div role="status" aria-busy="false" id="ready-status">Ready</div>
+    </section>
+
+    <!-- Current State Tests -->
+    <section id="current-state-tests">
+        <!-- Current page test -->
+        <nav>
+            <a href="/home" aria-current="page" id="current-page">Home</a>
+            <a href="/about" id="other-page">About</a>
+        </nav>
+
+        <!-- Current step test -->
+        <ol>
+            <li role="button" aria-current="step" id="current-step">Personal Info</li>
+            <li role="button" id="next-step">Payment</li>
+        </ol>
+    </section>
+
+    <!-- Accessibility Tests -->
+    <section id="accessibility-tests">
+        <!-- Hidden elements test -->
+        <div>
+            <button style="visibility: hidden;" id="hidden-btn">Hidden Button</button>
+            <button id="visible-btn">Visible Button</button>
+        </div>
+
+        <!-- Level heading test -->
+        <div role="heading" aria-level="1" id="level-1-heading">Main Title</div>
+        <div role="heading" aria-level="2" id="level-2-heading">Section Title</div>
+    </section>
+
+    <!-- Value-Based Tests -->
+    <section id="value-tests">
+        <!-- Value min test -->
+        <input type="range" 
+               role="slider" 
+               aria-valuemin="0" 
+               aria-valuemax="100" 
+               aria-valuenow="50" 
+               aria-label="Volume"
+               id="volume-slider" />
+        <input type="range" 
+               role="slider" 
+               aria-valuemin="10" 
+               aria-valuemax="100" 
+               aria-valuenow="20" 
+               aria-label="Speed"
+               id="speed-slider" />
+
+        <!-- Value max test -->
+        <input type="range" 
+               role="slider" 
+               aria-valuemin="0" 
+               aria-valuemax="50" 
+               aria-valuenow="25" 
+               aria-label="Brightness"
+               id="brightness-slider" />
+        <input type="range" 
+               role="slider" 
+               aria-valuemin="0" 
+               aria-valuemax="100" 
+               aria-valuenow="80" 
+               aria-label="Volume Control"
+               id="volume-control-slider" />
+
+        <!-- Value now test -->
+        <input type="range" 
+               role="slider" 
+               aria-valuemin="0" 
+               aria-valuemax="100" 
+               aria-valuenow="75" 
+               aria-label="Progress"
+               id="progress-slider" />
+        <input type="range" 
+               role="slider" 
+               aria-valuemin="0" 
+               aria-valuemax="100" 
+               aria-valuenow="25" 
+               aria-label="Loading"
+               id="loading-slider" />
+    </section>
+
+    <!-- Fallback Roles Test -->
+    <section id="fallback-roles-test">
+        <div role="switch checkbox" id="toggle-switch">Toggle Switch</div>
+    </section>
+</body>
+</html>

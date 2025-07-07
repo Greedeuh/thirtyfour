@@ -39,10 +39,49 @@ impl Screen {
         ).await
     }
 
+    // Internal helper method for executing Testing Library role methods with options
+    async fn execute_tl_role_method(&self, method: &str, role: &str, options: Option<&ByRoleOptions>) -> WebDriverResult<ScriptRet> {
+        let script = match options {
+            Some(opts) => {
+                let options_json = opts.to_json_string().map_err(|e| {
+                    crate::error::WebDriverError::Json(format!("Failed to serialize role options: {}", e))
+                })?;
+                format!("return window.__TL__.{}(document, '{}', {});", method, role, options_json)
+            }
+            None => {
+                format!("return window.__TL__.{}(document, '{}');", method, role)
+            }
+        };
+        
+        self.driver.execute(script, vec![]).await
+    }
+
+    // Internal helper method for executing Testing Library role methods with options and array filter
+    async fn execute_tl_role_method_with_filter(&self, method: &str, role: &str, options: Option<&ByRoleOptions>) -> WebDriverResult<ScriptRet> {
+        let script = match options {
+            Some(opts) => {
+                let options_json = opts.to_json_string().map_err(|e| {
+                    crate::error::WebDriverError::Json(format!("Failed to serialize role options: {}", e))
+                })?;
+                format!("return [window.__TL__.{}(document, '{}', {})].filter(n => n);", method, role, options_json)
+            }
+            None => {
+                format!("return [window.__TL__.{}(document, '{}')].filter(n => n);", method, role)
+            }
+        };
+        
+        self.driver.execute(script, vec![]).await
+    }
+
     // Role-based methods
     /// Returns the matching element for a query by role, throws an error if no elements match or if more than one match is found.
     pub async fn get_by_role(&self, role: &str) -> WebDriverResult<WebElement> {
-        self.execute_tl_method("getByRole", role).await?.element()
+        self.execute_tl_role_method("getByRole", role, None).await?.element()
+    }
+
+    /// Returns the matching element for a query by role with options, throws an error if no elements match or if more than one match is found.
+    pub async fn get_by_role_with_options(&self, role: &str, options: &ByRoleOptions) -> WebDriverResult<WebElement> {
+        self.execute_tl_role_method("getByRole", role, Some(options)).await?.element()
     }
 
     /// Returns an array of all matching elements for a query by role, throws an error if no elements match.

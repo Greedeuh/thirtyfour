@@ -1,3 +1,8 @@
+/// Role-based query options and utilities
+pub mod role;
+
+pub use role::*;
+
 use std::fs;
 
 use crate::{error::WebDriverResult, prelude::ScriptRet, WebDriver, WebElement};

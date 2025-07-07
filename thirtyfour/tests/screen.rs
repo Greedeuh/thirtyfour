@@ -110,3 +110,106 @@ fn find_all_by_role(test_harness: TestHarness) -> WebDriverResult<()> {
         Ok(())
     })
 }
+
+// Test cases for 'item' role that should not be found
+#[rstest]
+fn query_all_by_role_item_not_found(test_harness: TestHarness) -> WebDriverResult<()> {
+    let c = test_harness.driver();
+    block_on(async {
+        let url = sample_page_url();
+        c.goto(&url).await?;
+        
+        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let items = screen.query_all_by_role("item").await?;
+
+        // Should return empty array for non-existent role
+        assert_eq!(items.len(), 0);
+        
+        Ok(())
+    })
+}
+
+#[rstest]
+fn query_by_role_item_not_found(test_harness: TestHarness) -> WebDriverResult<()> {
+    let c = test_harness.driver();
+    block_on(async {
+        let url = sample_page_url();
+        c.goto(&url).await?;
+        
+        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let item = screen.query_by_role("item").await?;
+
+        // Should return None for non-existent role
+        assert!(item.is_none());
+        
+        Ok(())
+    })
+}
+
+#[rstest]
+fn get_by_role_item_should_fail(test_harness: TestHarness) -> WebDriverResult<()> {
+    let c = test_harness.driver();
+    block_on(async {
+        let url = sample_page_url();
+        c.goto(&url).await?;
+        
+        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let result = screen.get_by_role("item").await;
+
+        // Should fail with error for non-existent role
+        assert!(result.is_err());
+        
+        Ok(())
+    })
+}
+
+#[rstest]
+fn get_all_by_role_item_should_fail(test_harness: TestHarness) -> WebDriverResult<()> {
+    let c = test_harness.driver();
+    block_on(async {
+        let url = sample_page_url();
+        c.goto(&url).await?;
+        
+        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let result = screen.get_all_by_role("item").await;
+
+        // Should fail with error for non-existent role
+        assert!(result.is_err());
+        
+        Ok(())
+    })
+}
+
+#[rstest]
+fn find_by_role_item_should_fail(test_harness: TestHarness) -> WebDriverResult<()> {
+    let c = test_harness.driver();
+    block_on(async {
+        let url = sample_page_url();
+        c.goto(&url).await?;
+        
+        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let result = screen.find_by_role("item").await;
+
+        // Should fail with error for non-existent role
+        assert!(result.is_err());
+        
+        Ok(())
+    })
+}
+
+#[rstest]
+fn find_all_by_role_item_should_fail(test_harness: TestHarness) -> WebDriverResult<()> {
+    let c = test_harness.driver();
+    block_on(async {
+        let url = sample_page_url();
+        c.goto(&url).await?;
+        
+        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let result = screen.find_all_by_role("item").await;
+
+        // Should fail with error for non-existent role
+        assert!(result.is_err());
+        
+        Ok(())
+    })
+}

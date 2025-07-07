@@ -35,12 +35,15 @@ impl Screen {
 
     /// Queries a single element by its role. Returns None if not found.
     pub async fn query_by_role(&self, role: &str) -> WebDriverResult<Option<WebElement>> {
-        match self.driver
-            .execute(format!("return window.__TL__.queryByRole(document, '{}');", role), vec![])
-            .await?.element() {
-            Ok(element) => Ok(Some(element)),
-            Err(_) => Ok(None),
+        let mut elements= self.driver
+            .execute(format!("return [window.__TL__.queryByRole(document, '{}')].filter(n => n);", role), vec![])
+            .await?.elements()?;
+
+        if elements.is_empty() {
+            return Ok(None);
         }
+            
+        Ok(Some(elements.remove(0)))
     }
 
     /// Queries all elements by their role

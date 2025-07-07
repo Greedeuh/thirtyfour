@@ -200,12 +200,12 @@ pub mod components;
 pub mod error;
 /// Extensions for specific browsers.
 pub mod extensions;
+/// Adapter to testing library
+pub mod screen;
 /// Everything related to driving the underlying WebDriver session.
 pub mod session;
 /// Miscellaneous support functions for `thirtyfour` tests.
 pub mod support;
-/// Adapter to testing library
-pub mod screen;
 
 mod js;
 mod switch_to;

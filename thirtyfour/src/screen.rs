@@ -19,12 +19,48 @@ impl Screen {
         Ok(Screen { driver })
     }
 
+    /// Gets a single element by its role. Throws an error if none or multiple elements are found.
+    pub async fn get_by_role(&self, role: &str) -> WebDriverResult<WebElement> {
+        self.driver
+            .execute(format!("return window.__TL__.getByRole(document, '{}');", role), vec![])
+            .await?.element()
+    }
+
+    /// Gets all elements by their role. Throws an error if none are found.
+    pub async fn get_all_by_role(&self, role: &str) -> WebDriverResult<Vec<WebElement>> {
+        self.driver
+            .execute(format!("return window.__TL__.getAllByRole(document, '{}');", role), vec![])
+            .await?.elements()
+    }
+
+    /// Queries a single element by its role. Returns None if not found.
+    pub async fn query_by_role(&self, role: &str) -> WebDriverResult<Option<WebElement>> {
+        match self.driver
+            .execute(format!("return window.__TL__.queryByRole(document, '{}');", role), vec![])
+            .await?.element() {
+            Ok(element) => Ok(Some(element)),
+            Err(_) => Ok(None),
+        }
+    }
+
     /// Queries all elements by their role
     pub async fn query_all_by_role(&self, role: &str) -> WebDriverResult<Vec<WebElement>> {
-        // Execute the queryAllByRole function from the testing library
         self.driver
             .execute(format!("return window.__TL__.queryAllByRole(document, '{}');", role), vec![])
             .await?.elements()
+    }
 
+    /// Finds a single element by its role. Waits for the element to appear.
+    pub async fn find_by_role(&self, role: &str) -> WebDriverResult<WebElement> {
+        self.driver
+            .execute(format!("return window.__TL__.findByRole(document, '{}');", role), vec![])
+            .await?.element()
+    }
+
+    /// Finds all elements by their role. Waits for at least one element to appear.
+    pub async fn find_all_by_role(&self, role: &str) -> WebDriverResult<Vec<WebElement>> {
+        self.driver
+            .execute(format!("return window.__TL__.findAllByRole(document, '{}');", role), vec![])
+            .await?.elements()
     }
 }

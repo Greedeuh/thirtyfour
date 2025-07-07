@@ -1,576 +1,316 @@
 use std::fs;
 
-use crate::{error::WebDriverResult, WebDriver, WebElement};
+use crate::{error::WebDriverResult, prelude::ScriptRet, WebDriver, WebElement};
 
-/// A struct representing a screen in the testing library
+/// A struct representing a screen in the testing library that provides DOM queries with different behaviors: get* methods throw errors if elements aren't found, query* methods return null for missing elements, and find* methods return promises that retry until elements are found.
 #[derive(Debug, Clone)]
 pub struct Screen {
     driver: WebDriver,
 }
 
 impl Screen {
-    /// Creates a new `Screen` and load the testing library script in the browser
+    /// Creates a new `Screen` and loads the testing library script in the browser
     pub async fn load_with_testing_library(driver: WebDriver) -> WebDriverResult<Self> {
         // Load the testing library script in the browser
         let testing_library = fs::read_to_string("js/testing-library.js").unwrap();
         driver.execute(testing_library, vec![]).await?;
 
-        Ok(Screen {
-            driver,
-        })
+        Ok(Screen { driver })
     }
 
-    /// Gets a single element by its role. Throws an error if none or multiple elements are found.
+    // Internal helper method for executing Testing Library methods
+    async fn execute_tl_method(&self, method: &str, selector: &str) -> WebDriverResult<ScriptRet> {
+        self.driver.execute(
+            format!("return window.__TL__.{}(document, '{}');", method, selector),
+            vec![],
+        ).await
+    }
+
+    // Internal helper method for executing Testing Library methods with array wrapper
+    async fn execute_tl_method_with_filter(&self, method: &str, selector: &str) -> WebDriverResult<ScriptRet> {
+        self.driver.execute(
+            format!("return [window.__TL__.{}(document, '{}')].filter(n => n);", method, selector),
+            vec![],
+        ).await
+    }
+
+    // Role-based methods
+    /// Returns the matching element for a query by role, throws an error if no elements match or if more than one match is found.
     pub async fn get_by_role(&self, role: &str) -> WebDriverResult<WebElement> {
-        self.driver
-            .execute(format!("return window.__TL__.getByRole(document, '{}');", role), vec![])
-            .await?
-            .element()
+        self.execute_tl_method("getByRole", role).await?.element()
     }
 
-    /// Gets all elements by their role. Throws an error if none are found.
+    /// Returns an array of all matching elements for a query by role, throws an error if no elements match.
     pub async fn get_all_by_role(&self, role: &str) -> WebDriverResult<Vec<WebElement>> {
-        self.driver
-            .execute(format!("return window.__TL__.getAllByRole(document, '{}');", role), vec![])
-            .await?
-            .elements()
+        self.execute_tl_method("getAllByRole", role).await?.elements()
     }
 
-    /// Queries a single element by its role. Returns None if not found.
+    /// Returns the matching element for a query by role, returns None if no elements match.
     pub async fn query_by_role(&self, role: &str) -> WebDriverResult<Option<WebElement>> {
-        let mut elements = self
-            .driver
-            .execute(
-                format!("return [window.__TL__.queryByRole(document, '{}')].filter(n => n);", role),
-                vec![],
-            )
-            .await?
-            .elements()?;
-
+        let mut elements = self.execute_tl_method_with_filter("queryByRole", role).await?.elements()?;
         if elements.is_empty() {
             return Ok(None);
         }
-
         Ok(Some(elements.remove(0)))
     }
 
-    /// Queries all elements by their role
+    /// Returns an array of all matching elements for a query by role, returns empty array if no elements match.
     pub async fn query_all_by_role(&self, role: &str) -> WebDriverResult<Vec<WebElement>> {
-        self.driver
-            .execute(format!("return window.__TL__.queryAllByRole(document, '{}');", role), vec![])
-            .await?
-            .elements()
+        self.execute_tl_method("queryAllByRole", role).await?.elements()
     }
 
-    /// Finds a single element by its role. Waits for the element to appear.
+    /// Returns a promise which resolves when an element is found which matches the given role query.
     pub async fn find_by_role(&self, role: &str) -> WebDriverResult<WebElement> {
-        self.driver
-            .execute(format!("return window.__TL__.findByRole(document, '{}');", role), vec![])
-            .await?
-            .element()
+        self.execute_tl_method("findByRole", role).await?.element()
     }
 
-    /// Finds all elements by their role. Waits for at least one element to appear.
+    /// Returns a promise which resolves to an array of elements when any elements are found which match the given role query.
     pub async fn find_all_by_role(&self, role: &str) -> WebDriverResult<Vec<WebElement>> {
-        self.driver
-            .execute(format!("return window.__TL__.findAllByRole(document, '{}');", role), vec![])
-            .await?
-            .elements()
+        self.execute_tl_method("findAllByRole", role).await?.elements()
     }
 
-    /// Gets a single element by its text content. Throws an error if none or multiple elements are found.
+    // Text-based methods
+    /// Returns the matching element for a query by text content, throws an error if no elements match or if more than one match is found.
     pub async fn get_by_text(&self, text: &str) -> WebDriverResult<WebElement> {
-        self.driver
-            .execute(format!("return window.__TL__.getByText(document, '{}');", text), vec![])
-            .await?
-            .element()
+        self.execute_tl_method("getByText", text).await?.element()
     }
 
-    /// Gets all elements by their text content. Throws an error if none are found.
+    /// Returns an array of all matching elements for a query by text content, throws an error if no elements match.
     pub async fn get_all_by_text(&self, text: &str) -> WebDriverResult<Vec<WebElement>> {
-        self.driver
-            .execute(format!("return window.__TL__.getAllByText(document, '{}');", text), vec![])
-            .await?
-            .elements()
+        self.execute_tl_method("getAllByText", text).await?.elements()
     }
 
-    /// Queries a single element by its text content. Returns None if not found.
+    /// Returns the matching element for a query by text content, returns None if no elements match.
     pub async fn query_by_text(&self, text: &str) -> WebDriverResult<Option<WebElement>> {
-        let mut elements = self
-            .driver
-            .execute(
-                format!("return [window.__TL__.queryByText(document, '{}')].filter(n => n);", text),
-                vec![],
-            )
-            .await?
-            .elements()?;
-
+        let mut elements = self.execute_tl_method_with_filter("queryByText", text).await?.elements()?;
         if elements.is_empty() {
             return Ok(None);
         }
-
         Ok(Some(elements.remove(0)))
     }
 
-    /// Queries all elements by their text content
+    /// Returns an array of all matching elements for a query by text content, returns empty array if no elements match.
     pub async fn query_all_by_text(&self, text: &str) -> WebDriverResult<Vec<WebElement>> {
-        self.driver
-            .execute(format!("return window.__TL__.queryAllByText(document, '{}');", text), vec![])
-            .await?
-            .elements()
+        self.execute_tl_method("queryAllByText", text).await?.elements()
     }
 
-    /// Finds a single element by its text content. Waits for the element to appear.
+    /// Returns a promise which resolves when an element is found which matches the given text content query.
     pub async fn find_by_text(&self, text: &str) -> WebDriverResult<WebElement> {
-        self.driver
-            .execute(format!("return window.__TL__.findByText(document, '{}');", text), vec![])
-            .await?
-            .element()
+        self.execute_tl_method("findByText", text).await?.element()
     }
 
-    /// Finds all elements by their text content. Waits for at least one element to appear.
+    /// Returns a promise which resolves to an array of elements when any elements are found which match the given text content query.
     pub async fn find_all_by_text(&self, text: &str) -> WebDriverResult<Vec<WebElement>> {
-        self.driver
-            .execute(format!("return window.__TL__.findAllByText(document, '{}');", text), vec![])
-            .await?
-            .elements()
+        self.execute_tl_method("findAllByText", text).await?.elements()
     }
 
-    /// Gets a single element by its label text. Throws an error if none or multiple elements are found.
+    // Label text methods
+    /// Returns the matching element for a query by label text, throws an error if no elements match or if more than one match is found.
     pub async fn get_by_label_text(&self, text: &str) -> WebDriverResult<WebElement> {
-        self.driver
-            .execute(format!("return window.__TL__.getByLabelText(document, '{}');", text), vec![])
-            .await?
-            .element()
+        self.execute_tl_method("getByLabelText", text).await?.element()
     }
 
-    /// Gets all elements by their label text. Throws an error if none are found.
+    /// Returns an array of all matching elements for a query by label text, throws an error if no elements match.
     pub async fn get_all_by_label_text(&self, text: &str) -> WebDriverResult<Vec<WebElement>> {
-        self.driver
-            .execute(
-                format!("return window.__TL__.getAllByLabelText(document, '{}');", text),
-                vec![],
-            )
-            .await?
-            .elements()
+        self.execute_tl_method("getAllByLabelText", text).await?.elements()
     }
 
-    /// Queries a single element by its label text. Returns None if not found.
+    /// Returns the matching element for a query by label text, returns None if no elements match.
     pub async fn query_by_label_text(&self, text: &str) -> WebDriverResult<Option<WebElement>> {
-        let mut elements = self
-            .driver
-            .execute(
-                format!(
-                    "return [window.__TL__.queryByLabelText(document, '{}')].filter(n => n);",
-                    text
-                ),
-                vec![],
-            )
-            .await?
-            .elements()?;
-
+        let mut elements = self.execute_tl_method_with_filter("queryByLabelText", text).await?.elements()?;
         if elements.is_empty() {
             return Ok(None);
         }
-
         Ok(Some(elements.remove(0)))
     }
 
-    /// Queries all elements by their label text
+    /// Returns an array of all matching elements for a query by label text, returns empty array if no elements match.
     pub async fn query_all_by_label_text(&self, text: &str) -> WebDriverResult<Vec<WebElement>> {
-        self.driver
-            .execute(
-                format!("return window.__TL__.queryAllByLabelText(document, '{}');", text),
-                vec![],
-            )
-            .await?
-            .elements()
+        self.execute_tl_method("queryAllByLabelText", text).await?.elements()
     }
 
-    /// Finds a single element by its label text. Waits for the element to appear.
+    /// Returns a promise which resolves when an element is found which matches the given label text query.
     pub async fn find_by_label_text(&self, text: &str) -> WebDriverResult<WebElement> {
-        self.driver
-            .execute(format!("return window.__TL__.findByLabelText(document, '{}');", text), vec![])
-            .await?
-            .element()
+        self.execute_tl_method("findByLabelText", text).await?.element()
     }
 
-    /// Finds all elements by their label text. Waits for at least one element to appear.
+    /// Returns a promise which resolves to an array of elements when any elements are found which match the given label text query.
     pub async fn find_all_by_label_text(&self, text: &str) -> WebDriverResult<Vec<WebElement>> {
-        self.driver
-            .execute(
-                format!("return window.__TL__.findAllByLabelText(document, '{}');", text),
-                vec![],
-            )
-            .await?
-            .elements()
+        self.execute_tl_method("findAllByLabelText", text).await?.elements()
     }
 
-    /// Gets a single element by its placeholder text. Throws an error if none or multiple elements are found.
+    // Placeholder text methods
+    /// Returns the matching element for a query by placeholder text, throws an error if no elements match or if more than one match is found.
     pub async fn get_by_placeholder_text(&self, text: &str) -> WebDriverResult<WebElement> {
-        self.driver
-            .execute(
-                format!("return window.__TL__.getByPlaceholderText(document, '{}');", text),
-                vec![],
-            )
-            .await?
-            .element()
+        self.execute_tl_method("getByPlaceholderText", text).await?.element()
     }
 
-    /// Gets all elements by their placeholder text. Throws an error if none are found.
-    pub async fn get_all_by_placeholder_text(
-        &self,
-        text: &str,
-    ) -> WebDriverResult<Vec<WebElement>> {
-        self.driver
-            .execute(
-                format!("return window.__TL__.getAllByPlaceholderText(document, '{}');", text),
-                vec![],
-            )
-            .await?
-            .elements()
+    /// Returns an array of all matching elements for a query by placeholder text, throws an error if no elements match.
+    pub async fn get_all_by_placeholder_text(&self, text: &str) -> WebDriverResult<Vec<WebElement>> {
+        self.execute_tl_method("getAllByPlaceholderText", text).await?.elements()
     }
 
-    /// Queries a single element by its placeholder text. Returns None if not found.
-    pub async fn query_by_placeholder_text(
-        &self,
-        text: &str,
-    ) -> WebDriverResult<Option<WebElement>> {
-        let mut elements = self
-            .driver
-            .execute(
-                format!(
-                    "return [window.__TL__.queryByPlaceholderText(document, '{}')].filter(n => n);",
-                    text
-                ),
-                vec![],
-            )
-            .await?
-            .elements()?;
-
+    /// Returns the matching element for a query by placeholder text, returns None if no elements match.
+    pub async fn query_by_placeholder_text(&self, text: &str) -> WebDriverResult<Option<WebElement>> {
+        let mut elements = self.execute_tl_method_with_filter("queryByPlaceholderText", text).await?.elements()?;
         if elements.is_empty() {
             return Ok(None);
         }
-
         Ok(Some(elements.remove(0)))
     }
 
-    /// Queries all elements by their placeholder text
-    pub async fn query_all_by_placeholder_text(
-        &self,
-        text: &str,
-    ) -> WebDriverResult<Vec<WebElement>> {
-        self.driver
-            .execute(
-                format!("return window.__TL__.queryAllByPlaceholderText(document, '{}');", text),
-                vec![],
-            )
-            .await?
-            .elements()
+    /// Returns an array of all matching elements for a query by placeholder text, returns empty array if no elements match.
+    pub async fn query_all_by_placeholder_text(&self, text: &str) -> WebDriverResult<Vec<WebElement>> {
+        self.execute_tl_method("queryAllByPlaceholderText", text).await?.elements()
     }
 
-    /// Finds a single element by its placeholder text. Waits for the element to appear.
+    /// Returns a promise which resolves when an element is found which matches the given placeholder text query.
     pub async fn find_by_placeholder_text(&self, text: &str) -> WebDriverResult<WebElement> {
-        self.driver
-            .execute(
-                format!("return window.__TL__.findByPlaceholderText(document, '{}');", text),
-                vec![],
-            )
-            .await?
-            .element()
+        self.execute_tl_method("findByPlaceholderText", text).await?.element()
     }
 
-    /// Finds all elements by their placeholder text. Waits for at least one element to appear.
-    pub async fn find_all_by_placeholder_text(
-        &self,
-        text: &str,
-    ) -> WebDriverResult<Vec<WebElement>> {
-        self.driver
-            .execute(
-                format!("return window.__TL__.findAllByPlaceholderText(document, '{}');", text),
-                vec![],
-            )
-            .await?
-            .elements()
+    /// Returns a promise which resolves to an array of elements when any elements are found which match the given placeholder text query.
+    pub async fn find_all_by_placeholder_text(&self, text: &str) -> WebDriverResult<Vec<WebElement>> {
+        self.execute_tl_method("findAllByPlaceholderText", text).await?.elements()
     }
 
-    /// Gets a single element by its display value. Throws an error if none or multiple elements are found.
+    // Display value methods
+    /// Returns the matching element for a query by display value, throws an error if no elements match or if more than one match is found.
     pub async fn get_by_display_value(&self, value: &str) -> WebDriverResult<WebElement> {
-        self.driver
-            .execute(
-                format!("return window.__TL__.getByDisplayValue(document, '{}');", value),
-                vec![],
-            )
-            .await?
-            .element()
+        self.execute_tl_method("getByDisplayValue", value).await?.element()
     }
 
-    /// Gets all elements by their display value. Throws an error if none are found.
+    /// Returns an array of all matching elements for a query by display value, throws an error if no elements match.
     pub async fn get_all_by_display_value(&self, value: &str) -> WebDriverResult<Vec<WebElement>> {
-        self.driver
-            .execute(
-                format!("return window.__TL__.getAllByDisplayValue(document, '{}');", value),
-                vec![],
-            )
-            .await?
-            .elements()
+        self.execute_tl_method("getAllByDisplayValue", value).await?.elements()
     }
 
-    /// Queries a single element by its display value. Returns None if not found.
+    /// Returns the matching element for a query by display value, returns None if no elements match.
     pub async fn query_by_display_value(&self, value: &str) -> WebDriverResult<Option<WebElement>> {
-        let mut elements = self
-            .driver
-            .execute(
-                format!(
-                    "return [window.__TL__.queryByDisplayValue(document, '{}')].filter(n => n);",
-                    value
-                ),
-                vec![],
-            )
-            .await?
-            .elements()?;
-
+        let mut elements = self.execute_tl_method_with_filter("queryByDisplayValue", value).await?.elements()?;
         if elements.is_empty() {
             return Ok(None);
         }
-
         Ok(Some(elements.remove(0)))
     }
 
-    /// Queries all elements by their display value
-    pub async fn query_all_by_display_value(
-        &self,
-        value: &str,
-    ) -> WebDriverResult<Vec<WebElement>> {
-        self.driver
-            .execute(
-                format!("return window.__TL__.queryAllByDisplayValue(document, '{}');", value),
-                vec![],
-            )
-            .await?
-            .elements()
+    /// Returns an array of all matching elements for a query by display value, returns empty array if no elements match.
+    pub async fn query_all_by_display_value(&self, value: &str) -> WebDriverResult<Vec<WebElement>> {
+        self.execute_tl_method("queryAllByDisplayValue", value).await?.elements()
     }
 
-    /// Finds a single element by its display value. Waits for the element to appear.
+    /// Returns a promise which resolves when an element is found which matches the given display value query.
     pub async fn find_by_display_value(&self, value: &str) -> WebDriverResult<WebElement> {
-        self.driver
-            .execute(
-                format!("return window.__TL__.findByDisplayValue(document, '{}');", value),
-                vec![],
-            )
-            .await?
-            .element()
+        self.execute_tl_method("findByDisplayValue", value).await?.element()
     }
 
-    /// Finds all elements by their display value. Waits for at least one element to appear.
+    /// Returns a promise which resolves to an array of elements when any elements are found which match the given display value query.
     pub async fn find_all_by_display_value(&self, value: &str) -> WebDriverResult<Vec<WebElement>> {
-        self.driver
-            .execute(
-                format!("return window.__TL__.findAllByDisplayValue(document, '{}');", value),
-                vec![],
-            )
-            .await?
-            .elements()
+        self.execute_tl_method("findAllByDisplayValue", value).await?.elements()
     }
 
-    /// Gets a single element by its alt text. Throws an error if none or multiple elements are found.
+    // Alt text methods
+    /// Returns the matching element for a query by alt text, throws an error if no elements match or if more than one match is found.
     pub async fn get_by_alt_text(&self, text: &str) -> WebDriverResult<WebElement> {
-        self.driver
-            .execute(format!("return window.__TL__.getByAltText(document, '{}');", text), vec![])
-            .await?
-            .element()
+        self.execute_tl_method("getByAltText", text).await?.element()
     }
 
-    /// Gets all elements by their alt text. Throws an error if none are found.
+    /// Returns an array of all matching elements for a query by alt text, throws an error if no elements match.
     pub async fn get_all_by_alt_text(&self, text: &str) -> WebDriverResult<Vec<WebElement>> {
-        self.driver
-            .execute(format!("return window.__TL__.getAllByAltText(document, '{}');", text), vec![])
-            .await?
-            .elements()
+        self.execute_tl_method("getAllByAltText", text).await?.elements()
     }
 
-    /// Queries a single element by its alt text. Returns None if not found.
+    /// Returns the matching element for a query by alt text, returns None if no elements match.
     pub async fn query_by_alt_text(&self, text: &str) -> WebDriverResult<Option<WebElement>> {
-        let mut elements = self
-            .driver
-            .execute(
-                format!(
-                    "return [window.__TL__.queryByAltText(document, '{}')].filter(n => n);",
-                    text
-                ),
-                vec![],
-            )
-            .await?
-            .elements()?;
-
+        let mut elements = self.execute_tl_method_with_filter("queryByAltText", text).await?.elements()?;
         if elements.is_empty() {
             return Ok(None);
         }
-
         Ok(Some(elements.remove(0)))
     }
 
-    /// Queries all elements by their alt text
+    /// Returns an array of all matching elements for a query by alt text, returns empty array if no elements match.
     pub async fn query_all_by_alt_text(&self, text: &str) -> WebDriverResult<Vec<WebElement>> {
-        self.driver
-            .execute(
-                format!("return window.__TL__.queryAllByAltText(document, '{}');", text),
-                vec![],
-            )
-            .await?
-            .elements()
+        self.execute_tl_method("queryAllByAltText", text).await?.elements()
     }
 
-    /// Finds a single element by its alt text. Waits for the element to appear.
+    /// Returns a promise which resolves when an element is found which matches the given alt text query.
     pub async fn find_by_alt_text(&self, text: &str) -> WebDriverResult<WebElement> {
-        self.driver
-            .execute(format!("return window.__TL__.findByAltText(document, '{}');", text), vec![])
-            .await?
-            .element()
+        self.execute_tl_method("findByAltText", text).await?.element()
     }
 
-    /// Finds all elements by their alt text. Waits for at least one element to appear.
+    /// Returns a promise which resolves to an array of elements when any elements are found which match the given alt text query.
     pub async fn find_all_by_alt_text(&self, text: &str) -> WebDriverResult<Vec<WebElement>> {
-        self.driver
-            .execute(
-                format!("return window.__TL__.findAllByAltText(document, '{}');", text),
-                vec![],
-            )
-            .await?
-            .elements()
+        self.execute_tl_method("findAllByAltText", text).await?.elements()
     }
 
-    /// Gets a single element by its title. Throws an error if none or multiple elements are found.
+    // Title methods
+    /// Returns the matching element for a query by title, throws an error if no elements match or if more than one match is found.
     pub async fn get_by_title(&self, title: &str) -> WebDriverResult<WebElement> {
-        self.driver
-            .execute(format!("return window.__TL__.getByTitle(document, '{}');", title), vec![])
-            .await?
-            .element()
+        self.execute_tl_method("getByTitle", title).await?.element()
     }
 
-    /// Gets all elements by their title. Throws an error if none are found.
+    /// Returns an array of all matching elements for a query by title, throws an error if no elements match.
     pub async fn get_all_by_title(&self, title: &str) -> WebDriverResult<Vec<WebElement>> {
-        self.driver
-            .execute(format!("return window.__TL__.getAllByTitle(document, '{}');", title), vec![])
-            .await?
-            .elements()
+        self.execute_tl_method("getAllByTitle", title).await?.elements()
     }
 
-    /// Queries a single element by its title. Returns None if not found.
+    /// Returns the matching element for a query by title, returns None if no elements match.
     pub async fn query_by_title(&self, title: &str) -> WebDriverResult<Option<WebElement>> {
-        let mut elements = self
-            .driver
-            .execute(
-                format!(
-                    "return [window.__TL__.queryByTitle(document, '{}')].filter(n => n);",
-                    title
-                ),
-                vec![],
-            )
-            .await?
-            .elements()?;
-
+        let mut elements = self.execute_tl_method_with_filter("queryByTitle", title).await?.elements()?;
         if elements.is_empty() {
             return Ok(None);
         }
-
         Ok(Some(elements.remove(0)))
     }
 
-    /// Queries all elements by their title
+    /// Returns an array of all matching elements for a query by title, returns empty array if no elements match.
     pub async fn query_all_by_title(&self, title: &str) -> WebDriverResult<Vec<WebElement>> {
-        self.driver
-            .execute(
-                format!("return window.__TL__.queryAllByTitle(document, '{}');", title),
-                vec![],
-            )
-            .await?
-            .elements()
+        self.execute_tl_method("queryAllByTitle", title).await?.elements()
     }
 
-    /// Finds a single element by its title. Waits for the element to appear.
+    /// Returns a promise which resolves when an element is found which matches the given title query.
     pub async fn find_by_title(&self, title: &str) -> WebDriverResult<WebElement> {
-        self.driver
-            .execute(format!("return window.__TL__.findByTitle(document, '{}');", title), vec![])
-            .await?
-            .element()
+        self.execute_tl_method("findByTitle", title).await?.element()
     }
 
-    /// Finds all elements by their title. Waits for at least one element to appear.
+    /// Returns a promise which resolves to an array of elements when any elements are found which match the given title query.
     pub async fn find_all_by_title(&self, title: &str) -> WebDriverResult<Vec<WebElement>> {
-        self.driver
-            .execute(format!("return window.__TL__.findAllByTitle(document, '{}');", title), vec![])
-            .await?
-            .elements()
+        self.execute_tl_method("findAllByTitle", title).await?.elements()
     }
 
-    /// Gets a single element by its test id. Throws an error if none or multiple elements are found.
+    // Test ID methods
+    /// Returns the matching element for a query by test ID, throws an error if no elements match or if more than one match is found.
     pub async fn get_by_test_id(&self, test_id: &str) -> WebDriverResult<WebElement> {
-        self.driver
-            .execute(format!("return window.__TL__.getByTestId(document, '{}');", test_id), vec![])
-            .await?
-            .element()
+        self.execute_tl_method("getByTestId", test_id).await?.element()
     }
 
-    /// Gets all elements by their test id. Throws an error if none are found.
+    /// Returns an array of all matching elements for a query by test ID, throws an error if no elements match.
     pub async fn get_all_by_test_id(&self, test_id: &str) -> WebDriverResult<Vec<WebElement>> {
-        self.driver
-            .execute(
-                format!("return window.__TL__.getAllByTestId(document, '{}');", test_id),
-                vec![],
-            )
-            .await?
-            .elements()
+        self.execute_tl_method("getAllByTestId", test_id).await?.elements()
     }
 
-    /// Queries a single element by its test id. Returns None if not found.
+    /// Returns the matching element for a query by test ID, returns None if no elements match.
     pub async fn query_by_test_id(&self, test_id: &str) -> WebDriverResult<Option<WebElement>> {
-        let mut elements = self
-            .driver
-            .execute(
-                format!(
-                    "return [window.__TL__.queryByTestId(document, '{}')].filter(n => n);",
-                    test_id
-                ),
-                vec![],
-            )
-            .await?
-            .elements()?;
-
+        let mut elements = self.execute_tl_method_with_filter("queryByTestId", test_id).await?.elements()?;
         if elements.is_empty() {
             return Ok(None);
         }
-
         Ok(Some(elements.remove(0)))
     }
 
-    /// Queries all elements by their test id
+    /// Returns an array of all matching elements for a query by test ID, returns empty array if no elements match.
     pub async fn query_all_by_test_id(&self, test_id: &str) -> WebDriverResult<Vec<WebElement>> {
-        self.driver
-            .execute(
-                format!("return window.__TL__.queryAllByTestId(document, '{}');", test_id),
-                vec![],
-            )
-            .await?
-            .elements()
+        self.execute_tl_method("queryAllByTestId", test_id).await?.elements()
     }
 
-    /// Finds a single element by its test id. Waits for the element to appear.
+    /// Returns a promise which resolves when an element is found which matches the given test ID query.
     pub async fn find_by_test_id(&self, test_id: &str) -> WebDriverResult<WebElement> {
-        self.driver
-            .execute(format!("return window.__TL__.findByTestId(document, '{}');", test_id), vec![])
-            .await?
-            .element()
+        self.execute_tl_method("findByTestId", test_id).await?.element()
     }
 
-    /// Finds all elements by their test id. Waits for at least one element to appear.
+    /// Returns a promise which resolves to an array of elements when any elements are found which match the given test ID query.
     pub async fn find_all_by_test_id(&self, test_id: &str) -> WebDriverResult<Vec<WebElement>> {
-        self.driver
-            .execute(
-                format!("return window.__TL__.findAllByTestId(document, '{}');", test_id),
-                vec![],
-            )
-            .await?
-            .elements()
+        self.execute_tl_method("findAllByTestId", test_id).await?.elements()
     }
 }

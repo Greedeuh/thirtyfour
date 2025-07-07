@@ -43,9 +43,9 @@ fn test_name_regex_match(test_harness: TestHarness) -> WebDriverResult<()> {
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
         
-        // Test regex match (simplified to exact string matching for Testing Library compatibility)
+        // Test regex match with proper regex literal syntax
         let options = ByRoleOptions::new()
-            .name(TextMatch::Regex("Save Document".to_string()));
+            .name(TextMatch::Regex("/Save.*Document/".to_string()));
         
         let button = screen.get_by_role_with_options("button", &options).await?;
         assert_eq!(button.text().await?, "Save Document");

@@ -1,5 +1,6 @@
 use serde::{Serialize, Serializer};
 use serde_json::Value;
+use regex;
 
 /// Represents text matching options for Testing Library queries
 #[derive(Debug, Clone)]
@@ -125,6 +126,36 @@ impl Serialize for CurrentState {
             CurrentState::Date => "date".serialize(serializer),
             CurrentState::Time => "time".serialize(serializer),
             CurrentState::Custom(s) => s.serialize(serializer),
+        }
+    }
+}
+
+impl TextMatch {
+    /// Validate that the regex pattern is properly formatted
+    pub fn validate_regex(&self) -> Result<(), String> {
+        match self {
+            TextMatch::Regex(pattern) => {
+                // Check if it looks like a regex literal
+                if !pattern.starts_with('/') {
+                    return Err("Regex pattern must start with '/' (e.g., '/pattern/' or '/pattern/i')".to_string());
+                }
+                
+                // Find the last '/' to separate pattern from flags
+                let last_slash = pattern.rfind('/');
+                if last_slash.is_none() || last_slash.unwrap() == 0 {
+                    return Err("Regex pattern must contain at least one '/' after the pattern (e.g., '/pattern/')".to_string());
+                }
+                
+                let last_slash_pos = last_slash.unwrap();
+                let inner_pattern = &pattern[1..last_slash_pos];
+                
+                // Validate the regex pattern (ignore flags for now)
+                regex::Regex::new(inner_pattern)
+                    .map_err(|e| format!("Invalid regex pattern: {}", e))?;
+                
+                Ok(())
+            }
+            _ => Ok(())
         }
     }
 }
@@ -259,11 +290,10 @@ mod tests {
     #[test]
     fn test_text_match_regex_serialization() {
         let options = ByRoleOptions::new()
-            .name(TextMatch::Regex("^submit.*".to_string()));
+            .name(TextMatch::Regex("/^submit.*/".to_string()));
         
         let json_value = options.to_json_value().unwrap();
-        assert_eq!(json_value["name"]["source"], "^submit.*");
-        assert_eq!(json_value["name"]["flags"], "");
+        assert_eq!(json_value["name"], "/^submit.*/");
     }
 
     #[test]
@@ -337,7 +367,7 @@ mod tests {
     fn test_serialization_example() {
         // Example usage: Creating complex options for a button query
         let options = ByRoleOptions::new()
-            .name(TextMatch::Regex("submit|send".to_string()))
+            .name(TextMatch::Regex("/submit|send/".to_string()))
             .pressed(false)
             .hidden(false)
             .suggest(true);
@@ -346,12 +376,33 @@ mod tests {
         println!("Serialized options: {}", json_string);
         
         // This would be used in JavaScript like:
-        // getByRole('button', {name: {source: "submit|send", flags: ""}, pressed: false, hidden: false, suggest: true})
+        // getByRole('button', {name: /submit|send/, pressed: false, hidden: false, suggest: true})
         
         let parsed: Value = serde_json::from_str(&json_string).unwrap();
         assert!(parsed.is_object());
         assert_eq!(parsed["pressed"], false);
         assert_eq!(parsed["hidden"], false);
         assert_eq!(parsed["suggest"], true);
+    }
+
+    #[test]
+    fn test_regex_validation() {
+        // Valid regex patterns
+        let valid_regex = TextMatch::Regex("/test.*/".to_string());
+        assert!(valid_regex.validate_regex().is_ok());
+
+        let valid_regex_with_flags = TextMatch::Regex("/test.*/i".to_string());
+        assert!(valid_regex_with_flags.validate_regex().is_ok());
+
+        // Invalid regex patterns
+        let invalid_no_slashes = TextMatch::Regex("test.*".to_string());
+        assert!(invalid_no_slashes.validate_regex().is_err());
+
+        let invalid_pattern = TextMatch::Regex("/[/".to_string());
+        assert!(invalid_pattern.validate_regex().is_err());
+
+        // Non-regex variants should always be valid
+        let exact_match = TextMatch::Exact("test".to_string());
+        assert!(exact_match.validate_regex().is_ok());
     }
 }

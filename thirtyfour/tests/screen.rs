@@ -1,11 +1,8 @@
 use crate::common::*;
-use assert_matches::assert_matches;
 use rstest::rstest;
-use std::time::Duration;
-use thirtyfour::components::{ElementResolverMulti, ElementResolverSingle};
-use thirtyfour::error::WebDriverErrorInner;
+use thirtyfour::screen::Screen;
 use thirtyfour::support::block_on;
-use thirtyfour::{components::SelectElement, prelude::*};
+use thirtyfour::{ prelude::*};
 
 mod common;
 
@@ -15,6 +12,12 @@ fn by_role(test_harness: TestHarness) -> WebDriverResult<()> {
     block_on(async {
         let url = sample_page_url();
         c.goto(&url).await?;
+        
+        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let tooltips = screen.query_all_by_role("tooltip").await?;
+
+        assert_eq!(tooltips.len(), 1);
+        assert_eq!(tooltips[0].text().await?, "Tooltip text");
         
         Ok(())
     })

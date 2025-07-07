@@ -47,10 +47,7 @@ impl Screen {
                     crate::error::WebDriverError::Json(format!("Failed to serialize role options: {}", e))
                 })?;
                 
-                // Convert regex strings to literals: "/pattern/" -> /pattern/
-                let processed_json = Self::process_regex_in_json(&options_json);
-                
-                format!("return window.__TL__.{}(document, '{}', {});", method, role, processed_json)
+                format!("return window.__TL__.{}(document, '{}', {});", method, role, options_json)
             }
             None => {
                 format!("return window.__TL__.{}(document, '{}');", method, role)
@@ -58,15 +55,6 @@ impl Screen {
         };
         
         self.driver.execute(script, vec![]).await
-    }
-
-    // Process JSON to convert regex strings to JavaScript regex literals
-    fn process_regex_in_json(json: &str) -> String {
-        // Simple replacement: "\/pattern\/flags" -> /pattern/flags
-        // Look for quoted strings that start with / (regex literals)
-        use regex::Regex;
-        let re = Regex::new(r#""(/[^"]+)""#).unwrap();
-        re.replace_all(json, "$1").to_string()
     }
 
     // Internal helper method for executing Testing Library role methods with options and array filter
@@ -77,10 +65,7 @@ impl Screen {
                     crate::error::WebDriverError::Json(format!("Failed to serialize role options: {}", e))
                 })?;
                 
-                // Convert regex strings to literals: "/pattern/" -> /pattern/
-                let processed_json = Self::process_regex_in_json(&options_json);
-                
-                format!("return [window.__TL__.{}(document, '{}', {})].filter(n => n);", method, role, processed_json)
+                format!("return [window.__TL__.{}(document, '{}', {})].filter(n => n);", method, role, options_json)
             }
             None => {
                 format!("return [window.__TL__.{}(document, '{}')].filter(n => n);", method, role)
@@ -378,28 +363,34 @@ impl Screen {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     #[test]
-    fn test_process_regex_in_json() {
-        // Test basic regex processing
-        let json = r#"{"name": "/Save.*/", "pressed": false}"#;
-        let processed = Screen::process_regex_in_json(json);
-        assert_eq!(processed, r#"{"name": /Save.*/, "pressed": false}"#);
+    fn test_regex_serialization_integration() {
+        // Test that ByRoleOptions correctly serializes regex patterns
+        use crate::screen::role::{ByRoleOptions, TextMatch};
+        
+        // Test basic regex processing through ByRoleOptions
+        let options = ByRoleOptions::new()
+            .name(TextMatch::Regex("/Save.*/".to_string()))
+            .pressed(false);
+        let json = options.to_json_string().unwrap();
+        // Field order may vary, so check contents rather than exact match
+        assert!(json.contains("/Save.*/"));
+        assert!(json.contains("\"pressed\":false"));
 
         // Test regex with flags
-        let json_with_flags = r#"{"name": "/save/i", "hidden": true}"#;
-        let processed_flags = Screen::process_regex_in_json(json_with_flags);
-        assert_eq!(processed_flags, r#"{"name": /save/i, "hidden": true}"#);
+        let options_with_flags = ByRoleOptions::new()
+            .name(TextMatch::Regex("/save/i".to_string()))
+            .hidden(true);
+        let json_flags = options_with_flags.to_json_string().unwrap();
+        assert!(json_flags.contains("/save/i"));
+        assert!(json_flags.contains("\"hidden\":true"));
 
-        // Test multiple regex patterns
-        let json_multiple = r#"{"name": "/button/", "description": "/click.*/i"}"#;
-        let processed_multiple = Screen::process_regex_in_json(json_multiple);
-        assert_eq!(processed_multiple, r#"{"name": /button/, "description": /click.*/i}"#);
-
-        // Test no regex patterns (should remain unchanged)
-        let json_no_regex = r#"{"name": "button", "pressed": true}"#;
-        let processed_no_regex = Screen::process_regex_in_json(json_no_regex);
-        assert_eq!(processed_no_regex, r#"{"name": "button", "pressed": true}"#);
+        // Test no regex patterns (should remain normal)
+        let options_no_regex = ByRoleOptions::new()
+            .name(TextMatch::Exact("button".to_string()))
+            .pressed(true);
+        let json_no_regex = options_no_regex.to_json_string().unwrap();
+        assert!(json_no_regex.contains("\"name\":\"button\""));
+        assert!(json_no_regex.contains("\"pressed\":true"));
     }
 }

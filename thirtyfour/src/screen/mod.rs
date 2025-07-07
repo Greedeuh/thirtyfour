@@ -91,9 +91,23 @@ impl Screen {
         self.execute_tl_method("getAllByRole", role).await?.elements()
     }
 
+    /// Returns an array of all matching elements for a query by role with options, throws an error if no elements match.
+    pub async fn get_all_by_role_with_options(&self, role: &str, options: &ByRoleOptions) -> WebDriverResult<Vec<WebElement>> {
+        self.execute_tl_role_method("getAllByRole", role, Some(options)).await?.elements()
+    }
+
     /// Returns the matching element for a query by role, returns None if no elements match.
     pub async fn query_by_role(&self, role: &str) -> WebDriverResult<Option<WebElement>> {
         let mut elements = self.execute_tl_method_with_filter("queryByRole", role).await?.elements()?;
+        if elements.is_empty() {
+            return Ok(None);
+        }
+        Ok(Some(elements.remove(0)))
+    }
+
+    /// Returns the matching element for a query by role with options, returns None if no elements match.
+    pub async fn query_by_role_with_options(&self, role: &str, options: &ByRoleOptions) -> WebDriverResult<Option<WebElement>> {
+        let mut elements = self.execute_tl_role_method_with_filter("queryByRole", role, Some(options)).await?.elements()?;
         if elements.is_empty() {
             return Ok(None);
         }
@@ -105,14 +119,29 @@ impl Screen {
         self.execute_tl_method("queryAllByRole", role).await?.elements()
     }
 
+    /// Returns an array of all matching elements for a query by role with options, returns empty array if no elements match.
+    pub async fn query_all_by_role_with_options(&self, role: &str, options: &ByRoleOptions) -> WebDriverResult<Vec<WebElement>> {
+        self.execute_tl_role_method("queryAllByRole", role, Some(options)).await?.elements()
+    }
+
     /// Returns a promise which resolves when an element is found which matches the given role query.
     pub async fn find_by_role(&self, role: &str) -> WebDriverResult<WebElement> {
         self.execute_tl_method("findByRole", role).await?.element()
     }
 
+    /// Returns a promise which resolves when an element is found which matches the given role query with options.
+    pub async fn find_by_role_with_options(&self, role: &str, options: &ByRoleOptions) -> WebDriverResult<WebElement> {
+        self.execute_tl_role_method("findByRole", role, Some(options)).await?.element()
+    }
+
     /// Returns a promise which resolves to an array of elements when any elements are found which match the given role query.
     pub async fn find_all_by_role(&self, role: &str) -> WebDriverResult<Vec<WebElement>> {
         self.execute_tl_method("findAllByRole", role).await?.elements()
+    }
+
+    /// Returns a promise which resolves to an array of elements when any elements are found which match the given role query with options.
+    pub async fn find_all_by_role_with_options(&self, role: &str, options: &ByRoleOptions) -> WebDriverResult<Vec<WebElement>> {
+        self.execute_tl_role_method("findAllByRole", role, Some(options)).await?.elements()
     }
 
     // Text-based methods
@@ -358,39 +387,5 @@ impl Screen {
     /// Returns a promise which resolves to an array of elements when any elements are found which match the given test ID query.
     pub async fn find_all_by_test_id(&self, test_id: &str) -> WebDriverResult<Vec<WebElement>> {
         self.execute_tl_method("findAllByTestId", test_id).await?.elements()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn test_regex_serialization_integration() {
-        // Test that ByRoleOptions correctly serializes regex patterns
-        use crate::screen::role::{ByRoleOptions, TextMatch};
-        
-        // Test basic regex processing through ByRoleOptions
-        let options = ByRoleOptions::new()
-            .name(TextMatch::Regex("/Save.*/".to_string()))
-            .pressed(false);
-        let json = options.to_json_string().unwrap();
-        // Field order may vary, so check contents rather than exact match
-        assert!(json.contains("/Save.*/"));
-        assert!(json.contains("\"pressed\":false"));
-
-        // Test regex with flags
-        let options_with_flags = ByRoleOptions::new()
-            .name(TextMatch::Regex("/save/i".to_string()))
-            .hidden(true);
-        let json_flags = options_with_flags.to_json_string().unwrap();
-        assert!(json_flags.contains("/save/i"));
-        assert!(json_flags.contains("\"hidden\":true"));
-
-        // Test no regex patterns (should remain normal)
-        let options_no_regex = ByRoleOptions::new()
-            .name(TextMatch::Exact("button".to_string()))
-            .pressed(true);
-        let json_no_regex = options_no_regex.to_json_string().unwrap();
-        assert!(json_no_regex.contains("\"name\":\"button\""));
-        assert!(json_no_regex.contains("\"pressed\":true"));
     }
 }

@@ -1,10 +1,28 @@
+/// Alt text query options and utilities
+pub mod alt_text;
+/// Display value query options and utilities
+pub mod display_value;
 /// Label text query options and utilities
 pub mod label_text;
+/// Placeholder text query options and utilities
+pub mod placeholder_text;
 /// Role-based query options and utilities
 pub mod role;
+/// Test ID query options and utilities
+pub mod test_id;
+/// Text query options and utilities
+pub mod text;
+/// Title query options and utilities
+pub mod title;
 
+pub use alt_text::*;
+pub use display_value::*;
 pub use label_text::*;
+pub use placeholder_text::*;
 pub use role::*;
+pub use test_id::*;
+pub use text::*;
+pub use title::*;
 
 use std::fs;
 
@@ -162,6 +180,342 @@ impl Screen {
         self.driver.execute(script, vec![]).await
     }
 
+    // Internal helper method for executing Testing Library text methods with options
+    async fn execute_tl_text_method(
+        &self,
+        method: &str,
+        text: &str,
+        options: Option<&ByTextOptions>,
+    ) -> WebDriverResult<ScriptRet> {
+        let script = match options {
+            Some(opts) => {
+                let options_json = opts.to_json_string().map_err(|e| {
+                    crate::error::WebDriverError::Json(format!(
+                        "Failed to serialize text options: {}",
+                        e
+                    ))
+                })?;
+
+                format!("return window.__TL__.{}(document, '{}', {});", method, text, options_json)
+            }
+            None => {
+                format!("return window.__TL__.{}(document, '{}');", method, text)
+            }
+        };
+
+        self.driver.execute(script, vec![]).await
+    }
+
+    // Internal helper method for executing Testing Library text methods with options and array filter
+    async fn execute_tl_text_method_with_filter(
+        &self,
+        method: &str,
+        text: &str,
+        options: Option<&ByTextOptions>,
+    ) -> WebDriverResult<ScriptRet> {
+        let script = match options {
+            Some(opts) => {
+                let options_json = opts.to_json_string().map_err(|e| {
+                    crate::error::WebDriverError::Json(format!(
+                        "Failed to serialize text options: {}",
+                        e
+                    ))
+                })?;
+
+                format!(
+                    "return [window.__TL__.{}(document, '{}', {})].filter(n => n);",
+                    method, text, options_json
+                )
+            }
+            None => {
+                format!("return [window.__TL__.{}(document, '{}')].filter(n => n);", method, text)
+            }
+        };
+
+        self.driver.execute(script, vec![]).await
+    }
+
+    // Internal helper method for executing Testing Library placeholder text methods with options
+    async fn execute_tl_placeholder_text_method(
+        &self,
+        method: &str,
+        text: &str,
+        options: Option<&ByPlaceholderTextOptions>,
+    ) -> WebDriverResult<ScriptRet> {
+        let script = match options {
+            Some(opts) => {
+                let options_json = opts.to_json_string().map_err(|e| {
+                    crate::error::WebDriverError::Json(format!(
+                        "Failed to serialize placeholder text options: {}",
+                        e
+                    ))
+                })?;
+
+                format!("return window.__TL__.{}(document, '{}', {});", method, text, options_json)
+            }
+            None => {
+                format!("return window.__TL__.{}(document, '{}');", method, text)
+            }
+        };
+
+        self.driver.execute(script, vec![]).await
+    }
+
+    // Internal helper method for executing Testing Library placeholder text methods with options and array filter
+    async fn execute_tl_placeholder_text_method_with_filter(
+        &self,
+        method: &str,
+        text: &str,
+        options: Option<&ByPlaceholderTextOptions>,
+    ) -> WebDriverResult<ScriptRet> {
+        let script = match options {
+            Some(opts) => {
+                let options_json = opts.to_json_string().map_err(|e| {
+                    crate::error::WebDriverError::Json(format!(
+                        "Failed to serialize placeholder text options: {}",
+                        e
+                    ))
+                })?;
+
+                format!(
+                    "return [window.__TL__.{}(document, '{}', {})].filter(n => n);",
+                    method, text, options_json
+                )
+            }
+            None => {
+                format!("return [window.__TL__.{}(document, '{}')].filter(n => n);", method, text)
+            }
+        };
+
+        self.driver.execute(script, vec![]).await
+    }
+
+    // Internal helper method for executing Testing Library display value methods with options
+    async fn execute_tl_display_value_method(
+        &self,
+        method: &str,
+        value: &str,
+        options: Option<&ByDisplayValueOptions>,
+    ) -> WebDriverResult<ScriptRet> {
+        let script = match options {
+            Some(opts) => {
+                let options_json = opts.to_json_string().map_err(|e| {
+                    crate::error::WebDriverError::Json(format!(
+                        "Failed to serialize display value options: {}",
+                        e
+                    ))
+                })?;
+
+                format!("return window.__TL__.{}(document, '{}', {});", method, value, options_json)
+            }
+            None => {
+                format!("return window.__TL__.{}(document, '{}');", method, value)
+            }
+        };
+
+        self.driver.execute(script, vec![]).await
+    }
+
+    // Internal helper method for executing Testing Library display value methods with options and array filter
+    async fn execute_tl_display_value_method_with_filter(
+        &self,
+        method: &str,
+        value: &str,
+        options: Option<&ByDisplayValueOptions>,
+    ) -> WebDriverResult<ScriptRet> {
+        let script = match options {
+            Some(opts) => {
+                let options_json = opts.to_json_string().map_err(|e| {
+                    crate::error::WebDriverError::Json(format!(
+                        "Failed to serialize display value options: {}",
+                        e
+                    ))
+                })?;
+
+                format!(
+                    "return [window.__TL__.{}(document, '{}', {})].filter(n => n);",
+                    method, value, options_json
+                )
+            }
+            None => {
+                format!("return [window.__TL__.{}(document, '{}')].filter(n => n);", method, value)
+            }
+        };
+
+        self.driver.execute(script, vec![]).await
+    }
+
+    // Internal helper method for executing Testing Library alt text methods with options
+    async fn execute_tl_alt_text_method(
+        &self,
+        method: &str,
+        text: &str,
+        options: Option<&ByAltTextOptions>,
+    ) -> WebDriverResult<ScriptRet> {
+        let script = match options {
+            Some(opts) => {
+                let options_json = opts.to_json_string().map_err(|e| {
+                    crate::error::WebDriverError::Json(format!(
+                        "Failed to serialize alt text options: {}",
+                        e
+                    ))
+                })?;
+
+                format!("return window.__TL__.{}(document, '{}', {});", method, text, options_json)
+            }
+            None => {
+                format!("return window.__TL__.{}(document, '{}');", method, text)
+            }
+        };
+
+        self.driver.execute(script, vec![]).await
+    }
+
+    // Internal helper method for executing Testing Library alt text methods with options and array filter
+    async fn execute_tl_alt_text_method_with_filter(
+        &self,
+        method: &str,
+        text: &str,
+        options: Option<&ByAltTextOptions>,
+    ) -> WebDriverResult<ScriptRet> {
+        let script = match options {
+            Some(opts) => {
+                let options_json = opts.to_json_string().map_err(|e| {
+                    crate::error::WebDriverError::Json(format!(
+                        "Failed to serialize alt text options: {}",
+                        e
+                    ))
+                })?;
+
+                format!(
+                    "return [window.__TL__.{}(document, '{}', {})].filter(n => n);",
+                    method, text, options_json
+                )
+            }
+            None => {
+                format!("return [window.__TL__.{}(document, '{}')].filter(n => n);", method, text)
+            }
+        };
+
+        self.driver.execute(script, vec![]).await
+    }
+
+    // Internal helper method for executing Testing Library title methods with options
+    async fn execute_tl_title_method(
+        &self,
+        method: &str,
+        title: &str,
+        options: Option<&ByTitleOptions>,
+    ) -> WebDriverResult<ScriptRet> {
+        let script = match options {
+            Some(opts) => {
+                let options_json = opts.to_json_string().map_err(|e| {
+                    crate::error::WebDriverError::Json(format!(
+                        "Failed to serialize title options: {}",
+                        e
+                    ))
+                })?;
+
+                format!("return window.__TL__.{}(document, '{}', {});", method, title, options_json)
+            }
+            None => {
+                format!("return window.__TL__.{}(document, '{}');", method, title)
+            }
+        };
+
+        self.driver.execute(script, vec![]).await
+    }
+
+    // Internal helper method for executing Testing Library title methods with options and array filter
+    async fn execute_tl_title_method_with_filter(
+        &self,
+        method: &str,
+        title: &str,
+        options: Option<&ByTitleOptions>,
+    ) -> WebDriverResult<ScriptRet> {
+        let script = match options {
+            Some(opts) => {
+                let options_json = opts.to_json_string().map_err(|e| {
+                    crate::error::WebDriverError::Json(format!(
+                        "Failed to serialize title options: {}",
+                        e
+                    ))
+                })?;
+
+                format!(
+                    "return [window.__TL__.{}(document, '{}', {})].filter(n => n);",
+                    method, title, options_json
+                )
+            }
+            None => {
+                format!("return [window.__TL__.{}(document, '{}')].filter(n => n);", method, title)
+            }
+        };
+
+        self.driver.execute(script, vec![]).await
+    }
+
+    // Internal helper method for executing Testing Library test ID methods with options
+    async fn execute_tl_test_id_method(
+        &self,
+        method: &str,
+        test_id: &str,
+        options: Option<&ByTestIdOptions>,
+    ) -> WebDriverResult<ScriptRet> {
+        let script = match options {
+            Some(opts) => {
+                let options_json = opts.to_json_string().map_err(|e| {
+                    crate::error::WebDriverError::Json(format!(
+                        "Failed to serialize test ID options: {}",
+                        e
+                    ))
+                })?;
+
+                format!(
+                    "return window.__TL__.{}(document, '{}', {});",
+                    method, test_id, options_json
+                )
+            }
+            None => {
+                format!("return window.__TL__.{}(document, '{}');", method, test_id)
+            }
+        };
+
+        self.driver.execute(script, vec![]).await
+    }
+
+    // Internal helper method for executing Testing Library test ID methods with options and array filter
+    async fn execute_tl_test_id_method_with_filter(
+        &self,
+        method: &str,
+        test_id: &str,
+        options: Option<&ByTestIdOptions>,
+    ) -> WebDriverResult<ScriptRet> {
+        let script = match options {
+            Some(opts) => {
+                let options_json = opts.to_json_string().map_err(|e| {
+                    crate::error::WebDriverError::Json(format!(
+                        "Failed to serialize test ID options: {}",
+                        e
+                    ))
+                })?;
+
+                format!(
+                    "return [window.__TL__.{}(document, '{}', {})].filter(n => n);",
+                    method, test_id, options_json
+                )
+            }
+            None => {
+                format!(
+                    "return [window.__TL__.{}(document, '{}')].filter(n => n);",
+                    method, test_id
+                )
+            }
+        };
+
+        self.driver.execute(script, vec![]).await
+    }
+
     // Role-based methods
     /// Returns the matching element for a query by role, throws an error if no elements match or if more than one match is found.
     pub async fn get_by_role(&self, role: &str) -> WebDriverResult<WebElement> {
@@ -265,9 +619,27 @@ impl Screen {
         self.execute_tl_method("getByText", text).await?.element()
     }
 
+    /// Returns the matching element for a query by text content with options, throws an error if no elements match or if more than one match is found.
+    pub async fn get_by_text_with_options(
+        &self,
+        text: &str,
+        options: &ByTextOptions,
+    ) -> WebDriverResult<WebElement> {
+        self.execute_tl_text_method("getByText", text, Some(options)).await?.element()
+    }
+
     /// Returns an array of all matching elements for a query by text content, throws an error if no elements match.
     pub async fn get_all_by_text(&self, text: &str) -> WebDriverResult<Vec<WebElement>> {
         self.execute_tl_method("getAllByText", text).await?.elements()
+    }
+
+    /// Returns an array of all matching elements for a query by text content with options, throws an error if no elements match.
+    pub async fn get_all_by_text_with_options(
+        &self,
+        text: &str,
+        options: &ByTextOptions,
+    ) -> WebDriverResult<Vec<WebElement>> {
+        self.execute_tl_text_method("getAllByText", text, Some(options)).await?.elements()
     }
 
     /// Returns the matching element for a query by text content, returns None if no elements match.
@@ -280,9 +652,34 @@ impl Screen {
         Ok(Some(elements.remove(0)))
     }
 
+    /// Returns the matching element for a query by text content with options, returns None if no elements match.
+    pub async fn query_by_text_with_options(
+        &self,
+        text: &str,
+        options: &ByTextOptions,
+    ) -> WebDriverResult<Option<WebElement>> {
+        let mut elements = self
+            .execute_tl_text_method_with_filter("queryByText", text, Some(options))
+            .await?
+            .elements()?;
+        if elements.is_empty() {
+            return Ok(None);
+        }
+        Ok(Some(elements.remove(0)))
+    }
+
     /// Returns an array of all matching elements for a query by text content, returns empty array if no elements match.
     pub async fn query_all_by_text(&self, text: &str) -> WebDriverResult<Vec<WebElement>> {
         self.execute_tl_method("queryAllByText", text).await?.elements()
+    }
+
+    /// Returns an array of all matching elements for a query by text content with options, returns empty array if no elements match.
+    pub async fn query_all_by_text_with_options(
+        &self,
+        text: &str,
+        options: &ByTextOptions,
+    ) -> WebDriverResult<Vec<WebElement>> {
+        self.execute_tl_text_method("queryAllByText", text, Some(options)).await?.elements()
     }
 
     /// Returns a promise which resolves when an element is found which matches the given text content query.
@@ -290,9 +687,27 @@ impl Screen {
         self.execute_tl_method("findByText", text).await?.element()
     }
 
+    /// Returns a promise which resolves when an element is found which matches the given text content query with options.
+    pub async fn find_by_text_with_options(
+        &self,
+        text: &str,
+        options: &ByTextOptions,
+    ) -> WebDriverResult<WebElement> {
+        self.execute_tl_text_method("findByText", text, Some(options)).await?.element()
+    }
+
     /// Returns a promise which resolves to an array of elements when any elements are found which match the given text content query.
     pub async fn find_all_by_text(&self, text: &str) -> WebDriverResult<Vec<WebElement>> {
         self.execute_tl_method("findAllByText", text).await?.elements()
+    }
+
+    /// Returns a promise which resolves to an array of elements when any elements are found which match the given text content query with options.
+    pub async fn find_all_by_text_with_options(
+        &self,
+        text: &str,
+        options: &ByTextOptions,
+    ) -> WebDriverResult<Vec<WebElement>> {
+        self.execute_tl_text_method("findAllByText", text, Some(options)).await?.elements()
     }
 
     // Label text methods
@@ -402,12 +817,34 @@ impl Screen {
         self.execute_tl_method("getByPlaceholderText", text).await?.element()
     }
 
+    /// Returns the matching element for a query by placeholder text with options, throws an error if no elements match or if more than one match is found.
+    pub async fn get_by_placeholder_text_with_options(
+        &self,
+        text: &str,
+        options: &ByPlaceholderTextOptions,
+    ) -> WebDriverResult<WebElement> {
+        self.execute_tl_placeholder_text_method("getByPlaceholderText", text, Some(options))
+            .await?
+            .element()
+    }
+
     /// Returns an array of all matching elements for a query by placeholder text, throws an error if no elements match.
     pub async fn get_all_by_placeholder_text(
         &self,
         text: &str,
     ) -> WebDriverResult<Vec<WebElement>> {
         self.execute_tl_method("getAllByPlaceholderText", text).await?.elements()
+    }
+
+    /// Returns an array of all matching elements for a query by placeholder text with options, throws an error if no elements match.
+    pub async fn get_all_by_placeholder_text_with_options(
+        &self,
+        text: &str,
+        options: &ByPlaceholderTextOptions,
+    ) -> WebDriverResult<Vec<WebElement>> {
+        self.execute_tl_placeholder_text_method("getAllByPlaceholderText", text, Some(options))
+            .await?
+            .elements()
     }
 
     /// Returns the matching element for a query by placeholder text, returns None if no elements match.
@@ -423,6 +860,26 @@ impl Screen {
         Ok(Some(elements.remove(0)))
     }
 
+    /// Returns the matching element for a query by placeholder text with options, returns None if no elements match.
+    pub async fn query_by_placeholder_text_with_options(
+        &self,
+        text: &str,
+        options: &ByPlaceholderTextOptions,
+    ) -> WebDriverResult<Option<WebElement>> {
+        let mut elements = self
+            .execute_tl_placeholder_text_method_with_filter(
+                "queryByPlaceholderText",
+                text,
+                Some(options),
+            )
+            .await?
+            .elements()?;
+        if elements.is_empty() {
+            return Ok(None);
+        }
+        Ok(Some(elements.remove(0)))
+    }
+
     /// Returns an array of all matching elements for a query by placeholder text, returns empty array if no elements match.
     pub async fn query_all_by_placeholder_text(
         &self,
@@ -431,9 +888,31 @@ impl Screen {
         self.execute_tl_method("queryAllByPlaceholderText", text).await?.elements()
     }
 
+    /// Returns an array of all matching elements for a query by placeholder text with options, returns empty array if no elements match.
+    pub async fn query_all_by_placeholder_text_with_options(
+        &self,
+        text: &str,
+        options: &ByPlaceholderTextOptions,
+    ) -> WebDriverResult<Vec<WebElement>> {
+        self.execute_tl_placeholder_text_method("queryAllByPlaceholderText", text, Some(options))
+            .await?
+            .elements()
+    }
+
     /// Returns a promise which resolves when an element is found which matches the given placeholder text query.
     pub async fn find_by_placeholder_text(&self, text: &str) -> WebDriverResult<WebElement> {
         self.execute_tl_method("findByPlaceholderText", text).await?.element()
+    }
+
+    /// Returns a promise which resolves when an element is found which matches the given placeholder text query with options.
+    pub async fn find_by_placeholder_text_with_options(
+        &self,
+        text: &str,
+        options: &ByPlaceholderTextOptions,
+    ) -> WebDriverResult<WebElement> {
+        self.execute_tl_placeholder_text_method("findByPlaceholderText", text, Some(options))
+            .await?
+            .element()
     }
 
     /// Returns a promise which resolves to an array of elements when any elements are found which match the given placeholder text query.
@@ -444,10 +923,32 @@ impl Screen {
         self.execute_tl_method("findAllByPlaceholderText", text).await?.elements()
     }
 
+    /// Returns a promise which resolves to an array of elements when any elements are found which match the given placeholder text query with options.
+    pub async fn find_all_by_placeholder_text_with_options(
+        &self,
+        text: &str,
+        options: &ByPlaceholderTextOptions,
+    ) -> WebDriverResult<Vec<WebElement>> {
+        self.execute_tl_placeholder_text_method("findAllByPlaceholderText", text, Some(options))
+            .await?
+            .elements()
+    }
+
     // Display value methods
     /// Returns the matching element for a query by display value, throws an error if no elements match or if more than one match is found.
     pub async fn get_by_display_value(&self, value: &str) -> WebDriverResult<WebElement> {
         self.execute_tl_method("getByDisplayValue", value).await?.element()
+    }
+
+    /// Returns the matching element for a query by display value with options, throws an error if no elements match or if more than one match is found.
+    pub async fn get_by_display_value_with_options(
+        &self,
+        value: &str,
+        options: &ByDisplayValueOptions,
+    ) -> WebDriverResult<WebElement> {
+        self.execute_tl_display_value_method("getByDisplayValue", value, Some(options))
+            .await?
+            .element()
     }
 
     /// Returns an array of all matching elements for a query by display value, throws an error if no elements match.
@@ -455,10 +956,41 @@ impl Screen {
         self.execute_tl_method("getAllByDisplayValue", value).await?.elements()
     }
 
+    /// Returns an array of all matching elements for a query by display value with options, throws an error if no elements match.
+    pub async fn get_all_by_display_value_with_options(
+        &self,
+        value: &str,
+        options: &ByDisplayValueOptions,
+    ) -> WebDriverResult<Vec<WebElement>> {
+        self.execute_tl_display_value_method("getAllByDisplayValue", value, Some(options))
+            .await?
+            .elements()
+    }
+
     /// Returns the matching element for a query by display value, returns None if no elements match.
     pub async fn query_by_display_value(&self, value: &str) -> WebDriverResult<Option<WebElement>> {
         let mut elements =
             self.execute_tl_method_with_filter("queryByDisplayValue", value).await?.elements()?;
+        if elements.is_empty() {
+            return Ok(None);
+        }
+        Ok(Some(elements.remove(0)))
+    }
+
+    /// Returns the matching element for a query by display value with options, returns None if no elements match.
+    pub async fn query_by_display_value_with_options(
+        &self,
+        value: &str,
+        options: &ByDisplayValueOptions,
+    ) -> WebDriverResult<Option<WebElement>> {
+        let mut elements = self
+            .execute_tl_display_value_method_with_filter(
+                "queryByDisplayValue",
+                value,
+                Some(options),
+            )
+            .await?
+            .elements()?;
         if elements.is_empty() {
             return Ok(None);
         }
@@ -473,14 +1005,47 @@ impl Screen {
         self.execute_tl_method("queryAllByDisplayValue", value).await?.elements()
     }
 
+    /// Returns an array of all matching elements for a query by display value with options, returns empty array if no elements match.
+    pub async fn query_all_by_display_value_with_options(
+        &self,
+        value: &str,
+        options: &ByDisplayValueOptions,
+    ) -> WebDriverResult<Vec<WebElement>> {
+        self.execute_tl_display_value_method("queryAllByDisplayValue", value, Some(options))
+            .await?
+            .elements()
+    }
+
     /// Returns a promise which resolves when an element is found which matches the given display value query.
     pub async fn find_by_display_value(&self, value: &str) -> WebDriverResult<WebElement> {
         self.execute_tl_method("findByDisplayValue", value).await?.element()
     }
 
+    /// Returns a promise which resolves when an element is found which matches the given display value query with options.
+    pub async fn find_by_display_value_with_options(
+        &self,
+        value: &str,
+        options: &ByDisplayValueOptions,
+    ) -> WebDriverResult<WebElement> {
+        self.execute_tl_display_value_method("findByDisplayValue", value, Some(options))
+            .await?
+            .element()
+    }
+
     /// Returns a promise which resolves to an array of elements when any elements are found which match the given display value query.
     pub async fn find_all_by_display_value(&self, value: &str) -> WebDriverResult<Vec<WebElement>> {
         self.execute_tl_method("findAllByDisplayValue", value).await?.elements()
+    }
+
+    /// Returns a promise which resolves to an array of elements when any elements are found which match the given display value query with options.
+    pub async fn find_all_by_display_value_with_options(
+        &self,
+        value: &str,
+        options: &ByDisplayValueOptions,
+    ) -> WebDriverResult<Vec<WebElement>> {
+        self.execute_tl_display_value_method("findAllByDisplayValue", value, Some(options))
+            .await?
+            .elements()
     }
 
     // Alt text methods
@@ -489,9 +1054,27 @@ impl Screen {
         self.execute_tl_method("getByAltText", text).await?.element()
     }
 
+    /// Returns the matching element for a query by alt text with options, throws an error if no elements match or if more than one match is found.
+    pub async fn get_by_alt_text_with_options(
+        &self,
+        text: &str,
+        options: &ByAltTextOptions,
+    ) -> WebDriverResult<WebElement> {
+        self.execute_tl_alt_text_method("getByAltText", text, Some(options)).await?.element()
+    }
+
     /// Returns an array of all matching elements for a query by alt text, throws an error if no elements match.
     pub async fn get_all_by_alt_text(&self, text: &str) -> WebDriverResult<Vec<WebElement>> {
         self.execute_tl_method("getAllByAltText", text).await?.elements()
+    }
+
+    /// Returns an array of all matching elements for a query by alt text with options, throws an error if no elements match.
+    pub async fn get_all_by_alt_text_with_options(
+        &self,
+        text: &str,
+        options: &ByAltTextOptions,
+    ) -> WebDriverResult<Vec<WebElement>> {
+        self.execute_tl_alt_text_method("getAllByAltText", text, Some(options)).await?.elements()
     }
 
     /// Returns the matching element for a query by alt text, returns None if no elements match.
@@ -504,9 +1087,34 @@ impl Screen {
         Ok(Some(elements.remove(0)))
     }
 
+    /// Returns the matching element for a query by alt text with options, returns None if no elements match.
+    pub async fn query_by_alt_text_with_options(
+        &self,
+        text: &str,
+        options: &ByAltTextOptions,
+    ) -> WebDriverResult<Option<WebElement>> {
+        let mut elements = self
+            .execute_tl_alt_text_method_with_filter("queryByAltText", text, Some(options))
+            .await?
+            .elements()?;
+        if elements.is_empty() {
+            return Ok(None);
+        }
+        Ok(Some(elements.remove(0)))
+    }
+
     /// Returns an array of all matching elements for a query by alt text, returns empty array if no elements match.
     pub async fn query_all_by_alt_text(&self, text: &str) -> WebDriverResult<Vec<WebElement>> {
         self.execute_tl_method("queryAllByAltText", text).await?.elements()
+    }
+
+    /// Returns an array of all matching elements for a query by alt text with options, returns empty array if no elements match.
+    pub async fn query_all_by_alt_text_with_options(
+        &self,
+        text: &str,
+        options: &ByAltTextOptions,
+    ) -> WebDriverResult<Vec<WebElement>> {
+        self.execute_tl_alt_text_method("queryAllByAltText", text, Some(options)).await?.elements()
     }
 
     /// Returns a promise which resolves when an element is found which matches the given alt text query.
@@ -514,9 +1122,27 @@ impl Screen {
         self.execute_tl_method("findByAltText", text).await?.element()
     }
 
+    /// Returns a promise which resolves when an element is found which matches the given alt text query with options.
+    pub async fn find_by_alt_text_with_options(
+        &self,
+        text: &str,
+        options: &ByAltTextOptions,
+    ) -> WebDriverResult<WebElement> {
+        self.execute_tl_alt_text_method("findByAltText", text, Some(options)).await?.element()
+    }
+
     /// Returns a promise which resolves to an array of elements when any elements are found which match the given alt text query.
     pub async fn find_all_by_alt_text(&self, text: &str) -> WebDriverResult<Vec<WebElement>> {
         self.execute_tl_method("findAllByAltText", text).await?.elements()
+    }
+
+    /// Returns a promise which resolves to an array of elements when any elements are found which match the given alt text query with options.
+    pub async fn find_all_by_alt_text_with_options(
+        &self,
+        text: &str,
+        options: &ByAltTextOptions,
+    ) -> WebDriverResult<Vec<WebElement>> {
+        self.execute_tl_alt_text_method("findAllByAltText", text, Some(options)).await?.elements()
     }
 
     // Title methods
@@ -525,9 +1151,27 @@ impl Screen {
         self.execute_tl_method("getByTitle", title).await?.element()
     }
 
+    /// Returns the matching element for a query by title with options, throws an error if no elements match or if more than one match is found.
+    pub async fn get_by_title_with_options(
+        &self,
+        title: &str,
+        options: &ByTitleOptions,
+    ) -> WebDriverResult<WebElement> {
+        self.execute_tl_title_method("getByTitle", title, Some(options)).await?.element()
+    }
+
     /// Returns an array of all matching elements for a query by title, throws an error if no elements match.
     pub async fn get_all_by_title(&self, title: &str) -> WebDriverResult<Vec<WebElement>> {
         self.execute_tl_method("getAllByTitle", title).await?.elements()
+    }
+
+    /// Returns an array of all matching elements for a query by title with options, throws an error if no elements match.
+    pub async fn get_all_by_title_with_options(
+        &self,
+        title: &str,
+        options: &ByTitleOptions,
+    ) -> WebDriverResult<Vec<WebElement>> {
+        self.execute_tl_title_method("getAllByTitle", title, Some(options)).await?.elements()
     }
 
     /// Returns the matching element for a query by title, returns None if no elements match.
@@ -540,9 +1184,34 @@ impl Screen {
         Ok(Some(elements.remove(0)))
     }
 
+    /// Returns the matching element for a query by title with options, returns None if no elements match.
+    pub async fn query_by_title_with_options(
+        &self,
+        title: &str,
+        options: &ByTitleOptions,
+    ) -> WebDriverResult<Option<WebElement>> {
+        let mut elements = self
+            .execute_tl_title_method_with_filter("queryByTitle", title, Some(options))
+            .await?
+            .elements()?;
+        if elements.is_empty() {
+            return Ok(None);
+        }
+        Ok(Some(elements.remove(0)))
+    }
+
     /// Returns an array of all matching elements for a query by title, returns empty array if no elements match.
     pub async fn query_all_by_title(&self, title: &str) -> WebDriverResult<Vec<WebElement>> {
         self.execute_tl_method("queryAllByTitle", title).await?.elements()
+    }
+
+    /// Returns an array of all matching elements for a query by title with options, returns empty array if no elements match.
+    pub async fn query_all_by_title_with_options(
+        &self,
+        title: &str,
+        options: &ByTitleOptions,
+    ) -> WebDriverResult<Vec<WebElement>> {
+        self.execute_tl_title_method("queryAllByTitle", title, Some(options)).await?.elements()
     }
 
     /// Returns a promise which resolves when an element is found which matches the given title query.
@@ -550,9 +1219,27 @@ impl Screen {
         self.execute_tl_method("findByTitle", title).await?.element()
     }
 
+    /// Returns a promise which resolves when an element is found which matches the given title query with options.
+    pub async fn find_by_title_with_options(
+        &self,
+        title: &str,
+        options: &ByTitleOptions,
+    ) -> WebDriverResult<WebElement> {
+        self.execute_tl_title_method("findByTitle", title, Some(options)).await?.element()
+    }
+
     /// Returns a promise which resolves to an array of elements when any elements are found which match the given title query.
     pub async fn find_all_by_title(&self, title: &str) -> WebDriverResult<Vec<WebElement>> {
         self.execute_tl_method("findAllByTitle", title).await?.elements()
+    }
+
+    /// Returns a promise which resolves to an array of elements when any elements are found which match the given title query with options.
+    pub async fn find_all_by_title_with_options(
+        &self,
+        title: &str,
+        options: &ByTitleOptions,
+    ) -> WebDriverResult<Vec<WebElement>> {
+        self.execute_tl_title_method("findAllByTitle", title, Some(options)).await?.elements()
     }
 
     // Test ID methods
@@ -589,5 +1276,66 @@ impl Screen {
     /// Returns a promise which resolves to an array of elements when any elements are found which match the given test ID query.
     pub async fn find_all_by_test_id(&self, test_id: &str) -> WebDriverResult<Vec<WebElement>> {
         self.execute_tl_method("findAllByTestId", test_id).await?.elements()
+    }
+
+    /// Returns the matching element for a query by test ID with options, throws an error if no elements match or if more than one match is found.
+    pub async fn get_by_test_id_with_options(
+        &self,
+        test_id: &str,
+        options: &ByTestIdOptions,
+    ) -> WebDriverResult<WebElement> {
+        self.execute_tl_test_id_method("getByTestId", test_id, Some(options)).await?.element()
+    }
+
+    /// Returns an array of all matching elements for a query by test ID with options, throws an error if no elements match.
+    pub async fn get_all_by_test_id_with_options(
+        &self,
+        test_id: &str,
+        options: &ByTestIdOptions,
+    ) -> WebDriverResult<Vec<WebElement>> {
+        self.execute_tl_test_id_method("getAllByTestId", test_id, Some(options)).await?.elements()
+    }
+
+    /// Returns the matching element for a query by test ID with options, returns None if no elements match.
+    pub async fn query_by_test_id_with_options(
+        &self,
+        test_id: &str,
+        options: &ByTestIdOptions,
+    ) -> WebDriverResult<Option<WebElement>> {
+        let mut elements = self
+            .execute_tl_test_id_method_with_filter("queryByTestId", test_id, Some(options))
+            .await?
+            .elements()?;
+        if elements.is_empty() {
+            return Ok(None);
+        }
+        Ok(Some(elements.remove(0)))
+    }
+
+    /// Returns an array of all matching elements for a query by test ID with options, returns empty array if no elements match.
+    pub async fn query_all_by_test_id_with_options(
+        &self,
+        test_id: &str,
+        options: &ByTestIdOptions,
+    ) -> WebDriverResult<Vec<WebElement>> {
+        self.execute_tl_test_id_method("queryAllByTestId", test_id, Some(options)).await?.elements()
+    }
+
+    /// Returns a promise which resolves when an element is found which matches the given test ID query with options.
+    pub async fn find_by_test_id_with_options(
+        &self,
+        test_id: &str,
+        options: &ByTestIdOptions,
+    ) -> WebDriverResult<WebElement> {
+        self.execute_tl_test_id_method("findByTestId", test_id, Some(options)).await?.element()
+    }
+
+    /// Returns a promise which resolves to an array of elements when any elements are found which match the given test ID query with options.
+    pub async fn find_all_by_test_id_with_options(
+        &self,
+        test_id: &str,
+        options: &ByTestIdOptions,
+    ) -> WebDriverResult<Vec<WebElement>> {
+        self.execute_tl_test_id_method("findAllByTestId", test_id, Some(options)).await?.elements()
     }
 }

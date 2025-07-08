@@ -167,3 +167,7 @@ pub fn drag_to_url() -> String {
 pub fn by_role_options_page_url() -> String {
     format!("http://localhost:{PORT}/by_role_options.html")
 }
+
+pub fn by_label_text_options_page_url() -> String {
+    format!("http://localhost:{PORT}/by_label_text_options.html")
+}

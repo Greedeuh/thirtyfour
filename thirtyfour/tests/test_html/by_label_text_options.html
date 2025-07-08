@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ByLabelText Options Test Page</title>
+</head>
+<body>
+    <!-- Selector option testing - Multiple inputs with same label text -->
+    <label for="email-input">Email Address</label>
+    <input id="email-input" type="email" />
+    
+    <label for="email-textarea">Email Address</label>
+    <textarea id="email-textarea"></textarea>
+    
+    <!-- Exact option testing - Similar but different text -->
+    <label for="password-input">Password</label>
+    <input id="password-input" type="password" />
+    
+    <label for="confirm-password">Confirm Password</label>
+    <input id="confirm-password" type="password" />
+    
+    <!-- Case sensitivity testing -->
+    <label for="country">Country</label>
+    <select id="country">
+        <option>USA</option>
+        <option>Canada</option>
+    </select>
+    
+    <label for="country-code">COUNTRY CODE</label>
+    <input id="country-code" type="text" />
+</body>
+</html>

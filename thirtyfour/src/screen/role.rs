@@ -1,6 +1,6 @@
+use regex;
 use serde::{Serialize, Serializer};
 use serde_json::Value;
-use regex;
 
 /// A wrapper type that indicates a value should be serialized as raw JavaScript
 #[derive(Debug, Clone)]
@@ -152,25 +152,28 @@ impl TextMatch {
             TextMatch::Regex(pattern) => {
                 // Check if it looks like a regex literal
                 if !pattern.starts_with('/') {
-                    return Err("Regex pattern must start with '/' (e.g., '/pattern/' or '/pattern/i')".to_string());
+                    return Err(
+                        "Regex pattern must start with '/' (e.g., '/pattern/' or '/pattern/i')"
+                            .to_string(),
+                    );
                 }
-                
+
                 // Find the last '/' to separate pattern from flags
                 let last_slash = pattern.rfind('/');
                 if last_slash.is_none() || last_slash.unwrap() == 0 {
                     return Err("Regex pattern must contain at least one '/' after the pattern (e.g., '/pattern/')".to_string());
                 }
-                
+
                 let last_slash_pos = last_slash.unwrap();
                 let inner_pattern = &pattern[1..last_slash_pos];
-                
+
                 // Validate the regex pattern (ignore flags for now)
                 regex::Regex::new(inner_pattern)
                     .map_err(|e| format!("Invalid regex pattern: {}", e))?;
-                
+
                 Ok(())
             }
-            _ => Ok(())
+            _ => Ok(()),
         }
     }
 }
@@ -293,10 +296,8 @@ mod tests {
 
     #[test]
     fn test_basic_options_serialization() {
-        let options = ByRoleOptions::new()
-            .hidden(true)
-            .selected(false);
-        
+        let options = ByRoleOptions::new().hidden(true).selected(false);
+
         let json_value = options.to_json_value().unwrap();
         assert_eq!(json_value["hidden"], true);
         assert_eq!(json_value["selected"], false);
@@ -305,22 +306,20 @@ mod tests {
 
     #[test]
     fn test_text_match_exact_serialization() {
-        let options = ByRoleOptions::new()
-            .name(TextMatch::Exact("Submit".to_string()));
-        
+        let options = ByRoleOptions::new().name(TextMatch::Exact("Submit".to_string()));
+
         let json_value = options.to_json_value().unwrap();
         assert_eq!(json_value["name"], "Submit");
     }
 
     #[test]
     fn test_text_match_regex_serialization() {
-        let options = ByRoleOptions::new()
-            .name(TextMatch::Regex("/^submit.*/".to_string()));
-        
+        let options = ByRoleOptions::new().name(TextMatch::Regex("/^submit.*/".to_string()));
+
         // Test the string serialization (which processes markers)
         let json_string = options.to_json_string().unwrap();
         assert!(json_string.contains("/^submit.*/"));
-        
+
         // Note: to_json_value returns the raw marker, which is expected
         // since it's used internally before marker processing
         let json_value = options.to_json_value().unwrap();
@@ -329,18 +328,16 @@ mod tests {
 
     #[test]
     fn test_current_state_serialization() {
-        let options_false = ByRoleOptions::new()
-            .current(CurrentState::False);
+        let options_false = ByRoleOptions::new().current(CurrentState::False);
         let json_false = options_false.to_json_value().unwrap();
         assert_eq!(json_false["current"], false);
 
-        let options_page = ByRoleOptions::new()
-            .current(CurrentState::Page);
+        let options_page = ByRoleOptions::new().current(CurrentState::Page);
         let json_page = options_page.to_json_value().unwrap();
         assert_eq!(json_page["current"], "page");
 
-        let options_custom = ByRoleOptions::new()
-            .current(CurrentState::Custom("custom-value".to_string()));
+        let options_custom =
+            ByRoleOptions::new().current(CurrentState::Custom("custom-value".to_string()));
         let json_custom = options_custom.to_json_value().unwrap();
         assert_eq!(json_custom["current"], "custom-value");
     }
@@ -353,10 +350,9 @@ mod tests {
             now: Some(50),
             text: Some(TextMatch::Exact("medium".to_string())),
         };
-        
-        let options = ByRoleOptions::new()
-            .value(value_opts);
-        
+
+        let options = ByRoleOptions::new().value(value_opts);
+
         let json_value = options.to_json_value().unwrap();
         assert_eq!(json_value["value"]["min"], 0);
         assert_eq!(json_value["value"]["max"], 100);
@@ -366,9 +362,8 @@ mod tests {
 
     #[test]
     fn test_query_fallbacks_rename() {
-        let options = ByRoleOptions::new()
-            .query_fallbacks(true);
-        
+        let options = ByRoleOptions::new().query_fallbacks(true);
+
         let json_value = options.to_json_value().unwrap();
         assert_eq!(json_value["queryFallbacks"], true);
         assert!(json_value["query_fallbacks"].is_null());
@@ -382,9 +377,9 @@ mod tests {
             .pressed(true)
             .level(2)
             .current(CurrentState::Page);
-        
+
         let json_string = options.to_json_string().unwrap();
-        
+
         // Parse back to verify structure
         let parsed: Value = serde_json::from_str(&json_string).unwrap();
         assert_eq!(parsed["name"], "button");
@@ -402,13 +397,13 @@ mod tests {
             .pressed(false)
             .hidden(false)
             .suggest(true);
-        
+
         let json_string = options.to_json_string().unwrap();
         println!("Serialized options: {}", json_string);
-        
+
         // This would be used in JavaScript like:
         // getByRole('button', {name: /submit|send/, pressed: false, hidden: false, suggest: true})
-        
+
         // Note: The processed JSON is not valid JSON because regex is unquoted
         // This is intentional for JavaScript consumption
         assert!(json_string.contains("/submit|send/"));

@@ -171,3 +171,27 @@ pub fn by_role_options_page_url() -> String {
 pub fn by_label_text_options_page_url() -> String {
     format!("http://localhost:{PORT}/by_label_text_options.html")
 }
+
+pub fn by_text_exact_page_url() -> String {
+    format!("http://localhost:{PORT}/by_text_exact.html")
+}
+
+pub fn by_placeholder_text_exact_page_url() -> String {
+    format!("http://localhost:{PORT}/by_placeholder_text_exact.html")
+}
+
+pub fn by_display_value_exact_page_url() -> String {
+    format!("http://localhost:{PORT}/by_display_value_exact.html")
+}
+
+pub fn by_alt_text_exact_page_url() -> String {
+    format!("http://localhost:{PORT}/by_alt_text_exact.html")
+}
+
+pub fn by_title_exact_page_url() -> String {
+    format!("http://localhost:{PORT}/by_title_exact.html")
+}
+
+pub fn by_test_id_exact_page_url() -> String {
+    format!("http://localhost:{PORT}/by_test_id_exact.html")
+}

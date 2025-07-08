@@ -2,7 +2,7 @@ mod common;
 use common::*;
 use rstest::rstest;
 use thirtyfour::prelude::*;
-use thirtyfour::screen::Screen;
+use thirtyfour::screen::{Screen, Selector};
 use thirtyfour::support::block_on;
 
 #[rstest]
@@ -13,7 +13,7 @@ fn get_by_title(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let save_btn = screen.get_by_title("Some title").await?;
+        let save_btn = screen.get(Selector::title("Some title")).await?;
 
         assert_eq!(save_btn.id().await?.unwrap(), "some-title");
 
@@ -112,7 +112,7 @@ fn get_by_title_should_fail(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let result = screen.get_by_title("NonExistentTitle").await;
+        let result = screen.get(Selector::title("NonExistentTitle")).await;
 
         assert!(result.is_err());
 

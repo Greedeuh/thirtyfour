@@ -2,7 +2,7 @@ mod common;
 use common::*;
 use rstest::rstest;
 use thirtyfour::prelude::*;
-use thirtyfour::screen::Screen;
+use thirtyfour::screen::{Screen, Selector};
 use thirtyfour::support::block_on;
 
 #[rstest]
@@ -13,7 +13,7 @@ fn get_by_alt_text(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let image = screen.get_by_alt_text("Some image").await?;
+        let image = screen.get(Selector::alt_text("Some image")).await?;
 
         assert_eq!(image.id().await?.unwrap(), "some-image");
 
@@ -112,7 +112,7 @@ fn get_by_alt_text_should_fail(test_harness: TestHarness) -> WebDriverResult<()>
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let result = screen.get_by_alt_text("NonExistentAlt").await;
+        let result = screen.get(Selector::alt_text("NonExistentAlt")).await;
 
         assert!(result.is_err());
 

@@ -2,7 +2,7 @@ mod common;
 use common::*;
 use rstest::rstest;
 use thirtyfour::prelude::*;
-use thirtyfour::screen::{ByRoleOptions, Screen, TextMatch};
+use thirtyfour::screen::{ByRoleOptions, Screen, Selector, TextMatch};
 use thirtyfour::support::block_on;
 
 #[rstest]
@@ -47,7 +47,7 @@ fn get_by_role(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let tooltip = screen.get_by_role("tooltip").await?;
+        let tooltip = screen.get(Selector::role("tooltip")).await?;
 
         assert_eq!(tooltip.text().await?, "Tooltip text");
 
@@ -161,7 +161,7 @@ fn get_by_role_item_should_fail(test_harness: TestHarness) -> WebDriverResult<()
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let result = screen.get_by_role("item").await;
+        let result = screen.get(Selector::role("item")).await;
 
         assert!(result.is_err());
 
@@ -213,7 +213,8 @@ fn get_by_role_with_options_name_exact(test_harness: TestHarness) -> WebDriverRe
         // Test with exact name match
         let options = ByRoleOptions::new().name(TextMatch::Exact("Copy".to_string()));
 
-        let button = screen.get_by_role_with_options("button", &options).await?;
+        let button =
+            screen.get(Selector::role_with_options("button", options.clone())).await?;
         assert_eq!(button.text().await?, "Copy");
 
         Ok(())
@@ -232,7 +233,8 @@ fn get_by_role_with_options_name_exact_specific(test_harness: TestHarness) -> We
         // Test with exact name match for specific button
         let options = ByRoleOptions::new().name(TextMatch::Exact("Show alert".to_string()));
 
-        let button = screen.get_by_role_with_options("button", &options).await?;
+        let button =
+            screen.get(Selector::role_with_options("button", options.clone())).await?;
         assert_eq!(button.text().await?, "Show alert");
 
         Ok(())
@@ -251,7 +253,8 @@ fn get_by_role_with_options_name_another_button(test_harness: TestHarness) -> We
         // Test with exact name match for another button
         let options = ByRoleOptions::new().name(TextMatch::Exact("Show confirm".to_string()));
 
-        let button = screen.get_by_role_with_options("button", &options).await?;
+        let button =
+            screen.get(Selector::role_with_options("button", options.clone())).await?;
         assert_eq!(button.text().await?, "Show confirm");
 
         Ok(())
@@ -270,7 +273,8 @@ fn get_by_role_with_options_multiple_options(test_harness: TestHarness) -> WebDr
         // Test with multiple options
         let options = ByRoleOptions::new().name(TextMatch::Exact("Copy".to_string())).hidden(false);
 
-        let button = screen.get_by_role_with_options("button", &options).await?;
+        let button =
+            screen.get(Selector::role_with_options("button", options.clone())).await?;
         assert_eq!(button.text().await?, "Copy");
 
         Ok(())

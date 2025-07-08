@@ -2,7 +2,7 @@ mod common;
 use common::*;
 use rstest::rstest;
 use thirtyfour::prelude::*;
-use thirtyfour::screen::Screen;
+use thirtyfour::screen::{Screen, Selector};
 use thirtyfour::support::block_on;
 
 #[rstest]
@@ -13,7 +13,7 @@ fn get_by_test_id(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let notification = screen.get_by_test_id("notification").await?;
+        let notification = screen.get(Selector::test_id("notification")).await?;
 
         assert_eq!(notification.id().await?.unwrap(), "notification");
 
@@ -113,7 +113,7 @@ fn get_by_test_id_should_fail(test_harness: TestHarness) -> WebDriverResult<()> 
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let result = screen.get_by_test_id("non-existent-test-id").await;
+        let result = screen.get(Selector::test_id("non-existent-test-id")).await;
 
         assert!(result.is_err());
 

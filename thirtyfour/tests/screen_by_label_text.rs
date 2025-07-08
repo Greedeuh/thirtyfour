@@ -2,7 +2,7 @@ mod common;
 use common::*;
 use rstest::rstest;
 use thirtyfour::prelude::*;
-use thirtyfour::screen::Screen;
+use thirtyfour::screen::{Screen, Selector};
 use thirtyfour::support::block_on;
 
 #[rstest]
@@ -13,7 +13,7 @@ fn get_by_label_text(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let input = screen.get_by_label_text("User name:").await?;
+        let input = screen.get(Selector::label_text("User name:")).await?;
 
         assert_eq!(input.id().await?.unwrap(), "user-name");
 
@@ -113,7 +113,7 @@ fn get_by_label_text_should_fail(test_harness: TestHarness) -> WebDriverResult<(
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let result = screen.get_by_label_text("NonExistentLabel").await;
+        let result = screen.get(Selector::label_text("NonExistentLabel")).await;
 
         assert!(result.is_err());
 

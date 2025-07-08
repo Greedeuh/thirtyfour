@@ -2,7 +2,7 @@ mod common;
 use common::*;
 use rstest::rstest;
 use thirtyfour::prelude::*;
-use thirtyfour::screen::{ByLabelTextOptions, Screen};
+use thirtyfour::screen::{ByLabelTextOptions, Screen, Selector};
 use thirtyfour::support::block_on;
 
 // 1. Selector Option Tests
@@ -19,16 +19,21 @@ fn test_selector_option_input_vs_textarea(test_harness: TestHarness) -> WebDrive
         // Test selector="input" finds input element
         let input_options = ByLabelTextOptions::new().selector("input".to_string());
 
-        let input_element =
-            screen.get_by_label_text_with_options("Email Address", &input_options).await?;
+        let input_element = screen
+            .get(Selector::label_text_with_options("Email Address".to_string(), input_options.clone()))
+            .await?;
         assert_eq!(input_element.tag_name().await?, "input");
         assert_eq!(input_element.id().await?, Some("email-input".to_string()));
 
         // Test selector="textarea" finds textarea element
         let textarea_options = ByLabelTextOptions::new().selector("textarea".to_string());
 
-        let textarea_element =
-            screen.get_by_label_text_with_options("Email Address", &textarea_options).await?;
+        let textarea_element = screen
+            .get(Selector::label_text_with_options(
+                "Email Address".to_string(),
+                textarea_options.clone(),
+            ))
+            .await?;
         assert_eq!(textarea_element.tag_name().await?, "textarea");
         assert_eq!(textarea_element.id().await?, Some("email-textarea".to_string()));
 
@@ -83,7 +88,9 @@ fn test_selector_option_with_id(test_harness: TestHarness) -> WebDriverResult<()
         // Test selector with specific ID
         let id_options = ByLabelTextOptions::new().selector("#email-input".to_string());
 
-        let element = screen.get_by_label_text_with_options("Email Address", &id_options).await?;
+        let element = screen
+            .get(Selector::label_text_with_options("Email Address".to_string(), id_options.clone()))
+            .await?;
         assert_eq!(element.id().await?, Some("email-input".to_string()));
         assert_eq!(element.tag_name().await?, "input");
 
@@ -116,13 +123,18 @@ fn test_exact_true_precise_match(test_harness: TestHarness) -> WebDriverResult<(
         let exact_options = ByLabelTextOptions::new().exact(true);
 
         // Test exact match for "Password" (should find only password-input, not confirm-password)
-        let password_element =
-            screen.get_by_label_text_with_options("Password", &exact_options).await?;
+        let password_element = screen
+            .get(Selector::label_text_with_options("Password".to_string(), exact_options.clone()))
+            .await?;
         assert_eq!(password_element.id().await?, Some("password-input".to_string()));
 
         // Test exact match for "Confirm Password"
-        let confirm_element =
-            screen.get_by_label_text_with_options("Confirm Password", &exact_options).await?;
+        let confirm_element = screen
+            .get(Selector::label_text_with_options(
+                "Confirm Password".to_string(),
+                exact_options.clone(),
+            ))
+            .await?;
         assert_eq!(confirm_element.id().await?, Some("confirm-password".to_string()));
 
         // Test get_all_by_label_text_with_options
@@ -209,14 +221,16 @@ fn test_exact_case_sensitivity(test_harness: TestHarness) -> WebDriverResult<()>
         let exact_options = ByLabelTextOptions::new().exact(true);
 
         // Test exact case match - "Country" should find the country select
-        let country_element =
-            screen.get_by_label_text_with_options("Country", &exact_options).await?;
+        let country_element = screen
+            .get(Selector::label_text_with_options("Country".to_string(), exact_options.clone()))
+            .await?;
         assert_eq!(country_element.id().await?, Some("country".to_string()));
         assert_eq!(country_element.tag_name().await?, "select");
 
         // Test exact case match - "COUNTRY CODE" should find the country-code input
-        let country_code_element =
-            screen.get_by_label_text_with_options("COUNTRY CODE", &exact_options).await?;
+        let country_code_element = screen
+            .get(Selector::label_text_with_options("COUNTRY CODE".to_string(), exact_options.clone()))
+            .await?;
         assert_eq!(country_code_element.id().await?, Some("country-code".to_string()));
         assert_eq!(country_code_element.tag_name().await?, "input");
 

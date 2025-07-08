@@ -2,7 +2,7 @@ mod common;
 use common::*;
 use rstest::rstest;
 use thirtyfour::prelude::*;
-use thirtyfour::screen::{ByTitleOptions, Screen};
+use thirtyfour::screen::{ByTitleOptions, Screen, Selector};
 use thirtyfour::support::block_on;
 
 #[rstest]
@@ -17,7 +17,9 @@ fn test_by_title_exact_option(test_harness: TestHarness) -> WebDriverResult<()> 
         let exact_options = ByTitleOptions::new().exact(true);
 
         // Test exact match - should find only "Help" title, not "Click for Help"
-        let element = screen.get_by_title_with_options("Help", &exact_options).await?;
+        let element = screen
+            .get(Selector::title_with_options("Help".to_string(), exact_options.clone()))
+            .await?;
         assert_eq!(element.id().await?, Some("title-exact".to_string()));
 
         // Test get_all_by_title_with_options

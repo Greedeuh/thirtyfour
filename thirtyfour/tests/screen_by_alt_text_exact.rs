@@ -2,7 +2,7 @@ mod common;
 use common::*;
 use rstest::rstest;
 use thirtyfour::prelude::*;
-use thirtyfour::screen::{ByAltTextOptions, Screen};
+use thirtyfour::screen::{ByAltTextOptions, Screen, Selector};
 use thirtyfour::support::block_on;
 
 #[rstest]
@@ -17,7 +17,9 @@ fn test_by_alt_text_exact_option(test_harness: TestHarness) -> WebDriverResult<(
         let exact_options = ByAltTextOptions::new().exact(true);
 
         // Test exact match - should find only "Logo" alt text, not "Company Logo Image"
-        let element = screen.get_by_alt_text_with_options("Logo", &exact_options).await?;
+        let element = screen
+            .get(Selector::alt_text_with_options("Logo".to_string(), exact_options.clone()))
+            .await?;
         assert_eq!(element.id().await?, Some("alt-exact".to_string()));
 
         // Test get_all_by_alt_text_with_options
@@ -31,7 +33,8 @@ fn test_by_alt_text_exact_option(test_harness: TestHarness) -> WebDriverResult<(
         assert_eq!(result.unwrap().id().await?, Some("alt-exact".to_string()));
 
         // Test query_all_by_alt_text_with_options
-        let query_elements = screen.query_all_by_alt_text_with_options("Logo", &exact_options).await?;
+        let query_elements =
+            screen.query_all_by_alt_text_with_options("Logo", &exact_options).await?;
         assert_eq!(query_elements.len(), 1);
         assert_eq!(query_elements[0].id().await?, Some("alt-exact".to_string()));
 
@@ -40,7 +43,8 @@ fn test_by_alt_text_exact_option(test_harness: TestHarness) -> WebDriverResult<(
         assert_eq!(find_element.id().await?, Some("alt-exact".to_string()));
 
         // Test find_all_by_alt_text_with_options
-        let find_elements = screen.find_all_by_alt_text_with_options("Logo", &exact_options).await?;
+        let find_elements =
+            screen.find_all_by_alt_text_with_options("Logo", &exact_options).await?;
         assert_eq!(find_elements.len(), 1);
         assert_eq!(find_elements[0].id().await?, Some("alt-exact".to_string()));
 

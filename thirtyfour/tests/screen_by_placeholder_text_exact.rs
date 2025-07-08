@@ -2,7 +2,7 @@ mod common;
 use common::*;
 use rstest::rstest;
 use thirtyfour::prelude::*;
-use thirtyfour::screen::{ByPlaceholderTextOptions, Screen};
+use thirtyfour::screen::{ByPlaceholderTextOptions, Screen, Selector};
 use thirtyfour::support::block_on;
 
 #[rstest]
@@ -17,30 +17,40 @@ fn test_by_placeholder_text_exact_option(test_harness: TestHarness) -> WebDriver
         let exact_options = ByPlaceholderTextOptions::new().exact(true);
 
         // Test exact match - should find only "Username" placeholder, not "Enter your username"
-        let element = screen.get_by_placeholder_text_with_options("Username", &exact_options).await?;
+        let element = screen
+            .get(Selector::placeholder_text_with_options(
+                "Username".to_string(),
+                exact_options.clone(),
+            ))
+            .await?;
         assert_eq!(element.id().await?, Some("placeholder-exact".to_string()));
 
         // Test get_all_by_placeholder_text_with_options
-        let elements = screen.get_all_by_placeholder_text_with_options("Username", &exact_options).await?;
+        let elements =
+            screen.get_all_by_placeholder_text_with_options("Username", &exact_options).await?;
         assert_eq!(elements.len(), 1);
         assert_eq!(elements[0].id().await?, Some("placeholder-exact".to_string()));
 
         // Test query_by_placeholder_text_with_options
-        let result = screen.query_by_placeholder_text_with_options("Username", &exact_options).await?;
+        let result =
+            screen.query_by_placeholder_text_with_options("Username", &exact_options).await?;
         assert!(result.is_some());
         assert_eq!(result.unwrap().id().await?, Some("placeholder-exact".to_string()));
 
         // Test query_all_by_placeholder_text_with_options
-        let query_elements = screen.query_all_by_placeholder_text_with_options("Username", &exact_options).await?;
+        let query_elements =
+            screen.query_all_by_placeholder_text_with_options("Username", &exact_options).await?;
         assert_eq!(query_elements.len(), 1);
         assert_eq!(query_elements[0].id().await?, Some("placeholder-exact".to_string()));
 
         // Test find_by_placeholder_text_with_options
-        let find_element = screen.find_by_placeholder_text_with_options("Username", &exact_options).await?;
+        let find_element =
+            screen.find_by_placeholder_text_with_options("Username", &exact_options).await?;
         assert_eq!(find_element.id().await?, Some("placeholder-exact".to_string()));
 
         // Test find_all_by_placeholder_text_with_options
-        let find_elements = screen.find_all_by_placeholder_text_with_options("Username", &exact_options).await?;
+        let find_elements =
+            screen.find_all_by_placeholder_text_with_options("Username", &exact_options).await?;
         assert_eq!(find_elements.len(), 1);
         assert_eq!(find_elements[0].id().await?, Some("placeholder-exact".to_string()));
 

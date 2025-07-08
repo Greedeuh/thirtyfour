@@ -2,7 +2,7 @@ mod common;
 use common::*;
 use rstest::rstest;
 use thirtyfour::prelude::*;
-use thirtyfour::screen::Screen;
+use thirtyfour::screen::{Screen, Selector};
 use thirtyfour::support::block_on;
 
 #[rstest]
@@ -13,7 +13,7 @@ fn get_by_text(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let span = screen.get_by_text("some text to find").await?;
+        let span = screen.get(Selector::text("some text to find")).await?;
 
         assert_eq!(span.id().await?.unwrap(), "text-to-find");
 
@@ -129,7 +129,7 @@ fn get_by_text_should_fail(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let result = screen.get_by_text("NonExistentText").await;
+        let result = screen.get(Selector::text("NonExistentText")).await;
 
         assert!(result.is_err());
 

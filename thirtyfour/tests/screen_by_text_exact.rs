@@ -2,7 +2,7 @@ mod common;
 use common::*;
 use rstest::rstest;
 use thirtyfour::prelude::*;
-use thirtyfour::screen::{ByTextOptions, Screen};
+use thirtyfour::screen::{ByTextOptions, Screen, Selector};
 use thirtyfour::support::block_on;
 
 #[rstest]
@@ -17,7 +17,9 @@ fn test_by_text_exact_option(test_harness: TestHarness) -> WebDriverResult<()> {
         let exact_options = ByTextOptions::new().exact(true);
 
         // Test exact match - should find only "Login" text, not "Please Login Here"
-        let element = screen.get_by_text_with_options("Login", &exact_options).await?;
+        let element = screen
+            .get(Selector::text_with_options("Login", exact_options.clone()))
+            .await?;
         assert_eq!(element.id().await?, Some("text-exact".to_string()));
 
         // Test get_all_by_text_with_options

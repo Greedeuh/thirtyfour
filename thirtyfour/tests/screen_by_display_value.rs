@@ -2,7 +2,7 @@ mod common;
 use common::*;
 use rstest::rstest;
 use thirtyfour::prelude::*;
-use thirtyfour::screen::Screen;
+use thirtyfour::screen::{Screen, Selector};
 use thirtyfour::support::block_on;
 
 #[rstest]
@@ -13,7 +13,7 @@ fn get_by_display_value(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let option = screen.get_by_display_value("Red").await?;
+        let option = screen.get(Selector::display_value("Red")).await?;
 
         assert_eq!(option.value().await?.unwrap(), "red");
 
@@ -113,7 +113,7 @@ fn get_by_display_value_should_fail(test_harness: TestHarness) -> WebDriverResul
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let result = screen.get_by_display_value("NonExistentValue").await;
+        let result = screen.get(Selector::display_value("NonExistentValue")).await;
 
         assert!(result.is_err());
 

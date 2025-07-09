@@ -23,7 +23,8 @@ fn test_by_title_exact_option(test_harness: TestHarness) -> WebDriverResult<()> 
         assert_eq!(element.id().await?, Some("title-exact".to_string()));
 
         // Test get_all_by_title_with_options
-        let elements = screen.get_all_by_title_with_options("Help", &exact_options).await?;
+        let elements =
+            screen.get_all(Selector::title_with_options("Help", exact_options.clone())).await?;
         assert_eq!(elements.len(), 1);
         assert_eq!(elements[0].id().await?, Some("title-exact".to_string()));
 

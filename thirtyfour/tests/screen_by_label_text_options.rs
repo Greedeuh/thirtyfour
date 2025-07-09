@@ -20,7 +20,10 @@ fn test_selector_option_input_vs_textarea(test_harness: TestHarness) -> WebDrive
         let input_options = ByLabelTextOptions::new().selector("input".to_string());
 
         let input_element = screen
-            .get(Selector::label_text_with_options("Email Address".to_string(), input_options.clone()))
+            .get(Selector::label_text_with_options(
+                "Email Address".to_string(),
+                input_options.clone(),
+            ))
             .await?;
         assert_eq!(input_element.tag_name().await?, "input");
         assert_eq!(input_element.id().await?, Some("email-input".to_string()));
@@ -38,14 +41,16 @@ fn test_selector_option_input_vs_textarea(test_harness: TestHarness) -> WebDrive
         assert_eq!(textarea_element.id().await?, Some("email-textarea".to_string()));
 
         // Test get_all_by_label_text_with_options with input selector
-        let input_elements =
-            screen.get_all_by_label_text_with_options("Email Address", &input_options).await?;
+        let input_elements = screen
+            .get_all(Selector::label_text_with_options("Email Address", input_options.clone()))
+            .await?;
         assert_eq!(input_elements.len(), 1);
         assert_eq!(input_elements[0].tag_name().await?, "input");
 
         // Test get_all_by_label_text_with_options with textarea selector
-        let textarea_elements =
-            screen.get_all_by_label_text_with_options("Email Address", &textarea_options).await?;
+        let textarea_elements = screen
+            .get_all(Selector::label_text_with_options("Email Address", textarea_options.clone()))
+            .await?;
         assert_eq!(textarea_elements.len(), 1);
         assert_eq!(textarea_elements[0].tag_name().await?, "textarea");
 
@@ -138,8 +143,9 @@ fn test_exact_true_precise_match(test_harness: TestHarness) -> WebDriverResult<(
         assert_eq!(confirm_element.id().await?, Some("confirm-password".to_string()));
 
         // Test get_all_by_label_text_with_options
-        let password_elements =
-            screen.get_all_by_label_text_with_options("Password", &exact_options).await?;
+        let password_elements = screen
+            .get_all(Selector::label_text_with_options("Password", exact_options.clone()))
+            .await?;
         assert_eq!(password_elements.len(), 1);
         assert_eq!(password_elements[0].id().await?, Some("password-input".to_string()));
 
@@ -182,8 +188,9 @@ fn test_exact_false_partial_match(test_harness: TestHarness) -> WebDriverResult<
         let partial_options = ByLabelTextOptions::new().exact(false);
 
         // Test partial match - "Password" should find both password fields when exact=false
-        let password_elements =
-            screen.get_all_by_label_text_with_options("Password", &partial_options).await?;
+        let password_elements = screen
+            .get_all(Selector::label_text_with_options("Password", partial_options.clone()))
+            .await?;
         assert_eq!(password_elements.len(), 2);
 
         // Verify we got both password elements
@@ -229,7 +236,10 @@ fn test_exact_case_sensitivity(test_harness: TestHarness) -> WebDriverResult<()>
 
         // Test exact case match - "COUNTRY CODE" should find the country-code input
         let country_code_element = screen
-            .get(Selector::label_text_with_options("COUNTRY CODE".to_string(), exact_options.clone()))
+            .get(Selector::label_text_with_options(
+                "COUNTRY CODE".to_string(),
+                exact_options.clone(),
+            ))
             .await?;
         assert_eq!(country_code_element.id().await?, Some("country-code".to_string()));
         assert_eq!(country_code_element.tag_name().await?, "input");

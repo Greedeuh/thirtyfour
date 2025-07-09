@@ -26,8 +26,9 @@ fn test_by_placeholder_text_exact_option(test_harness: TestHarness) -> WebDriver
         assert_eq!(element.id().await?, Some("placeholder-exact".to_string()));
 
         // Test get_all_by_placeholder_text_with_options
-        let elements =
-            screen.get_all_by_placeholder_text_with_options("Username", &exact_options).await?;
+        let elements = screen
+            .get_all(Selector::placeholder_text_with_options("Username", exact_options.clone()))
+            .await?;
         assert_eq!(elements.len(), 1);
         assert_eq!(elements[0].id().await?, Some("placeholder-exact".to_string()));
 

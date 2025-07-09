@@ -46,7 +46,7 @@ fn get_all_by_display_value(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let options = screen.get_all_by_display_value("Red").await?;
+        let options = screen.get_all(Selector::display_value("Red")).await?;
 
         assert_eq!(options.len(), 1);
         assert_eq!(options[0].value().await?.unwrap(), "red");
@@ -129,7 +129,7 @@ fn get_all_by_display_value_should_fail(test_harness: TestHarness) -> WebDriverR
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let result = screen.get_all_by_display_value("NonExistentValue").await;
+        let result = screen.get_all(Selector::display_value("NonExistentValue")).await;
 
         assert!(result.is_err());
 

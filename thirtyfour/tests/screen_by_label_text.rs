@@ -29,7 +29,7 @@ fn get_all_by_label_text(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let inputs = screen.get_all_by_label_text("User name:").await?;
+        let inputs = screen.get_all(Selector::label_text("User name:")).await?;
 
         assert_eq!(inputs.len(), 1);
         assert_eq!(inputs[0].id().await?.unwrap(), "user-name");
@@ -129,7 +129,7 @@ fn get_all_by_label_text_should_fail(test_harness: TestHarness) -> WebDriverResu
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let result = screen.get_all_by_label_text("NonExistentLabel").await;
+        let result = screen.get_all(Selector::label_text("NonExistentLabel")).await;
 
         assert!(result.is_err());
 

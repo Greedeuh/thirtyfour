@@ -23,8 +23,9 @@ fn test_by_display_value_exact_option(test_harness: TestHarness) -> WebDriverRes
         assert_eq!(element.id().await?, Some("value-exact".to_string()));
 
         // Test get_all_by_display_value_with_options
-        let elements =
-            screen.get_all_by_display_value_with_options("Submit", &exact_options).await?;
+        let elements = screen
+            .get_all(Selector::display_value_with_options("Submit", exact_options.clone()))
+            .await?;
         assert_eq!(elements.len(), 1);
         assert_eq!(elements[0].id().await?, Some("value-exact".to_string()));
 

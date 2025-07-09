@@ -62,7 +62,7 @@ fn get_all_by_text(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let spans = screen.get_all_by_text("some text to find").await?;
+        let spans = screen.get_all(Selector::text("some text to find")).await?;
 
         assert_eq!(spans.len(), 1);
         assert_eq!(spans[0].id().await?.unwrap(), "text-to-find");
@@ -145,7 +145,7 @@ fn get_all_by_text_should_fail(test_harness: TestHarness) -> WebDriverResult<()>
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let result = screen.get_all_by_text("NonExistentText").await;
+        let result = screen.get_all(Selector::text("NonExistentText")).await;
 
         assert!(result.is_err());
 

@@ -23,7 +23,8 @@ fn test_by_test_id_exact_option(test_harness: TestHarness) -> WebDriverResult<()
         assert_eq!(element.id().await?, Some("testid-exact".to_string()));
 
         // Test get_all_by_test_id_with_options
-        let elements = screen.get_all_by_test_id_with_options("save", &exact_options).await?;
+        let elements =
+            screen.get_all(Selector::test_id_with_options("save", exact_options.clone())).await?;
         assert_eq!(elements.len(), 1);
         assert_eq!(elements[0].id().await?, Some("testid-exact".to_string()));
 

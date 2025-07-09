@@ -46,7 +46,7 @@ fn get_all_by_title(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let buttons = screen.get_all_by_title("Some title").await?;
+        let buttons = screen.get_all(Selector::title("Some title")).await?;
 
         assert_eq!(buttons.len(), 1);
 
@@ -128,7 +128,7 @@ fn get_all_by_title_should_fail(test_harness: TestHarness) -> WebDriverResult<()
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let result = screen.get_all_by_title("NonExistentTitle").await;
+        let result = screen.get_all(Selector::title("NonExistentTitle")).await;
 
         assert!(result.is_err());
 

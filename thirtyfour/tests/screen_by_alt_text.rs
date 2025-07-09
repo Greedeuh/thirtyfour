@@ -46,7 +46,7 @@ fn get_all_by_alt_text(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let images = screen.get_all_by_alt_text("Some image").await?;
+        let images = screen.get_all(Selector::alt_text("Some image")).await?;
 
         assert_eq!(images.len(), 1);
 
@@ -128,7 +128,7 @@ fn get_all_by_alt_text_should_fail(test_harness: TestHarness) -> WebDriverResult
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let result = screen.get_all_by_alt_text("NonExistentAlt").await;
+        let result = screen.get_all(Selector::alt_text("NonExistentAlt")).await;
 
         assert!(result.is_err());
 

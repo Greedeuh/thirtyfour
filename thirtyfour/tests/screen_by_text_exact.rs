@@ -17,13 +17,13 @@ fn test_by_text_exact_option(test_harness: TestHarness) -> WebDriverResult<()> {
         let exact_options = ByTextOptions::new().exact(true);
 
         // Test exact match - should find only "Login" text, not "Please Login Here"
-        let element = screen
-            .get(Selector::text_with_options("Login", exact_options.clone()))
-            .await?;
+        let element =
+            screen.get(Selector::text_with_options("Login", exact_options.clone())).await?;
         assert_eq!(element.id().await?, Some("text-exact".to_string()));
 
         // Test get_all_by_text_with_options
-        let elements = screen.get_all_by_text_with_options("Login", &exact_options).await?;
+        let elements =
+            screen.get_all(Selector::text_with_options("Login", exact_options.clone())).await?;
         assert_eq!(elements.len(), 1);
         assert_eq!(elements[0].id().await?, Some("text-exact".to_string()));
 

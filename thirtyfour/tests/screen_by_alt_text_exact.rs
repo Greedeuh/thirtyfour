@@ -23,7 +23,8 @@ fn test_by_alt_text_exact_option(test_harness: TestHarness) -> WebDriverResult<(
         assert_eq!(element.id().await?, Some("alt-exact".to_string()));
 
         // Test get_all_by_alt_text_with_options
-        let elements = screen.get_all_by_alt_text_with_options("Logo", &exact_options).await?;
+        let elements =
+            screen.get_all(Selector::alt_text_with_options("Logo", exact_options.clone())).await?;
         assert_eq!(elements.len(), 1);
         assert_eq!(elements[0].id().await?, Some("alt-exact".to_string()));
 

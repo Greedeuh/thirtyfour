@@ -9,7 +9,7 @@ use thirtyfour::support::block_on;
 fn within(test_harness: TestHarness) -> WebDriverResult<()> {
     let c = test_harness.driver();
     block_on(async {
-        let url = within_screen_page_url();
+        let url = screen_within_page_url();
         c.goto(&url).await?;
 
         let parent_element = c.find(By::Id("parent")).await?;

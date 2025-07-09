@@ -45,7 +45,29 @@ pub struct Screen {
 
 impl Screen {
     /// Creates a new `Screen` and loads the testing library script in the browser
-    pub async fn load_with_testing_library(driver: WebDriver) -> WebDriverResult<Self> {
+    pub async fn build_with_testing_library(driver: WebDriver) -> WebDriverResult<Self> {
+        // Load the testing library script in the browser
+        let testing_library = fs::read_to_string("js/testing-library.js").unwrap();
+        driver.execute(testing_library, vec![]).await?;
+
+        Ok(Screen {
+            driver,
+    within_element: None,
+        })
+    }
+
+    /// Creates a new `Screen` and but does not load the testing library script
+    /// This is useful if you want to load the script later or if you have already loaded in your frontend application by setting up the query function you need:
+    /// ```javascript
+    /// import {
+    ///   queryAllByRole,
+    /// } from "@testing-library/dom"
+    ///
+    /// window.__TL__ = {
+    ///   queryAllByRole,
+    /// }
+    /// ```
+    pub async fn build(driver: WebDriver) -> WebDriverResult<Self> {
         // Load the testing library script in the browser
         let testing_library = fs::read_to_string("js/testing-library.js").unwrap();
         driver.execute(testing_library, vec![]).await?;

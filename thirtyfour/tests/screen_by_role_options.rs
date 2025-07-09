@@ -14,7 +14,7 @@ fn test_name_exact_match(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = by_role_options_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
 
         // Test exact match succeeds
         let options = ByRoleOptions::new().name(TextMatch::Exact("Submit Form".to_string()));
@@ -67,7 +67,7 @@ fn test_name_regex_match(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = by_role_options_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
 
         // Test regex match with proper regex literal syntax
         let options = ByRoleOptions::new().name(TextMatch::Regex("/Save.*Document/".to_string()));
@@ -114,7 +114,7 @@ fn test_selected_option(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = by_role_options_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
 
         let options = ByRoleOptions::new().selected(true);
 
@@ -157,7 +157,7 @@ fn test_checked_checkbox(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = by_role_options_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
 
         let options = ByRoleOptions::new().checked(true);
 
@@ -209,7 +209,7 @@ fn test_pressed_button(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = by_role_options_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
 
         let options = ByRoleOptions::new().pressed(true);
 
@@ -253,7 +253,7 @@ fn test_expanded_menu(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = by_role_options_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
 
         let options = ByRoleOptions::new().expanded(true);
 
@@ -297,7 +297,7 @@ fn test_busy_loading(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = by_role_options_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
 
         let options = ByRoleOptions::new().busy(true);
 
@@ -344,7 +344,7 @@ fn test_current_page(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = by_role_options_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
 
         let options = ByRoleOptions::new().current(CurrentState::Page);
 
@@ -387,7 +387,7 @@ fn test_current_step(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = by_role_options_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
 
         let options = ByRoleOptions::new().current(CurrentState::Step);
 
@@ -433,7 +433,7 @@ fn test_hidden_elements(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = by_role_options_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
 
         // Verify we can find hidden buttons when including hidden ones
         let options_hidden = ByRoleOptions::new().hidden(true);
@@ -492,7 +492,7 @@ fn test_level_heading(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = by_role_options_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
 
         let options = ByRoleOptions::new().level(2);
 
@@ -539,7 +539,7 @@ fn test_value_min(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = by_role_options_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
 
         let value_opts = ValueOptions {
             min: Some(0),
@@ -597,7 +597,7 @@ fn test_value_max(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = by_role_options_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
 
         let value_opts = ValueOptions {
             min: None,
@@ -654,7 +654,7 @@ fn test_value_now(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = by_role_options_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
 
         let value_opts = ValueOptions {
             min: None,
@@ -713,7 +713,7 @@ fn test_query_fallbacks(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = by_role_options_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
 
         let options = ByRoleOptions::new()
             .query_fallbacks(true)

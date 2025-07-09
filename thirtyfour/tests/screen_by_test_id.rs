@@ -12,7 +12,7 @@ fn get_by_test_id(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = sample_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
         let notification = screen.get(Selector::test_id("notification")).await?;
 
         assert_eq!(notification.id().await?.unwrap(), "notification");
@@ -28,7 +28,7 @@ fn query_by_test_id(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = sample_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
         let notification = screen.query(Selector::test_id("notification")).await?;
 
         assert!(notification.is_some());
@@ -45,7 +45,7 @@ fn get_all_by_test_id(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = sample_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
         let notifications = screen.get_all(Selector::test_id("notification")).await?;
 
         assert_eq!(notifications.len(), 1);
@@ -62,7 +62,7 @@ fn query_all_by_test_id(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = sample_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
         let notifications = screen.query_all(Selector::test_id("notification")).await?;
 
         assert_eq!(notifications.len(), 1);
@@ -79,7 +79,7 @@ fn find_by_test_id(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = sample_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
         let notification = screen.find(Selector::test_id("notification")).await?;
 
         assert_eq!(notification.id().await?.unwrap(), "notification");
@@ -95,7 +95,7 @@ fn find_all_by_test_id(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = sample_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
         let notifications = screen.find_all(Selector::test_id("notification")).await?;
 
         assert_eq!(notifications.len(), 1);
@@ -112,7 +112,7 @@ fn get_by_test_id_should_fail(test_harness: TestHarness) -> WebDriverResult<()> 
         let url = sample_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
         let result = screen.get(Selector::test_id("non-existent-test-id")).await;
 
         assert!(result.is_err());
@@ -128,7 +128,7 @@ fn get_all_by_test_id_should_fail(test_harness: TestHarness) -> WebDriverResult<
         let url = sample_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
         let result = screen.get_all(Selector::test_id("non-existent-test-id")).await;
 
         assert!(result.is_err());
@@ -144,7 +144,7 @@ fn find_by_test_id_should_fail(test_harness: TestHarness) -> WebDriverResult<()>
         let url = sample_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
         let result = screen.find(Selector::test_id("non-existent-test-id")).await;
 
         assert!(result.is_err());
@@ -160,7 +160,7 @@ fn find_all_by_test_id_should_fail(test_harness: TestHarness) -> WebDriverResult
         let url = sample_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
         let result = screen.find_all(Selector::test_id("non-existent-test-id")).await;
 
         assert!(result.is_err());
@@ -176,7 +176,7 @@ fn query_by_test_id_not_found(test_harness: TestHarness) -> WebDriverResult<()> 
         let url = sample_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
         let result = screen.query(Selector::test_id("non-existent-test-id")).await?;
 
         assert!(result.is_none());
@@ -192,7 +192,7 @@ fn query_all_by_test_id_empty(test_harness: TestHarness) -> WebDriverResult<()> 
         let url = sample_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
         let result = screen.query_all(Selector::test_id("non-existent-test-id")).await?;
 
         assert_eq!(result.len(), 0);

@@ -12,7 +12,7 @@ fn test_by_placeholder_text_exact_option(test_harness: TestHarness) -> WebDriver
         let url = by_placeholder_text_exact_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
 
         let exact_options = ByPlaceholderTextOptions::new().exact(true);
 

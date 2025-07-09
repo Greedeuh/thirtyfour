@@ -12,7 +12,7 @@ fn test_by_title_exact_option(test_harness: TestHarness) -> WebDriverResult<()> 
         let url = by_title_exact_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
 
         let exact_options = ByTitleOptions::new().exact(true);
 

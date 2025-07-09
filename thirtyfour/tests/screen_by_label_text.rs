@@ -12,7 +12,7 @@ fn get_by_label_text(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = sample_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
         let input = screen.get(Selector::label_text("User name:")).await?;
 
         assert_eq!(input.id().await?.unwrap(), "user-name");
@@ -28,7 +28,7 @@ fn get_all_by_label_text(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = sample_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
         let inputs = screen.get_all(Selector::label_text("User name:")).await?;
 
         assert_eq!(inputs.len(), 1);
@@ -45,7 +45,7 @@ fn query_by_label_text(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = sample_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
         let password = screen.query(Selector::label_text("User name:")).await?;
 
         assert!(password.is_some());
@@ -62,7 +62,7 @@ fn query_all_by_label_text(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = sample_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
         let inputs = screen.query_all(Selector::label_text("User name:")).await?;
 
         assert_eq!(inputs.len(), 1);
@@ -79,7 +79,7 @@ fn find_by_label_text(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = sample_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
         let input = screen.find(Selector::label_text("User name:")).await?;
 
         assert_eq!(input.id().await?.unwrap(), "user-name");
@@ -95,7 +95,7 @@ fn find_all_by_label_text(test_harness: TestHarness) -> WebDriverResult<()> {
         let url = sample_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
         let inputs = screen.find_all(Selector::label_text("User name:")).await?;
 
         assert_eq!(inputs.len(), 1);
@@ -112,7 +112,7 @@ fn get_by_label_text_should_fail(test_harness: TestHarness) -> WebDriverResult<(
         let url = sample_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
         let result = screen.get(Selector::label_text("NonExistentLabel")).await;
 
         assert!(result.is_err());
@@ -128,7 +128,7 @@ fn get_all_by_label_text_should_fail(test_harness: TestHarness) -> WebDriverResu
         let url = sample_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
         let result = screen.get_all(Selector::label_text("NonExistentLabel")).await;
 
         assert!(result.is_err());
@@ -144,7 +144,7 @@ fn find_by_label_text_should_fail(test_harness: TestHarness) -> WebDriverResult<
         let url = sample_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
         let result = screen.find(Selector::label_text("NonExistentLabel")).await;
 
         assert!(result.is_err());
@@ -160,7 +160,7 @@ fn find_all_by_label_text_should_fail(test_harness: TestHarness) -> WebDriverRes
         let url = sample_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
         let result = screen.find_all(Selector::label_text("NonExistentLabel")).await;
 
         assert!(result.is_err());
@@ -176,7 +176,7 @@ fn query_by_label_text_not_found(test_harness: TestHarness) -> WebDriverResult<(
         let url = sample_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
         let result = screen.query(Selector::label_text("NonExistentLabel")).await?;
 
         assert!(result.is_none());
@@ -192,7 +192,7 @@ fn query_all_by_label_text_empty(test_harness: TestHarness) -> WebDriverResult<(
         let url = sample_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
         let result = screen.query_all(Selector::label_text("NonExistentLabel")).await?;
 
         assert_eq!(result.len(), 0);

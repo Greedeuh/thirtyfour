@@ -14,7 +14,7 @@ fn test_selector_option_input_vs_textarea(test_harness: TestHarness) -> WebDrive
         let url = by_label_text_options_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
 
         // Test selector="input" finds input element
         let input_options = ByLabelTextOptions::new().selector("input".to_string());
@@ -89,7 +89,7 @@ fn test_selector_option_with_id(test_harness: TestHarness) -> WebDriverResult<()
         let url = by_label_text_options_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
 
         // Test selector with specific ID
         let id_options = ByLabelTextOptions::new().selector("#email-input".to_string());
@@ -125,7 +125,7 @@ fn test_exact_true_precise_match(test_harness: TestHarness) -> WebDriverResult<(
         let url = by_label_text_options_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
 
         let exact_options = ByLabelTextOptions::new().exact(true);
 
@@ -186,7 +186,7 @@ fn test_exact_false_partial_match(test_harness: TestHarness) -> WebDriverResult<
         let url = by_label_text_options_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
 
         let partial_options = ByLabelTextOptions::new().exact(false);
 
@@ -226,7 +226,7 @@ fn test_exact_case_sensitivity(test_harness: TestHarness) -> WebDriverResult<()>
         let url = by_label_text_options_page_url();
         c.goto(&url).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
 
         let exact_options = ByLabelTextOptions::new().exact(true);
 

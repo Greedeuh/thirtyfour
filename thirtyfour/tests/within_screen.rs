@@ -14,7 +14,7 @@ fn within(test_harness: TestHarness) -> WebDriverResult<()> {
 
         let parent_element = c.find(By::Id("parent")).await?;
 
-        let screen = Screen::load_with_testing_library(c.clone()).await?;
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
         let result = screen.get(Selector::text("Some text")).await;
         assert!(result.is_err(), "Expected error because there is 2 occurrences");
 

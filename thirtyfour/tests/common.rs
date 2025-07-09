@@ -195,3 +195,7 @@ pub fn by_title_exact_page_url() -> String {
 pub fn by_test_id_exact_page_url() -> String {
     format!("http://localhost:{PORT}/by_test_id_exact.html")
 }
+
+pub fn within_screen_page_url() -> String {
+    format!("http://localhost:{PORT}/within_screen.html")
+}

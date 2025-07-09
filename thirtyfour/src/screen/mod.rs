@@ -20,6 +20,7 @@ pub use display_value::*;
 pub use label_text::*;
 pub use placeholder_text::*;
 pub use role::*;
+use serde_json::Value;
 pub use test_id::*;
 pub use text::*;
 pub use title::*;
@@ -28,11 +29,18 @@ use std::fs;
 
 use crate::{error::WebDriverResult, prelude::ScriptRet, WebDriver, WebElement};
 
+// TODO
+// - what happen when we change page? do we need to reload the script?
+// - support configure
+// - better error handling
+// - logTestingPlaygroundURL
+
 
 /// A struct representing a screen in the testing library that provides DOM queries with different behaviors: get* methods throw errors if elements aren't found, query* methods return null for missing elements, and find* methods return promises that retry until elements are found.
 #[derive(Debug, Clone)]
 pub struct Screen {
     driver: WebDriver,
+    within_element: Option<WebElement>,
 }
 
 impl Screen {
@@ -44,7 +52,16 @@ impl Screen {
 
         Ok(Screen {
             driver,
+    within_element: None,
         })
+    }
+
+    /// Creates a new `Screen` wich will be scoped to a specific element
+    pub fn within(&self, element: WebElement) -> Screen {
+        Screen {
+            driver: self.driver.clone(),
+            within_element: Some(element),
+        }
     }
 
     /// Unified get method that accepts a Selector enum and returns a single WebElement
@@ -145,28 +162,33 @@ impl Screen {
     ) -> WebDriverResult<ScriptRet> {
         let method_name = format!("{}{}", method_prefix, function_suffix);
 
+        let (container, arguments) = self.container_and_arguments()?;
+
+        
         // Use a filter to remove null values from the result
         // this simplify the deserialization back to WebElement: null becomes an empty arry => []
         let script = match options_json {
             Some(options) => {
                 format!(
-                    "return [window.__TL__.{}(document, '{}', {})].filter(n => n);",
+                    "return [window.__TL__.{}({}, '{}', {})].filter(n => n);",
                     method_name,
+                    container,
                     value,
                     options
                 )
             }
             None => {
                 format!(
-                    "return [window.__TL__.{}(document, '{}')].filter(n => n);",
+                    "return [window.__TL__.{}({}, '{}')].filter(n => n);",
                     method_name,
+                    container,
                     value
                 )
             }
         };
 
 
-        self.driver.execute(script, vec![]).await
+        self.driver.execute(script, arguments).await
     }
 
     // Internal helper method for executing Testing Library methods with unified parameters
@@ -179,16 +201,26 @@ impl Screen {
     ) -> WebDriverResult<ScriptRet> {
         let method_name = format!("{}{}", method_prefix, function_suffix);
 
+        let (container, arguments) = self.container_and_arguments()?;
+
         let script = match options_json {
             Some(options) => {
-                format!("return window.__TL__.{}(document, '{}', {});", method_name, value, options)
+                format!("return window.__TL__.{}({}, '{}', {});", method_name,container, value, options)
             }
             None => {
-                format!("return window.__TL__.{}(document, '{}');", method_name, value)
+                format!("return window.__TL__.{}({}, '{}');", method_name,container, value)
             }
         };
 
-        self.driver.execute(script, vec![]).await
+        self.driver.execute(script, arguments).await
+    }
+
+    fn container_and_arguments(&self) -> WebDriverResult<(&str, Vec<Value>)> {
+        if let Some(within_element) = &self.within_element {
+            Ok(("arguments[0]", vec![within_element.to_json()?]))
+        } else {
+            Ok(("document", vec![]))
+        }
     }
 }
 

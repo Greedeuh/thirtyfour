@@ -13,7 +13,7 @@ fn query_all_by_role(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let tooltips = screen.query_all_by_role("tooltip").await?;
+        let tooltips = screen.query_all(Selector::role("tooltip")).await?;
 
         assert_eq!(tooltips.len(), 1);
         assert_eq!(tooltips[0].text().await?, "Tooltip text");
@@ -31,7 +31,7 @@ fn query_by_role(test_harness: TestHarness) -> WebDriverResult<()> {
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
 
-        let tooltip = screen.query_by_role("tooltip").await?;
+        let tooltip = screen.query(Selector::role("tooltip")).await?;
         assert!(tooltip.is_some());
         assert_eq!(tooltip.unwrap().text().await?, "Tooltip text");
 
@@ -80,7 +80,7 @@ fn find_all_by_role(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let tooltips = screen.find_all_by_role("tooltip").await?;
+        let tooltips = screen.find_all(Selector::role("tooltip")).await?;
 
         assert_eq!(tooltips.len(), 1);
         assert_eq!(tooltips[0].text().await?, "Tooltip text");
@@ -97,7 +97,7 @@ fn find_by_role(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let tooltip = screen.find_by_role("tooltip").await?;
+        let tooltip = screen.find(Selector::role("tooltip")).await?;
 
         assert_eq!(tooltip.text().await?, "Tooltip text");
 
@@ -113,7 +113,7 @@ fn query_all_by_role_item_not_found(test_harness: TestHarness) -> WebDriverResul
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let items = screen.query_all_by_role("item").await?;
+        let items = screen.query_all(Selector::role("item")).await?;
 
         assert_eq!(items.len(), 0);
 
@@ -129,7 +129,7 @@ fn query_by_role_item_not_found(test_harness: TestHarness) -> WebDriverResult<()
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let item = screen.query_by_role("item").await?;
+        let item = screen.query(Selector::role("item")).await?;
 
         assert!(item.is_none());
 
@@ -177,7 +177,7 @@ fn find_all_by_role_item_should_fail(test_harness: TestHarness) -> WebDriverResu
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let result = screen.find_all_by_role("item").await;
+        let result = screen.find_all(Selector::role("item")).await;
 
         assert!(result.is_err());
 
@@ -193,7 +193,7 @@ fn find_by_role_item_should_fail(test_harness: TestHarness) -> WebDriverResult<(
         c.goto(&url).await?;
 
         let screen = Screen::load_with_testing_library(c.clone()).await?;
-        let result = screen.find_by_role("item").await;
+        let result = screen.find(Selector::role("item")).await;
 
         assert!(result.is_err());
 

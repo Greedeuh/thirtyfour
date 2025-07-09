@@ -33,25 +33,26 @@ fn test_by_placeholder_text_exact_option(test_harness: TestHarness) -> WebDriver
         assert_eq!(elements[0].id().await?, Some("placeholder-exact".to_string()));
 
         // Test query_by_placeholder_text_with_options
-        let result =
-            screen.query_by_placeholder_text_with_options("Username", &exact_options).await?;
+        let result = screen
+            .query(Selector::placeholder_text_with_options("Username", exact_options.clone()))
+            .await?;
         assert!(result.is_some());
         assert_eq!(result.unwrap().id().await?, Some("placeholder-exact".to_string()));
 
         // Test query_all_by_placeholder_text_with_options
         let query_elements =
-            screen.query_all_by_placeholder_text_with_options("Username", &exact_options).await?;
+            screen.query_all(Selector::placeholder_text_with_options("Username", exact_options.clone())).await?;
         assert_eq!(query_elements.len(), 1);
         assert_eq!(query_elements[0].id().await?, Some("placeholder-exact".to_string()));
 
         // Test find_by_placeholder_text_with_options
         let find_element =
-            screen.find_by_placeholder_text_with_options("Username", &exact_options).await?;
+            screen.find(Selector::placeholder_text_with_options("Username", exact_options.clone())).await?;
         assert_eq!(find_element.id().await?, Some("placeholder-exact".to_string()));
 
         // Test find_all_by_placeholder_text_with_options
         let find_elements =
-            screen.find_all_by_placeholder_text_with_options("Username", &exact_options).await?;
+            screen.find_all(Selector::placeholder_text_with_options("Username", exact_options.clone())).await?;
         assert_eq!(find_elements.len(), 1);
         assert_eq!(find_elements[0].id().await?, Some("placeholder-exact".to_string()));
 

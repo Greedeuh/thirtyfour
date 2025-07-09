@@ -55,25 +55,26 @@ fn test_selector_option_input_vs_textarea(test_harness: TestHarness) -> WebDrive
         assert_eq!(textarea_elements[0].tag_name().await?, "textarea");
 
         // Test query_by_label_text_with_options
-        let maybe_input =
-            screen.query_by_label_text_with_options("Email Address", &input_options).await?;
+        let maybe_input = screen
+            .query(Selector::label_text_with_options("Email Address", input_options.clone()))
+            .await?;
         assert!(maybe_input.is_some());
         assert_eq!(maybe_input.unwrap().tag_name().await?, "input");
 
         // Test query_all_by_label_text_with_options
         let query_inputs =
-            screen.query_all_by_label_text_with_options("Email Address", &input_options).await?;
+            screen.query_all(Selector::label_text_with_options("Email Address", input_options.clone())).await?;
         assert_eq!(query_inputs.len(), 1);
         assert_eq!(query_inputs[0].tag_name().await?, "input");
 
         // Test find_by_label_text_with_options
         let find_input =
-            screen.find_by_label_text_with_options("Email Address", &input_options).await?;
+            screen.find(Selector::label_text_with_options("Email Address", input_options.clone())).await?;
         assert_eq!(find_input.tag_name().await?, "input");
 
         // Test find_all_by_label_text_with_options
         let find_inputs =
-            screen.find_all_by_label_text_with_options("Email Address", &input_options).await?;
+            screen.find_all(Selector::label_text_with_options("Email Address", input_options.clone())).await?;
         assert_eq!(find_inputs.len(), 1);
         assert_eq!(find_inputs[0].tag_name().await?, "input");
 
@@ -100,14 +101,15 @@ fn test_selector_option_with_id(test_harness: TestHarness) -> WebDriverResult<()
         assert_eq!(element.tag_name().await?, "input");
 
         // Test query_by_label_text_with_options
-        let maybe_element =
-            screen.query_by_label_text_with_options("Email Address", &id_options).await?;
+        let maybe_element = screen
+            .query(Selector::label_text_with_options("Email Address", id_options.clone()))
+            .await?;
         assert!(maybe_element.is_some());
         assert_eq!(maybe_element.unwrap().id().await?, Some("email-input".to_string()));
 
         // Test find_by_label_text_with_options
         let find_element =
-            screen.find_by_label_text_with_options("Email Address", &id_options).await?;
+            screen.find(Selector::label_text_with_options("Email Address", id_options.clone())).await?;
         assert_eq!(find_element.id().await?, Some("email-input".to_string()));
 
         Ok(())
@@ -150,25 +152,26 @@ fn test_exact_true_precise_match(test_harness: TestHarness) -> WebDriverResult<(
         assert_eq!(password_elements[0].id().await?, Some("password-input".to_string()));
 
         // Test query_by_label_text_with_options
-        let maybe_password =
-            screen.query_by_label_text_with_options("Password", &exact_options).await?;
+        let maybe_password = screen
+            .query(Selector::label_text_with_options("Password", exact_options.clone()))
+            .await?;
         assert!(maybe_password.is_some());
         assert_eq!(maybe_password.unwrap().id().await?, Some("password-input".to_string()));
 
         // Test query_all_by_label_text_with_options
         let query_passwords =
-            screen.query_all_by_label_text_with_options("Password", &exact_options).await?;
+            screen.query_all(Selector::label_text_with_options("Password", exact_options.clone())).await?;
         assert_eq!(query_passwords.len(), 1);
         assert_eq!(query_passwords[0].id().await?, Some("password-input".to_string()));
 
         // Test find_by_label_text_with_options
         let find_password =
-            screen.find_by_label_text_with_options("Password", &exact_options).await?;
+            screen.find(Selector::label_text_with_options("Password", exact_options.clone())).await?;
         assert_eq!(find_password.id().await?, Some("password-input".to_string()));
 
         // Test find_all_by_label_text_with_options
         let find_passwords =
-            screen.find_all_by_label_text_with_options("Password", &exact_options).await?;
+            screen.find_all(Selector::label_text_with_options("Password", exact_options.clone())).await?;
         assert_eq!(find_passwords.len(), 1);
         assert_eq!(find_passwords[0].id().await?, Some("password-input".to_string()));
 
@@ -204,12 +207,12 @@ fn test_exact_false_partial_match(test_harness: TestHarness) -> WebDriverResult<
 
         // Test query_all_by_label_text_with_options
         let query_passwords =
-            screen.query_all_by_label_text_with_options("Password", &partial_options).await?;
+            screen.query_all(Selector::label_text_with_options("Password", partial_options.clone())).await?;
         assert_eq!(query_passwords.len(), 2);
 
         // Test find_all_by_label_text_with_options
         let find_passwords =
-            screen.find_all_by_label_text_with_options("Password", &partial_options).await?;
+            screen.find_all(Selector::label_text_with_options("Password", partial_options.clone())).await?;
         assert_eq!(find_passwords.len(), 2);
 
         Ok(())
@@ -245,13 +248,15 @@ fn test_exact_case_sensitivity(test_harness: TestHarness) -> WebDriverResult<()>
         assert_eq!(country_code_element.tag_name().await?, "input");
 
         // Test case sensitivity - "country" (lowercase) should not find "Country"
-        let lowercase_result =
-            screen.query_by_label_text_with_options("country", &exact_options).await?;
+        let lowercase_result = screen
+            .query(Selector::label_text_with_options("country", exact_options.clone()))
+            .await?;
         assert!(lowercase_result.is_none());
 
         // Test case sensitivity - "country code" (lowercase) should not find "COUNTRY CODE"
-        let lowercase_code_result =
-            screen.query_by_label_text_with_options("country code", &exact_options).await?;
+        let lowercase_code_result = screen
+            .query(Selector::label_text_with_options("country code", exact_options.clone()))
+            .await?;
         assert!(lowercase_code_result.is_none());
 
         Ok(())

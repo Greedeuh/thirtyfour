@@ -30,7 +30,6 @@ use std::fs;
 use crate::{error::WebDriverResult, prelude::ScriptRet, WebDriver, WebElement};
 
 // TODO
-// - what happen when we change page? do we need to reload the script?
 // - support configure
 // - better error handling
 // - logTestingPlaygroundURL

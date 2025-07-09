@@ -28,6 +28,171 @@ use std::fs;
 
 use crate::{error::WebDriverResult, prelude::ScriptRet, WebDriver, WebElement};
 
+
+/// A struct representing a screen in the testing library that provides DOM queries with different behaviors: get* methods throw errors if elements aren't found, query* methods return null for missing elements, and find* methods return promises that retry until elements are found.
+#[derive(Debug, Clone)]
+pub struct Screen {
+    driver: WebDriver,
+}
+
+impl Screen {
+    /// Creates a new `Screen` and loads the testing library script in the browser
+    pub async fn load_with_testing_library(driver: WebDriver) -> WebDriverResult<Self> {
+        // Load the testing library script in the browser
+        let testing_library = fs::read_to_string("js/testing-library.js").unwrap();
+        driver.execute(testing_library, vec![]).await?;
+
+        Ok(Screen {
+            driver,
+        })
+    }
+
+    /// Unified get method that accepts a Selector enum and returns a single WebElement
+    /// Throws an error if no elements match or if more than one match is found
+    pub async fn get(&self, selector: Selector) -> WebDriverResult<WebElement> {
+        let options_json = selector.options_json()?;
+        self.execute_tl_selector(
+            "getBy",
+            selector.function_suffix(),
+            selector.value(),
+            options_json,
+        )
+        .await?
+        .element()
+    }
+
+    /// Unified get_all method that accepts a Selector enum and returns all matching WebElements
+    /// Throws an error if no elements match
+    pub async fn get_all(&self, selector: Selector) -> WebDriverResult<Vec<WebElement>> {
+        let options_json = selector.options_json()?;
+        self.execute_tl_selector(
+            "getAllBy",
+            selector.function_suffix(),
+            selector.value(),
+            options_json,
+        )
+        .await?
+        .elements()
+    }
+
+    /// Unified query method that accepts a Selector enum and returns a single WebElement
+    /// Returns None if no elements match
+    pub async fn query(&self, selector: Selector) -> WebDriverResult<Option<WebElement>> {
+        let options_json = selector.options_json()?;
+
+        let mut elements = self.execute_tl_selector_with_null_filter( "queryBy",
+            selector.function_suffix(),
+            selector.value(),
+            options_json).await?.elements()?;
+
+        if elements.is_empty() {
+            return Ok(None);
+        }
+
+        Ok(Some(elements.remove(0)))
+    }
+
+    /// Unified query_all method that accepts a Selector enum and returns all matching WebElements
+    /// Returns empty Vec if no elements match
+    pub async fn query_all(&self, selector: Selector) -> WebDriverResult<Vec<WebElement>> {
+        let options_json = selector.options_json()?;
+        self.execute_tl_selector(
+            "queryAllBy",
+            selector.function_suffix(),
+            selector.value(),
+            options_json,
+        )
+        .await?
+        .elements()
+    }
+
+    /// Unified find method that accepts a Selector enum and returns a single WebElement
+    /// Waits for the element to appear and throws an error if not found
+    pub async fn find(&self, selector: Selector) -> WebDriverResult<WebElement> {
+        let options_json = selector.options_json()?;
+        self.execute_tl_selector(
+            "findBy",
+            selector.function_suffix(),
+            selector.value(),
+            options_json,
+        )
+        .await?
+        .element()
+    }
+
+    /// Unified find_all method that accepts a Selector enum and returns all matching WebElements
+    /// Waits for elements to appear and throws an error if none are found
+    pub async fn find_all(&self, selector: Selector) -> WebDriverResult<Vec<WebElement>> {
+        let options_json = selector.options_json()?;
+        self.execute_tl_selector(
+            "findAllBy",
+            selector.function_suffix(),
+            selector.value(),
+            options_json,
+        )
+        .await?
+        .elements()
+    }
+
+
+    // Internal helper method for executing Testing Library methods with unified parameters
+    async fn execute_tl_selector_with_null_filter(
+        &self,
+        method_prefix: &str,
+        function_suffix: &str,
+        value: &str,
+        options_json: Option<String>,
+    ) -> WebDriverResult<ScriptRet> {
+        let method_name = format!("{}{}", method_prefix, function_suffix);
+
+        // Use a filter to remove null values from the result
+        // this simplify the deserialization back to WebElement: null becomes an empty arry => []
+        let script = match options_json {
+            Some(options) => {
+                format!(
+                    "return [window.__TL__.{}(document, '{}', {})].filter(n => n);",
+                    method_name,
+                    value,
+                    options
+                )
+            }
+            None => {
+                format!(
+                    "return [window.__TL__.{}(document, '{}')].filter(n => n);",
+                    method_name,
+                    value
+                )
+            }
+        };
+
+
+        self.driver.execute(script, vec![]).await
+    }
+
+    // Internal helper method for executing Testing Library methods with unified parameters
+    async fn execute_tl_selector(
+        &self,
+        method_prefix: &str,
+        function_suffix: &str,
+        value: &str,
+        options_json: Option<String>,
+    ) -> WebDriverResult<ScriptRet> {
+        let method_name = format!("{}{}", method_prefix, function_suffix);
+
+        let script = match options_json {
+            Some(options) => {
+                format!("return window.__TL__.{}(document, '{}', {});", method_name, value, options)
+            }
+            None => {
+                format!("return window.__TL__.{}(document, '{}');", method_name, value)
+            }
+        };
+
+        self.driver.execute(script, vec![]).await
+    }
+}
+
+
 /// Options enum for unified option handling
 #[derive(Debug, Clone)]
 pub enum Options {
@@ -63,27 +228,6 @@ impl Options {
             Options::TestId(options) => options.to_json_string(),
         }
     }
-}
-
-/// Selector enum for unified DOM queries
-#[derive(Debug, Clone)]
-pub enum Selector {
-    /// Query by element role
-    Role(String, Option<Options>),
-    /// Query by text content
-    Text(String, Option<Options>),
-    /// Query by label text
-    LabelText(String, Option<Options>),
-    /// Query by placeholder text
-    PlaceholderText(String, Option<Options>),
-    /// Query by display value
-    DisplayValue(String, Option<Options>),
-    /// Query by alt text
-    AltText(String, Option<Options>),
-    /// Query by title
-    Title(String, Option<Options>),
-    /// Query by test ID
-    TestId(String, Option<Options>),
 }
 
 impl Selector {
@@ -226,153 +370,23 @@ impl Selector {
     }
 }
 
-/// A struct representing a screen in the testing library that provides DOM queries with different behaviors: get* methods throw errors if elements aren't found, query* methods return null for missing elements, and find* methods return promises that retry until elements are found.
+/// Selector enum for unified DOM queries
 #[derive(Debug, Clone)]
-pub struct Screen {
-    driver: WebDriver,
-}
-
-impl Screen {
-    /// Creates a new `Screen` and loads the testing library script in the browser
-    pub async fn load_with_testing_library(driver: WebDriver) -> WebDriverResult<Self> {
-        // Load the testing library script in the browser
-        let testing_library = fs::read_to_string("js/testing-library.js").unwrap();
-        driver.execute(testing_library, vec![]).await?;
-
-        Ok(Screen {
-            driver,
-        })
-    }
-
-
-    // Internal helper method for executing Testing Library methods with unified parameters
-    async fn execute_tl_selector(
-        &self,
-        method_prefix: &str,
-        function_suffix: &str,
-        value: &str,
-        options_json: Option<String>,
-    ) -> WebDriverResult<ScriptRet> {
-        let method_name = format!("{}{}", method_prefix, function_suffix);
-
-        let script = match options_json {
-            Some(options) => {
-                format!("return window.__TL__.{}(document, '{}', {});", method_name, value, options)
-            }
-            None => {
-                format!("return window.__TL__.{}(document, '{}');", method_name, value)
-            }
-        };
-
-        self.driver.execute(script, vec![]).await
-    }
-
-    /// Unified get method that accepts a Selector enum and returns a single WebElement
-    /// Throws an error if no elements match or if more than one match is found
-    pub async fn get(&self, selector: Selector) -> WebDriverResult<WebElement> {
-        let options_json = selector.options_json()?;
-        self.execute_tl_selector(
-            "getBy",
-            selector.function_suffix(),
-            selector.value(),
-            options_json,
-        )
-        .await?
-        .element()
-    }
-
-    /// Unified get_all method that accepts a Selector enum and returns all matching WebElements
-    /// Throws an error if no elements match
-    pub async fn get_all(&self, selector: Selector) -> WebDriverResult<Vec<WebElement>> {
-        let options_json = selector.options_json()?;
-        self.execute_tl_selector(
-            "getAllBy",
-            selector.function_suffix(),
-            selector.value(),
-            options_json,
-        )
-        .await?
-        .elements()
-    }
-
-    /// Unified query method that accepts a Selector enum and returns a single WebElement
-    /// Returns None if no elements match
-    pub async fn query(&self, selector: Selector) -> WebDriverResult<Option<WebElement>> {
-        let options_json = selector.options_json()?;
-        let method_name = format!("queryBy{}", selector.function_suffix());
-
-        let script = match options_json {
-            Some(options) => {
-                format!(
-                    "return [window.__TL__.{}(document, '{}', {})].filter(n => n);",
-                    method_name,
-                    selector.value(),
-                    options
-                )
-            }
-            None => {
-                format!(
-                    "return [window.__TL__.{}(document, '{}')].filter(n => n);",
-                    method_name,
-                    selector.value()
-                )
-            }
-        };
-
-        let mut elements = self.driver.execute(script, vec![]).await?.elements()?;
-        if elements.is_empty() {
-            return Ok(None);
-        }
-        Ok(Some(elements.remove(0)))
-    }
-
-    /// Unified query_all method that accepts a Selector enum and returns all matching WebElements
-    /// Returns empty Vec if no elements match
-    pub async fn query_all(&self, selector: Selector) -> WebDriverResult<Vec<WebElement>> {
-        let options_json = selector.options_json()?;
-        self.execute_tl_selector(
-            "queryAllBy",
-            selector.function_suffix(),
-            selector.value(),
-            options_json,
-        )
-        .await?
-        .elements()
-    }
-
-    /// Unified find method that accepts a Selector enum and returns a single WebElement
-    /// Waits for the element to appear and throws an error if not found
-    pub async fn find(&self, selector: Selector) -> WebDriverResult<WebElement> {
-        let options_json = selector.options_json()?;
-        self.execute_tl_selector(
-            "findBy",
-            selector.function_suffix(),
-            selector.value(),
-            options_json,
-        )
-        .await?
-        .element()
-    }
-
-    /// Unified find_all method that accepts a Selector enum and returns all matching WebElements
-    /// Waits for elements to appear and throws an error if none are found
-    pub async fn find_all(&self, selector: Selector) -> WebDriverResult<Vec<WebElement>> {
-        let options_json = selector.options_json()?;
-        self.execute_tl_selector(
-            "findAllBy",
-            selector.function_suffix(),
-            selector.value(),
-            options_json,
-        )
-        .await?
-        .elements()
-    }
-
-
-
-
-
-
-
-
+pub enum Selector {
+    /// Query by element role
+    Role(String, Option<Options>),
+    /// Query by text content
+    Text(String, Option<Options>),
+    /// Query by label text
+    LabelText(String, Option<Options>),
+    /// Query by placeholder text
+    PlaceholderText(String, Option<Options>),
+    /// Query by display value
+    DisplayValue(String, Option<Options>),
+    /// Query by alt text
+    AltText(String, Option<Options>),
+    /// Query by title
+    Title(String, Option<Options>),
+    /// Query by test ID
+    TestId(String, Option<Options>),
 }

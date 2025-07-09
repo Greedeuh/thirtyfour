@@ -46,9 +46,7 @@ pub struct Screen {
 impl Screen {
     /// Creates a new `Screen` and loads the testing library script in the browser
     pub async fn build_with_testing_library(driver: WebDriver) -> WebDriverResult<Self> {
-        // Load the testing library script in the browser
-        let testing_library = fs::read_to_string("js/testing-library.js").unwrap();
-        driver.execute(testing_library, vec![]).await?;
+            Self::load_testing_library(&driver).await?;
 
         Ok(Screen {
             driver,
@@ -67,10 +65,7 @@ impl Screen {
     ///   queryAllByRole,
     /// }
     /// ```
-    pub async fn build(driver: WebDriver) -> WebDriverResult<Self> {
-        // Load the testing library script in the browser
-        let testing_library = fs::read_to_string("js/testing-library.js").unwrap();
-        driver.execute(testing_library, vec![]).await?;
+    pub fn build(driver: WebDriver) -> WebDriverResult<Self> {
 
         Ok(Screen {
             driver,
@@ -173,8 +168,7 @@ impl Screen {
         .elements()
     }
 
-
-    // Internal helper method for executing Testing Library methods with unified parameters
+    /// Specifict for the queryBy wich makes it easier to parse null values
     async fn execute_tl_selector_with_null_filter(
         &self,
         method_prefix: &str,
@@ -210,7 +204,7 @@ impl Screen {
         };
 
 
-        self.driver.execute(script, arguments).await
+        self.execute_and_retry_if_library_not_found(&script, arguments).await
     }
 
     // Internal helper method for executing Testing Library methods with unified parameters
@@ -234,7 +228,7 @@ impl Screen {
             }
         };
 
-        self.driver.execute(script, arguments).await
+        self.execute_and_retry_if_library_not_found(&script, arguments).await
     }
 
     fn container_and_arguments(&self) -> WebDriverResult<(&str, Vec<Value>)> {
@@ -244,8 +238,42 @@ impl Screen {
             Ok(("document", vec![]))
         }
     }
-}
 
+    async fn execute_and_retry_if_library_not_found(
+        &self,
+        script: &str,
+        arguments: Vec<Value>,
+    ) -> WebDriverResult<ScriptRet> {
+        let script = self.library_check_wrapper(&script);
+        let result = self.driver.execute(&script, arguments.clone()).await?;
+
+        let string_value = result.json().as_str();
+        if string_value == Some(LIBRARY_NOT_FOUND_ERROR) {
+            Self::load_testing_library(&self.driver).await?;
+            return  self.driver.execute(script, arguments).await;
+        }
+        
+        // If the library is found, we can return the result directly
+        return Ok(result);
+    }
+
+    fn library_check_wrapper(&self, script: &str) -> String {
+        format!(
+            "if (!window.__TL__) return '{}'; {}",
+            LIBRARY_NOT_FOUND_ERROR,
+            script
+        )
+    }
+
+    async fn load_testing_library(driver: &WebDriver) -> WebDriverResult<()> {
+        // Load the testing library script in the browser
+        let testing_library = fs::read_to_string("js/testing-library.js").unwrap();
+        driver.execute(testing_library, vec![]).await?;
+
+        Ok(())
+    }
+}
+const LIBRARY_NOT_FOUND_ERROR: &str = "Testing Library not found";
 
 /// Options enum for unified option handling
 #[derive(Debug, Clone)]

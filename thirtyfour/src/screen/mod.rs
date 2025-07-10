@@ -189,30 +189,17 @@ impl Screen {
         options_json: Option<String>,
     ) -> WebDriverResult<ScriptRet> {
         let method_name = format!("{}{}", method_prefix, function_suffix);
-
         let (container, arguments) = self.container_and_arguments()?;
 
         // Use a filter to remove null values from the result
         // this simplify the deserialization back to WebElement: null becomes an empty arry => []
-        let script = match options_json {
-            Some(options) => {
-                format!(
-                    "return [window.__TL__.{}({}, '{}', {})].filter(n => n);",
-                    method_name,
-                    container,
-                    value,
-                    options
-                )
-            }
-            None => {
-                format!(
-                    "return [window.__TL__.{}({}, '{}')].filter(n => n);",
-                    method_name,
-                    container,
-                    value
-                )
-            }
-        };
+        let script = self.build_tl_script(
+            &method_name,
+            container,
+            value,
+            options_json.as_deref(),
+            true,
+        );
 
         self.execute_and_retry_if_library_not_found(&script, arguments).await
     }
@@ -226,17 +213,15 @@ impl Screen {
         options_json: Option<String>,
     ) -> WebDriverResult<ScriptRet> {
         let method_name = format!("{}{}", method_prefix, function_suffix);
-
         let (container, arguments) = self.container_and_arguments()?;
 
-        let script = match options_json {
-            Some(options) => {
-                format!("return window.__TL__.{}({}, '{}', {});", method_name,container, value, options)
-            }
-            None => {
-                format!("return window.__TL__.{}({}, '{}');", method_name,container, value)
-            }
-        };
+        let script = self.build_tl_script(
+            &method_name,
+            container,
+            value,
+            options_json.as_deref(),
+            false,
+        );
 
         self.execute_and_retry_if_library_not_found(&script, arguments).await
     }
@@ -249,12 +234,36 @@ impl Screen {
         }
     }
 
+    fn build_tl_script(
+        &self,
+        method_name: &str,
+        container: &str,
+        value: &str,
+        options_json: Option<&str>,
+        with_null_filter: bool,
+    ) -> String {
+        let base_call = match options_json {
+            Some(options) => {
+                format!("window.__TL__.{}({}, '{}', {})", method_name, container, value, options)
+            }
+            None => {
+                format!("window.__TL__.{}({}, '{}')", method_name, container, value)
+            }
+        };
+
+        if with_null_filter {
+            format!("return [{}].filter(n => n);", base_call)
+        } else {
+            format!("return {};", base_call)
+        }
+    }
+
     async fn execute_and_retry_if_library_not_found(
         &self,
         script: &str,
         arguments: Vec<Value>,
     ) -> WebDriverResult<ScriptRet> {
-        let script = self.library_check_wrapper(&script);
+        let script = self.wrap_script(&script);
 
         let result = self.driver.execute(&script, arguments.clone()).await?;
 
@@ -269,28 +278,22 @@ impl Screen {
         return Ok(result);
     }
 
-    fn library_check_wrapper(&self, script: &str) -> String {
-        let wrapped_script =self.configure_wrapper(&script);
+    fn wrap_script(&self, script: &str) -> String {
+        let configured_script = if let Some(ref options) = self.configure_options {
+            if let Ok(options_json) = options.to_json_string() {
+                format!("window.__TL__.configure({}); {}", options_json, script)
+            } else {
+                script.to_string()
+            }
+        } else {
+            script.to_string()
+        };
 
-        return format!(
+        format!(
             "if (!window.__TL__) return '{}'; {}",
             LIBRARY_NOT_FOUND_ERROR,
-            wrapped_script
+            configured_script
         )
-
-    }
-
-    fn configure_wrapper(&self, script: &str) -> String {
-        if let Some(ref options) = self.configure_options {
-            if let Ok(options_json) = options.to_json_string() {
-                return format!(
-                    "window.__TL__.configure({}); {}",
-                    options_json,
-                    script
-                );
-            }
-        }
-        script.to_string()
     }
 
     async fn load_testing_library(driver: &WebDriver) -> WebDriverResult<()> {

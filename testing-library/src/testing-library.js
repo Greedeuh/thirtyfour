@@ -47,7 +47,8 @@ import {
   getByTestId,
   findAllByTestId,
   findByTestId,
-  configure
+  configure,
+  screen,
 } from "@testing-library/dom"
 
 window.__TL__ = {
@@ -99,5 +100,6 @@ window.__TL__ = {
   getByTestId,
   findAllByTestId,
   findByTestId,
-  configure
+  configure,
+  logTestingPlaygroundURL: screen.logTestingPlaygroundURL
 }

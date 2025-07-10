@@ -33,7 +33,6 @@ use crate::{error::WebDriverResult, prelude::ScriptRet, WebDriver, WebElement};
 
 // TODO
 // - better error handling
-// - logTestingPlaygroundURL
 
 /// A struct representing a screen in the testing library that provides DOM queries with different behaviors: get* methods throw errors if elements aren't found, query* methods return null for missing elements, and find* methods return promises that retry until elements are found.
 #[derive(Debug, Clone)]
@@ -96,7 +95,7 @@ impl Screen {
     pub async fn get(&self, selector: By) -> WebDriverResult<WebElement> {
         let options_json = selector.options_json()?;
         self.query_executor()
-            .execute("getBy", selector.function_suffix(), selector.value(), options_json, false)
+            .execute_query("getBy", selector.function_suffix(), selector.value(), options_json, false)
             .await?
             .element()
     }
@@ -106,7 +105,7 @@ impl Screen {
     pub async fn get_all(&self, selector: By) -> WebDriverResult<Vec<WebElement>> {
         let options_json = selector.options_json()?;
         self.query_executor()
-            .execute("getAllBy", selector.function_suffix(), selector.value(), options_json, false)
+            .execute_query("getAllBy", selector.function_suffix(), selector.value(), options_json, false)
             .await?
             .elements()
     }
@@ -117,7 +116,7 @@ impl Screen {
         let options_json = selector.options_json()?;
         let mut elements = self
             .query_executor()
-            .execute("queryBy", selector.function_suffix(), selector.value(), options_json, true)
+            .execute_query("queryBy", selector.function_suffix(), selector.value(), options_json, true)
             .await?
             .elements()?;
 
@@ -133,7 +132,7 @@ impl Screen {
     pub async fn query_all(&self, selector: By) -> WebDriverResult<Vec<WebElement>> {
         let options_json = selector.options_json()?;
         self.query_executor()
-            .execute(
+            .execute_query(
                 "queryAllBy",
                 selector.function_suffix(),
                 selector.value(),
@@ -149,7 +148,7 @@ impl Screen {
     pub async fn find(&self, selector: By) -> WebDriverResult<WebElement> {
         let options_json = selector.options_json()?;
         self.query_executor()
-            .execute("findBy", selector.function_suffix(), selector.value(), options_json, false)
+            .execute_query("findBy", selector.function_suffix(), selector.value(), options_json, false)
             .await?
             .element()
     }
@@ -159,9 +158,30 @@ impl Screen {
     pub async fn find_all(&self, selector: By) -> WebDriverResult<Vec<WebElement>> {
         let options_json = selector.options_json()?;
         self.query_executor()
-            .execute("findAllBy", selector.function_suffix(), selector.value(), options_json, false)
+            .execute_query("findAllBy", selector.function_suffix(), selector.value(), options_json, false)
             .await?
             .elements()
+    }
+
+    /// Logs and returns a URL that can be opened in a browser for debugging using testing-playground
+    /// If element is None, logs the entire document. If element is provided, logs only that element.
+    pub async fn log_testing_playground_url(&self, element: Option<WebElement>) -> WebDriverResult<String> {
+        let (script, arguments) = match element {
+            Some(element) => (
+                "return window.__TL__.logTestingPlaygroundURL(arguments[0]);",
+                vec![element.to_json()?]
+            ),
+            None => (
+                "return window.__TL__.logTestingPlaygroundURL();",
+                vec![]
+            ),
+        };
+
+        let result = self.query_executor().execute(script, arguments).await?;
+        
+        result.json().as_str()
+            .ok_or_else(|| crate::error::WebDriverError::Json("logTestingPlaygroundURL returned non-string value".to_string()))
+            .map(|s| s.to_string())
     }
 
     async fn load_testing_library(driver: &WebDriver) -> WebDriverResult<()> {
@@ -203,8 +223,14 @@ impl QueryExecutor {
         }
     }
 
+    /// Execute a basic Testing Library script with retry logic
+    pub async fn execute(&self, script: &str, arguments: Vec<Value>) -> WebDriverResult<ScriptRet> {
+        let wrapped_script = self.wrap_load_retry(&script);
+        self.execute_and_retry_if_library_not_found(&wrapped_script, arguments).await
+    }
+
     /// Execute a Testing Library query
-    pub async fn execute(
+    pub async fn execute_query(
         &self,
         method_prefix: &str,
         function_suffix: &str,

@@ -2,7 +2,7 @@ mod common;
 use common::*;
 use rstest::rstest;
 use thirtyfour::prelude::*;
-use thirtyfour::screen::{configure, Screen, Selector};
+use thirtyfour::screen::{configure, By, Screen};
 use thirtyfour::support::block_on;
 
 #[rstest]
@@ -20,7 +20,7 @@ fn test_configure_default_hidden(test_harness: TestHarness) -> WebDriverResult<(
 
         // Try to find hidden button using just the role selector
         // This should work because we configured the screen to include hidden elements by default
-        screen.get(Selector::text("Hidden Button")).await?;
+        screen.get(By::text("Hidden Button")).await?;
 
         Ok(())
     })
@@ -41,7 +41,7 @@ fn test_configure_default_ignore(test_harness: TestHarness) -> WebDriverResult<(
 
         // Try to find text in the paragraph
         // This should work because we configured to ignore divs instead of script/style
-        let paragraph = screen.get(Selector::text("This is a paragraph")).await?;
+        let paragraph = screen.get(By::text("This is a paragraph")).await?;
         assert_eq!(paragraph.text().await?, "This is a paragraph");
 
         Ok(())
@@ -63,7 +63,7 @@ fn test_configure_test_id_attribute(test_harness: TestHarness) -> WebDriverResul
             Screen::build_with_testing_library(c.clone()).await?.configure(configure_options);
 
         // Try to find element using the custom test ID attribute
-        let custom_button = screen.get(Selector::test_id("custom-test-id")).await?;
+        let custom_button = screen.get(By::test_id("custom-test-id")).await?;
         assert_eq!(custom_button.text().await?, "Custom TestId Button");
 
         Ok(())

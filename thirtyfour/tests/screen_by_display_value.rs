@@ -2,7 +2,7 @@ mod common;
 use common::*;
 use rstest::rstest;
 use thirtyfour::prelude::*;
-use thirtyfour::screen::{Screen, Selector};
+use thirtyfour::screen::{By, Screen};
 use thirtyfour::support::block_on;
 
 #[rstest]
@@ -13,7 +13,7 @@ fn get_by_display_value(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let option = screen.get(Selector::display_value("Red")).await?;
+        let option = screen.get(By::display_value("Red")).await?;
 
         assert_eq!(option.value().await?.unwrap(), "red");
 
@@ -29,7 +29,7 @@ fn query_by_display_value(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let option = screen.query(Selector::display_value("Red")).await?;
+        let option = screen.query(By::display_value("Red")).await?;
 
         assert!(option.is_some());
         assert_eq!(option.unwrap().value().await?.unwrap(), "red");
@@ -46,7 +46,7 @@ fn get_all_by_display_value(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let options = screen.get_all(Selector::display_value("Red")).await?;
+        let options = screen.get_all(By::display_value("Red")).await?;
 
         assert_eq!(options.len(), 1);
         assert_eq!(options[0].value().await?.unwrap(), "red");
@@ -63,7 +63,7 @@ fn query_all_by_display_value(test_harness: TestHarness) -> WebDriverResult<()> 
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let options = screen.query_all(Selector::display_value("Red")).await?;
+        let options = screen.query_all(By::display_value("Red")).await?;
 
         assert_eq!(options.len(), 1);
         assert_eq!(options[0].value().await?.unwrap(), "red");
@@ -80,7 +80,7 @@ fn find_by_display_value(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let option = screen.find(Selector::display_value("Red")).await?;
+        let option = screen.find(By::display_value("Red")).await?;
 
         assert_eq!(option.value().await?.unwrap(), "red");
 
@@ -96,7 +96,7 @@ fn find_all_by_display_value(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let options = screen.find_all(Selector::display_value("Red")).await?;
+        let options = screen.find_all(By::display_value("Red")).await?;
 
         assert_eq!(options.len(), 1);
         assert_eq!(options[0].value().await?.unwrap(), "red");
@@ -113,7 +113,7 @@ fn get_by_display_value_should_fail(test_harness: TestHarness) -> WebDriverResul
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let result = screen.get(Selector::display_value("NonExistentValue")).await;
+        let result = screen.get(By::display_value("NonExistentValue")).await;
 
         assert!(result.is_err());
 
@@ -129,7 +129,7 @@ fn get_all_by_display_value_should_fail(test_harness: TestHarness) -> WebDriverR
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let result = screen.get_all(Selector::display_value("NonExistentValue")).await;
+        let result = screen.get_all(By::display_value("NonExistentValue")).await;
 
         assert!(result.is_err());
 
@@ -145,7 +145,7 @@ fn find_by_display_value_should_fail(test_harness: TestHarness) -> WebDriverResu
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let result = screen.find(Selector::display_value("NonExistentValue")).await;
+        let result = screen.find(By::display_value("NonExistentValue")).await;
 
         assert!(result.is_err());
 
@@ -161,7 +161,7 @@ fn find_all_by_display_value_should_fail(test_harness: TestHarness) -> WebDriver
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let result = screen.find_all(Selector::display_value("NonExistentValue")).await;
+        let result = screen.find_all(By::display_value("NonExistentValue")).await;
 
         assert!(result.is_err());
 
@@ -177,7 +177,7 @@ fn query_by_display_value_not_found(test_harness: TestHarness) -> WebDriverResul
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let result = screen.query(Selector::display_value("NonExistentValue")).await?;
+        let result = screen.query(By::display_value("NonExistentValue")).await?;
 
         assert!(result.is_none());
 
@@ -193,7 +193,7 @@ fn query_all_by_display_value_empty(test_harness: TestHarness) -> WebDriverResul
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let result = screen.query_all(Selector::display_value("NonExistentValue")).await?;
+        let result = screen.query_all(By::display_value("NonExistentValue")).await?;
 
         assert_eq!(result.len(), 0);
 

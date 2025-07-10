@@ -2,7 +2,7 @@ mod common;
 use common::*;
 use rstest::rstest;
 use thirtyfour::prelude::*;
-use thirtyfour::screen::{Screen, Selector};
+use thirtyfour::screen::{By, Screen};
 use thirtyfour::support::block_on;
 
 #[rstest]
@@ -13,7 +13,7 @@ fn get_by_alt_text(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let image = screen.get(Selector::alt_text("Some image")).await?;
+        let image = screen.get(By::alt_text("Some image")).await?;
 
         assert_eq!(image.id().await?.unwrap(), "some-image");
 
@@ -29,7 +29,7 @@ fn query_by_alt_text(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let image: Option<WebElement> = screen.query(Selector::alt_text("Some image")).await?;
+        let image: Option<WebElement> = screen.query(By::alt_text("Some image")).await?;
 
         assert!(image.is_some());
         assert_eq!(image.unwrap().id().await?.unwrap(), "some-image");
@@ -46,7 +46,7 @@ fn get_all_by_alt_text(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let images = screen.get_all(Selector::alt_text("Some image")).await?;
+        let images = screen.get_all(By::alt_text("Some image")).await?;
 
         assert_eq!(images.len(), 1);
 
@@ -62,7 +62,7 @@ fn query_all_by_alt_text(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let images = screen.query_all(Selector::alt_text("Some image")).await?;
+        let images = screen.query_all(By::alt_text("Some image")).await?;
 
         assert_eq!(images.len(), 1);
         assert_eq!(images[0].id().await?.unwrap(), "some-image");
@@ -79,7 +79,7 @@ fn find_by_alt_text(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let image = screen.find(Selector::alt_text("Some image")).await?;
+        let image = screen.find(By::alt_text("Some image")).await?;
 
         assert_eq!(image.id().await?.unwrap(), "some-image");
 
@@ -95,7 +95,7 @@ fn find_all_by_alt_text(test_harness: TestHarness) -> WebDriverResult<()> {
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let images = screen.find_all(Selector::alt_text("Some image")).await?;
+        let images = screen.find_all(By::alt_text("Some image")).await?;
 
         assert_eq!(images.len(), 1);
         assert_eq!(images[0].id().await?.unwrap(), "some-image");
@@ -112,7 +112,7 @@ fn get_by_alt_text_should_fail(test_harness: TestHarness) -> WebDriverResult<()>
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let result = screen.get(Selector::alt_text("NonExistentAlt")).await;
+        let result = screen.get(By::alt_text("NonExistentAlt")).await;
 
         assert!(result.is_err());
 
@@ -128,7 +128,7 @@ fn get_all_by_alt_text_should_fail(test_harness: TestHarness) -> WebDriverResult
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let result = screen.get_all(Selector::alt_text("NonExistentAlt")).await;
+        let result = screen.get_all(By::alt_text("NonExistentAlt")).await;
 
         assert!(result.is_err());
 
@@ -144,7 +144,7 @@ fn find_by_alt_text_should_fail(test_harness: TestHarness) -> WebDriverResult<()
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let result = screen.find(Selector::alt_text("NonExistentAlt")).await;
+        let result = screen.find(By::alt_text("NonExistentAlt")).await;
 
         assert!(result.is_err());
 
@@ -160,7 +160,7 @@ fn find_all_by_alt_text_should_fail(test_harness: TestHarness) -> WebDriverResul
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let result = screen.find_all(Selector::alt_text("NonExistentAlt")).await;
+        let result = screen.find_all(By::alt_text("NonExistentAlt")).await;
 
         assert!(result.is_err());
 
@@ -176,7 +176,7 @@ fn query_by_alt_text_not_found(test_harness: TestHarness) -> WebDriverResult<()>
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let result = screen.query(Selector::alt_text("NonExistentAlt")).await?;
+        let result = screen.query(By::alt_text("NonExistentAlt")).await?;
 
         assert!(result.is_none());
 
@@ -192,7 +192,7 @@ fn query_all_by_alt_text_empty(test_harness: TestHarness) -> WebDriverResult<()>
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let result = screen.query_all(Selector::alt_text("NonExistentAlt")).await?;
+        let result = screen.query_all(By::alt_text("NonExistentAlt")).await?;
 
         assert_eq!(result.len(), 0);
 

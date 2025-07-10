@@ -93,7 +93,7 @@ impl Screen {
 
     /// Unified get method that accepts a Selector enum and returns a single WebElement
     /// Throws an error if no elements match or if more than one match is found
-    pub async fn get(&self, selector: Selector) -> WebDriverResult<WebElement> {
+    pub async fn get(&self, selector: By) -> WebDriverResult<WebElement> {
         let options_json = selector.options_json()?;
         self.query_executor()
             .execute("getBy", selector.function_suffix(), selector.value(), options_json, false)
@@ -103,7 +103,7 @@ impl Screen {
 
     /// Unified get_all method that accepts a Selector enum and returns all matching WebElements
     /// Throws an error if no elements match
-    pub async fn get_all(&self, selector: Selector) -> WebDriverResult<Vec<WebElement>> {
+    pub async fn get_all(&self, selector: By) -> WebDriverResult<Vec<WebElement>> {
         let options_json = selector.options_json()?;
         self.query_executor()
             .execute("getAllBy", selector.function_suffix(), selector.value(), options_json, false)
@@ -113,7 +113,7 @@ impl Screen {
 
     /// Unified query method that accepts a Selector enum and returns a single WebElement
     /// Returns None if no elements match
-    pub async fn query(&self, selector: Selector) -> WebDriverResult<Option<WebElement>> {
+    pub async fn query(&self, selector: By) -> WebDriverResult<Option<WebElement>> {
         let options_json = selector.options_json()?;
         let mut elements = self
             .query_executor()
@@ -130,7 +130,7 @@ impl Screen {
 
     /// Unified query_all method that accepts a Selector enum and returns all matching WebElements
     /// Returns empty Vec if no elements match
-    pub async fn query_all(&self, selector: Selector) -> WebDriverResult<Vec<WebElement>> {
+    pub async fn query_all(&self, selector: By) -> WebDriverResult<Vec<WebElement>> {
         let options_json = selector.options_json()?;
         self.query_executor()
             .execute(
@@ -146,7 +146,7 @@ impl Screen {
 
     /// Unified find method that accepts a Selector enum and returns a single WebElement
     /// Waits for the element to appear and throws an error if not found
-    pub async fn find(&self, selector: Selector) -> WebDriverResult<WebElement> {
+    pub async fn find(&self, selector: By) -> WebDriverResult<WebElement> {
         let options_json = selector.options_json()?;
         self.query_executor()
             .execute("findBy", selector.function_suffix(), selector.value(), options_json, false)
@@ -156,7 +156,7 @@ impl Screen {
 
     /// Unified find_all method that accepts a Selector enum and returns all matching WebElements
     /// Waits for elements to appear and throws an error if none are found
-    pub async fn find_all(&self, selector: Selector) -> WebDriverResult<Vec<WebElement>> {
+    pub async fn find_all(&self, selector: By) -> WebDriverResult<Vec<WebElement>> {
         let options_json = selector.options_json()?;
         self.query_executor()
             .execute("findAllBy", selector.function_suffix(), selector.value(), options_json, false)
@@ -226,7 +226,7 @@ impl QueryExecutor {
         self.execute_and_retry_if_library_not_found(&script, arguments).await
     }
 
-     /// Build and wrap a Testing Library script in one call
+    /// Build and wrap a Testing Library script in one call
     fn build_and_wrap(
         &self,
         method_name: &str,
@@ -367,7 +367,7 @@ impl Options {
     }
 }
 
-impl Selector {
+impl By {
     /// Create a role selector without options
     pub fn role(value: impl Into<String>) -> Self {
         Self::Role(value.into(), None)
@@ -457,42 +457,42 @@ impl Selector {
     /// Returns the function suffix for the Testing Library method name
     fn function_suffix(&self) -> &str {
         match self {
-            Selector::Role(_, _) => "Role",
-            Selector::Text(_, _) => "Text",
-            Selector::LabelText(_, _) => "LabelText",
-            Selector::PlaceholderText(_, _) => "PlaceholderText",
-            Selector::DisplayValue(_, _) => "DisplayValue",
-            Selector::AltText(_, _) => "AltText",
-            Selector::Title(_, _) => "Title",
-            Selector::TestId(_, _) => "TestId",
+            By::Role(_, _) => "Role",
+            By::Text(_, _) => "Text",
+            By::LabelText(_, _) => "LabelText",
+            By::PlaceholderText(_, _) => "PlaceholderText",
+            By::DisplayValue(_, _) => "DisplayValue",
+            By::AltText(_, _) => "AltText",
+            By::Title(_, _) => "Title",
+            By::TestId(_, _) => "TestId",
         }
     }
 
     /// Returns the selector value (text, role, etc.)
     fn value(&self) -> &str {
         match self {
-            Selector::Role(value, _) => value,
-            Selector::Text(value, _) => value,
-            Selector::LabelText(value, _) => value,
-            Selector::PlaceholderText(value, _) => value,
-            Selector::DisplayValue(value, _) => value,
-            Selector::AltText(value, _) => value,
-            Selector::Title(value, _) => value,
-            Selector::TestId(value, _) => value,
+            By::Role(value, _) => value,
+            By::Text(value, _) => value,
+            By::LabelText(value, _) => value,
+            By::PlaceholderText(value, _) => value,
+            By::DisplayValue(value, _) => value,
+            By::AltText(value, _) => value,
+            By::Title(value, _) => value,
+            By::TestId(value, _) => value,
         }
     }
 
     /// Returns the options if any
     fn options(&self) -> &Option<Options> {
         match self {
-            Selector::Role(_, options) => options,
-            Selector::Text(_, options) => options,
-            Selector::LabelText(_, options) => options,
-            Selector::PlaceholderText(_, options) => options,
-            Selector::DisplayValue(_, options) => options,
-            Selector::AltText(_, options) => options,
-            Selector::Title(_, options) => options,
-            Selector::TestId(_, options) => options,
+            By::Role(_, options) => options,
+            By::Text(_, options) => options,
+            By::LabelText(_, options) => options,
+            By::PlaceholderText(_, options) => options,
+            By::DisplayValue(_, options) => options,
+            By::AltText(_, options) => options,
+            By::Title(_, options) => options,
+            By::TestId(_, options) => options,
         }
     }
 
@@ -509,7 +509,7 @@ impl Selector {
 
 /// Selector enum for unified DOM queries
 #[derive(Debug, Clone)]
-pub enum Selector {
+pub enum By {
     /// Query by element role
     Role(String, Option<Options>),
     /// Query by text content

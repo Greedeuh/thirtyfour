@@ -3,6 +3,7 @@ use serde_json::Value;
 
 /// Options for display value queries
 #[derive(Debug, Clone, Default, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ByDisplayValueOptions {
     /// Whether to use exact text matching
     #[serde(skip_serializing_if = "Option::is_none")]

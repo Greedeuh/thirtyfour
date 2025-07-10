@@ -47,6 +47,7 @@ import {
   getByTestId,
   findAllByTestId,
   findByTestId,
+  configure
 } from "@testing-library/dom"
 
 window.__TL__ = {
@@ -98,4 +99,5 @@ window.__TL__ = {
   getByTestId,
   findAllByTestId,
   findByTestId,
+  configure
 }

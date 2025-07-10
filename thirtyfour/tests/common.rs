@@ -199,3 +199,7 @@ pub fn by_test_id_exact_page_url() -> String {
 pub fn screen_within_page_url() -> String {
     format!("http://localhost:{PORT}/screen_within.html")
 }
+
+pub fn screen_configure_page_url() -> String {
+    format!("http://localhost:{PORT}/screen_configure.html")
+}

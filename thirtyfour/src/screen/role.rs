@@ -47,6 +47,7 @@ impl Serialize for TextMatch {
 
 /// Options for value-based queries on range widgets
 #[derive(Debug, Clone, Default, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ValueOptions {
     /// Minimum value (aria-valuemin)
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -64,6 +65,7 @@ pub struct ValueOptions {
 
 /// Comprehensive options for role-based queries
 #[derive(Debug, Clone, Default, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ByRoleOptions {
     /// Include elements normally excluded from accessibility tree
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -96,7 +98,7 @@ pub struct ByRoleOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expanded: Option<bool>,
     /// Enable querying fallback roles
-    #[serde(rename = "queryFallbacks", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub query_fallbacks: Option<bool>,
     /// Filter by heading level (only for heading role)
     #[serde(skip_serializing_if = "Option::is_none")]

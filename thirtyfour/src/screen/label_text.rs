@@ -3,6 +3,7 @@ use serde_json::Value;
 
 /// Options for label text queries
 #[derive(Debug, Clone, Default, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ByLabelTextOptions {
     /// CSS selector to filter elements
     #[serde(skip_serializing_if = "Option::is_none")]

@@ -42,6 +42,7 @@ use crate::{error::WebDriverResult, prelude::ScriptRet, WebDriver, WebElement};
 pub struct Screen {
     driver: WebDriver,
     within_element: Option<WebElement>,
+    configure_options: Option<configure::Options>,
 }
 
 impl Screen {
@@ -51,7 +52,8 @@ impl Screen {
 
         Ok(Screen {
             driver,
-    within_element: None,
+            within_element: None,
+            configure_options: None,
         })
     }
 
@@ -71,7 +73,8 @@ impl Screen {
     pub fn build(driver: WebDriver) -> WebDriverResult<Self> {
         Ok(Screen {
             driver,
-    within_element: None,
+            within_element: None,
+            configure_options: None,
         })
     }
 
@@ -80,7 +83,14 @@ impl Screen {
         Screen {
             driver: self.driver.clone(),
             within_element: Some(element),
+            configure_options: self.configure_options.clone(),
         }
+    }
+
+    /// Configure the testing library options
+    pub fn configure(mut self, options: configure::Options) -> Self {
+        self.configure_options = Some(options);
+        self
     }
 
     /// Unified get method that accepts a Selector enum and returns a single WebElement
@@ -245,8 +255,10 @@ impl Screen {
         arguments: Vec<Value>,
     ) -> WebDriverResult<ScriptRet> {
         let script = self.library_check_wrapper(&script);
+
         let result = self.driver.execute(&script, arguments.clone()).await?;
 
+        
         let string_value = result.json().as_str();
         if string_value == Some(LIBRARY_NOT_FOUND_ERROR) {
             Self::load_testing_library(&self.driver).await?;
@@ -258,11 +270,27 @@ impl Screen {
     }
 
     fn library_check_wrapper(&self, script: &str) -> String {
-        format!(
+        let wrapped_script =self.configure_wrapper(&script);
+
+        return format!(
             "if (!window.__TL__) return '{}'; {}",
             LIBRARY_NOT_FOUND_ERROR,
-            script
+            wrapped_script
         )
+
+    }
+
+    fn configure_wrapper(&self, script: &str) -> String {
+        if let Some(ref options) = self.configure_options {
+            if let Ok(options_json) = options.to_json_string() {
+                return format!(
+                    "window.__TL__.configure({}); {}",
+                    options_json,
+                    script
+                );
+            }
+        }
+        script.to_string()
     }
 
     async fn load_testing_library(driver: &WebDriver) -> WebDriverResult<()> {

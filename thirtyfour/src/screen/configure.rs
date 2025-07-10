@@ -1,7 +1,8 @@
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize,};
 
 /// Configuration options for the testing library
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Options {
     /// Set to true if window.getComputedStyle supports pseudo-elements i.e. a second argument.
     /// If you're using testing-library in a browser you almost always want to set this to true.
@@ -11,15 +12,18 @@ pub struct Options {
     /// warning when calling getComputedStyle with a second argument e.g.
     /// window.getComputedStyle(document.createElement('div'), '::after').
     /// Defaults to false
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub computed_style_supports_pseudo_elements: Option<bool>,
 
     /// The default value for the hidden option used by getByRole.
     /// Defaults to false.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub default_hidden: Option<bool>,
 
     /// The default value for the ignore option used by getByText.
     /// Also determines the nodes that are being ignored when errors are printed.
     /// Defaults to "script, style".
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub default_ignore: Option<String>,
 
     /// By default, waitFor will ensure that the stack trace for errors thrown by Testing Library
@@ -27,19 +31,23 @@ pub struct Options {
     /// that resulted in the error (async stack traces are hard to debug).
     /// If you want to disable this, then set showOriginalStackTrace to false.
     /// You can also disable this for a specific call in the options you pass to waitFor.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub show_original_stack_trace: Option<bool>,
 
     /// When enabled, if better queries are available, the test will fail and provide a
     /// suggested query to use instead.
     /// Defaults to false.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub throw_suggestions: Option<bool>,
 
     /// The attribute used by getByTestId and related queries.
     /// Defaults to "data-testid".
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub test_id_attribute: Option<String>,
 
     /// The global timeout value in milliseconds used by waitFor utilities.
     /// Defaults to 1000ms.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub async_util_timeout: Option<u64>,
 }
 

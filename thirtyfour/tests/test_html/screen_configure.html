@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Screen Configure Test Page</title>
+</head>
+<body>
+    <!-- Test for defaultHidden option -->
+    <section id="hidden-test">
+        <button id="hidden-button" style="visibility: hidden;">Hidden Button</button>
+    </section>
+
+    <!-- Test for defaultIgnore option -->
+    <section id="ignore-test">
+        <div id="content-div">Content Div</div>
+        <script>
+            // This script tag should be ignored by default
+            console.log("This is a script");
+        </script>
+        <style>
+            /* This style tag should be ignored by default */
+            body { margin: 0; }
+        </style>
+        <p id="text-paragraph">This is a paragraph</p>
+    </section>
+
+    <!-- Test for testIdAttribute option -->
+    <section id="test-id-test">
+        <button data-testid="standard-test-id">Standard TestId Button</button>
+        <button my-custom-testid="custom-test-id">Custom TestId Button</button>
+    </section>
+</body>
+</html>

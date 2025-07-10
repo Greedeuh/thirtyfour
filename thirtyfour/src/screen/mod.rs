@@ -1,5 +1,7 @@
 /// Alt text query options and utilities
 pub mod alt_text;
+/// Configuration options for the testing library
+pub mod configure;
 /// Display value query options and utilities
 pub mod display_value;
 /// Label text query options and utilities
@@ -58,14 +60,15 @@ impl Screen {
     /// ```javascript
     /// import {
     ///   queryAllByRole,
+    ///   ...
     /// } from "@testing-library/dom"
     ///
     /// window.__TL__ = {
     ///   queryAllByRole,
+    ///   ...
     /// }
     /// ```
     pub fn build(driver: WebDriver) -> WebDriverResult<Self> {
-
         Ok(Screen {
             driver,
     within_element: None,
@@ -179,7 +182,6 @@ impl Screen {
 
         let (container, arguments) = self.container_and_arguments()?;
 
-        
         // Use a filter to remove null values from the result
         // this simplify the deserialization back to WebElement: null becomes an empty arry => []
         let script = match options_json {
@@ -201,7 +203,6 @@ impl Screen {
                 )
             }
         };
-
 
         self.execute_and_retry_if_library_not_found(&script, arguments).await
     }

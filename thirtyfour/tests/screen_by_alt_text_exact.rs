@@ -35,13 +35,15 @@ fn test_by_alt_text_exact_option(test_harness: TestHarness) -> WebDriverResult<(
         assert_eq!(result.unwrap().id().await?, Some("alt-exact".to_string()));
 
         // Test query_all_by_alt_text_with_options
-        let query_elements =
-            screen.query_all(Selector::alt_text_with_options("Logo", exact_options.clone())).await?;
+        let query_elements = screen
+            .query_all(Selector::alt_text_with_options("Logo", exact_options.clone()))
+            .await?;
         assert_eq!(query_elements.len(), 1);
         assert_eq!(query_elements[0].id().await?, Some("alt-exact".to_string()));
 
         // Test find_by_alt_text_with_options
-        let find_element = screen.find(Selector::alt_text_with_options("Logo", exact_options.clone())).await?;
+        let find_element =
+            screen.find(Selector::alt_text_with_options("Logo", exact_options.clone())).await?;
         assert_eq!(find_element.id().await?, Some("alt-exact".to_string()));
 
         // Test find_all_by_alt_text_with_options

@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize,};
+use serde::{Deserialize, Serialize};
 
 /// Configuration options for the testing library
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -49,6 +49,12 @@ pub struct Options {
     /// Defaults to 1000ms.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub async_util_timeout: Option<u64>,
+}
+
+impl Default for Options {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Options {

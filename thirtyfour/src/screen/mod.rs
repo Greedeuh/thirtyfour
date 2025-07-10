@@ -36,7 +36,6 @@ use crate::{error::WebDriverResult, prelude::ScriptRet, WebDriver, WebElement};
 // - better error handling
 // - logTestingPlaygroundURL
 
-
 /// A struct representing a screen in the testing library that provides DOM queries with different behaviors: get* methods throw errors if elements aren't found, query* methods return null for missing elements, and find* methods return promises that retry until elements are found.
 #[derive(Debug, Clone)]
 pub struct Screen {
@@ -48,7 +47,7 @@ pub struct Screen {
 impl Screen {
     /// Creates a new `Screen` and loads the testing library script in the browser
     pub async fn build_with_testing_library(driver: WebDriver) -> WebDriverResult<Self> {
-            Self::load_testing_library(&driver).await?;
+        Self::load_testing_library(&driver).await?;
 
         Ok(Screen {
             driver,
@@ -106,43 +105,31 @@ impl Screen {
     /// Throws an error if no elements match or if more than one match is found
     pub async fn get(&self, selector: Selector) -> WebDriverResult<WebElement> {
         let options_json = selector.options_json()?;
-        self.query_executor().execute(
-            "getBy",
-            selector.function_suffix(),
-            selector.value(),
-            options_json,
-            false,
-        )
-        .await?
-        .element()
+        self.query_executor()
+            .execute("getBy", selector.function_suffix(), selector.value(), options_json, false)
+            .await?
+            .element()
     }
 
     /// Unified get_all method that accepts a Selector enum and returns all matching WebElements
     /// Throws an error if no elements match
     pub async fn get_all(&self, selector: Selector) -> WebDriverResult<Vec<WebElement>> {
         let options_json = selector.options_json()?;
-        self.query_executor().execute(
-            "getAllBy",
-            selector.function_suffix(),
-            selector.value(),
-            options_json,
-            false,
-        )
-        .await?
-        .elements()
+        self.query_executor()
+            .execute("getAllBy", selector.function_suffix(), selector.value(), options_json, false)
+            .await?
+            .elements()
     }
 
     /// Unified query method that accepts a Selector enum and returns a single WebElement
     /// Returns None if no elements match
     pub async fn query(&self, selector: Selector) -> WebDriverResult<Option<WebElement>> {
         let options_json = selector.options_json()?;
-        let mut elements = self.query_executor().execute(
-            "queryBy",
-            selector.function_suffix(),
-            selector.value(),
-            options_json,
-            true,
-        ).await?.elements()?;
+        let mut elements = self
+            .query_executor()
+            .execute("queryBy", selector.function_suffix(), selector.value(), options_json, true)
+            .await?
+            .elements()?;
 
         if elements.is_empty() {
             return Ok(None);
@@ -155,52 +142,37 @@ impl Screen {
     /// Returns empty Vec if no elements match
     pub async fn query_all(&self, selector: Selector) -> WebDriverResult<Vec<WebElement>> {
         let options_json = selector.options_json()?;
-        self.query_executor().execute(
-            "queryAllBy",
-            selector.function_suffix(),
-            selector.value(),
-            options_json,
-            false,
-        )
-        .await?
-        .elements()
+        self.query_executor()
+            .execute(
+                "queryAllBy",
+                selector.function_suffix(),
+                selector.value(),
+                options_json,
+                false,
+            )
+            .await?
+            .elements()
     }
 
     /// Unified find method that accepts a Selector enum and returns a single WebElement
     /// Waits for the element to appear and throws an error if not found
     pub async fn find(&self, selector: Selector) -> WebDriverResult<WebElement> {
         let options_json = selector.options_json()?;
-        self.query_executor().execute(
-            "findBy",
-            selector.function_suffix(),
-            selector.value(),
-            options_json,
-            false,
-        )
-        .await?
-        .element()
+        self.query_executor()
+            .execute("findBy", selector.function_suffix(), selector.value(), options_json, false)
+            .await?
+            .element()
     }
 
     /// Unified find_all method that accepts a Selector enum and returns all matching WebElements
     /// Waits for elements to appear and throws an error if none are found
     pub async fn find_all(&self, selector: Selector) -> WebDriverResult<Vec<WebElement>> {
         let options_json = selector.options_json()?;
-        self.query_executor().execute(
-            "findAllBy",
-            selector.function_suffix(),
-            selector.value(),
-            options_json,
-            false,
-        )
-        .await?
-        .elements()
+        self.query_executor()
+            .execute("findAllBy", selector.function_suffix(), selector.value(), options_json, false)
+            .await?
+            .elements()
     }
-
-
-
-
-
-
 
     async fn load_testing_library(driver: &WebDriver) -> WebDriverResult<()> {
         // Load the testing library script in the browser
@@ -242,7 +214,7 @@ impl QueryExecutor {
         options_json: Option<String>,
         with_null_filter: bool,
     ) -> WebDriverResult<ScriptRet> {
-        let method_name = format!("{}{}", method_prefix, function_suffix);
+        let method_name = format!("{method_prefix}{function_suffix}");
         let (container, arguments) = self.container_and_arguments()?;
 
         let script = self.build_and_wrap(
@@ -267,18 +239,18 @@ impl QueryExecutor {
     ) -> String {
         let base_call = match options_json {
             Some(options) => {
-                format!("window.__TL__.{}({}, '{}', {})", method_name, container, value, options)
+                format!("window.__TL__.{method_name}({container}, '{value}', {options})")
             }
             None => {
-                format!("window.__TL__.{}({}, '{}')", method_name, container, value)
+                format!("window.__TL__.{method_name}({container}, '{value}')")
             }
         };
 
         if with_null_filter {
             // Transform null values to empty arrays easier to parse in Rust
-            format!("return [{}].filter(n => n);", base_call)
+            format!("return [{base_call}].filter(n => n);")
         } else {
-            format!("return {};", base_call)
+            format!("return {base_call};")
         }
     }
 
@@ -287,7 +259,7 @@ impl QueryExecutor {
     fn wrap_load_retry(&self, script: &str) -> String {
         let configured_script = if let Some(ref options) = self.configure_options {
             if let Ok(options_json) = options.to_json_string() {
-                format!("window.__TL__.configure({}); {}", options_json, script)
+                format!("window.__TL__.configure({options_json}); {script}")
             } else {
                 script.to_string()
             }
@@ -305,7 +277,7 @@ impl QueryExecutor {
     fn wrap_configure(&self, script: &str) -> String {
         let configured_script = if let Some(ref options) = self.configure_options {
             if let Ok(options_json) = options.to_json_string() {
-                format!("window.__TL__.configure({}); {}", options_json, script)
+                format!("window.__TL__.configure({options_json}); {script}")
             } else {
                 script.to_string()
             }
@@ -329,7 +301,8 @@ impl QueryExecutor {
         options_json: Option<&str>,
         with_null_filter: bool,
     ) -> String {
-        let script = self.query_script(method_name, container, value, options_json, with_null_filter);
+        let script =
+            self.query_script(method_name, container, value, options_json, with_null_filter);
         self.wrap_load_retry(&self.wrap_configure(&script))
     }
 
@@ -355,10 +328,9 @@ impl QueryExecutor {
             Screen::load_testing_library(&self.driver).await?;
             return self.driver.execute(script, arguments).await;
         }
-        
+
         Ok(result)
     }
-
 }
 
 /// Options enum for unified option handling
@@ -531,7 +503,7 @@ impl Selector {
     fn options_json(&self) -> Result<Option<String>, crate::error::WebDriverError> {
         match self.options() {
             Some(options) => options.to_json_string().map(Some).map_err(|e| {
-                crate::error::WebDriverError::Json(format!("Failed to serialize options: {}", e))
+                crate::error::WebDriverError::Json(format!("Failed to serialize options: {e}"))
             }),
             None => Ok(None),
         }

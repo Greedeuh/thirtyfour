@@ -62,19 +62,22 @@ fn test_selector_option_input_vs_textarea(test_harness: TestHarness) -> WebDrive
         assert_eq!(maybe_input.unwrap().tag_name().await?, "input");
 
         // Test query_all_by_label_text_with_options
-        let query_inputs =
-            screen.query_all(Selector::label_text_with_options("Email Address", input_options.clone())).await?;
+        let query_inputs = screen
+            .query_all(Selector::label_text_with_options("Email Address", input_options.clone()))
+            .await?;
         assert_eq!(query_inputs.len(), 1);
         assert_eq!(query_inputs[0].tag_name().await?, "input");
 
         // Test find_by_label_text_with_options
-        let find_input =
-            screen.find(Selector::label_text_with_options("Email Address", input_options.clone())).await?;
+        let find_input = screen
+            .find(Selector::label_text_with_options("Email Address", input_options.clone()))
+            .await?;
         assert_eq!(find_input.tag_name().await?, "input");
 
         // Test find_all_by_label_text_with_options
-        let find_inputs =
-            screen.find_all(Selector::label_text_with_options("Email Address", input_options.clone())).await?;
+        let find_inputs = screen
+            .find_all(Selector::label_text_with_options("Email Address", input_options.clone()))
+            .await?;
         assert_eq!(find_inputs.len(), 1);
         assert_eq!(find_inputs[0].tag_name().await?, "input");
 
@@ -108,8 +111,9 @@ fn test_selector_option_with_id(test_harness: TestHarness) -> WebDriverResult<()
         assert_eq!(maybe_element.unwrap().id().await?, Some("email-input".to_string()));
 
         // Test find_by_label_text_with_options
-        let find_element =
-            screen.find(Selector::label_text_with_options("Email Address", id_options.clone())).await?;
+        let find_element = screen
+            .find(Selector::label_text_with_options("Email Address", id_options.clone()))
+            .await?;
         assert_eq!(find_element.id().await?, Some("email-input".to_string()));
 
         Ok(())
@@ -159,19 +163,22 @@ fn test_exact_true_precise_match(test_harness: TestHarness) -> WebDriverResult<(
         assert_eq!(maybe_password.unwrap().id().await?, Some("password-input".to_string()));
 
         // Test query_all_by_label_text_with_options
-        let query_passwords =
-            screen.query_all(Selector::label_text_with_options("Password", exact_options.clone())).await?;
+        let query_passwords = screen
+            .query_all(Selector::label_text_with_options("Password", exact_options.clone()))
+            .await?;
         assert_eq!(query_passwords.len(), 1);
         assert_eq!(query_passwords[0].id().await?, Some("password-input".to_string()));
 
         // Test find_by_label_text_with_options
-        let find_password =
-            screen.find(Selector::label_text_with_options("Password", exact_options.clone())).await?;
+        let find_password = screen
+            .find(Selector::label_text_with_options("Password", exact_options.clone()))
+            .await?;
         assert_eq!(find_password.id().await?, Some("password-input".to_string()));
 
         // Test find_all_by_label_text_with_options
-        let find_passwords =
-            screen.find_all(Selector::label_text_with_options("Password", exact_options.clone())).await?;
+        let find_passwords = screen
+            .find_all(Selector::label_text_with_options("Password", exact_options.clone()))
+            .await?;
         assert_eq!(find_passwords.len(), 1);
         assert_eq!(find_passwords[0].id().await?, Some("password-input".to_string()));
 
@@ -206,13 +213,15 @@ fn test_exact_false_partial_match(test_harness: TestHarness) -> WebDriverResult<
         assert!(ids.contains(&"confirm-password".to_string()));
 
         // Test query_all_by_label_text_with_options
-        let query_passwords =
-            screen.query_all(Selector::label_text_with_options("Password", partial_options.clone())).await?;
+        let query_passwords = screen
+            .query_all(Selector::label_text_with_options("Password", partial_options.clone()))
+            .await?;
         assert_eq!(query_passwords.len(), 2);
 
         // Test find_all_by_label_text_with_options
-        let find_passwords =
-            screen.find_all(Selector::label_text_with_options("Password", partial_options.clone())).await?;
+        let find_passwords = screen
+            .find_all(Selector::label_text_with_options("Password", partial_options.clone()))
+            .await?;
         assert_eq!(find_passwords.len(), 2);
 
         Ok(())

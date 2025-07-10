@@ -171,7 +171,7 @@ impl TextMatch {
 
                 // Validate the regex pattern (ignore flags for now)
                 regex::Regex::new(inner_pattern)
-                    .map_err(|e| format!("Invalid regex pattern: {}", e))?;
+                    .map_err(|e| format!("Invalid regex pattern: {e}"))?;
 
                 Ok(())
             }
@@ -401,7 +401,7 @@ mod tests {
             .suggest(true);
 
         let json_string = options.to_json_string().unwrap();
-        println!("Serialized options: {}", json_string);
+        println!("Serialized options: {json_string}");
 
         // This would be used in JavaScript like:
         // getByRole('button', {name: /submit|send/, pressed: false, hidden: false, suggest: true})

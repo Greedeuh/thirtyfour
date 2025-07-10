@@ -2,7 +2,7 @@ mod common;
 use common::*;
 use rstest::rstest;
 use thirtyfour::prelude::*;
-use thirtyfour::screen::{ Screen, Selector};
+use thirtyfour::screen::{Screen, Selector};
 use thirtyfour::support::block_on;
 
 #[rstest]
@@ -26,7 +26,7 @@ fn within(test_harness: TestHarness) -> WebDriverResult<()> {
 
         let result = within_screen.find(Selector::text("Some text")).await;
         assert_eq!(result.unwrap().id().await?.unwrap(), "child");
-        
+
         Ok(())
     })
 }

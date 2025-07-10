@@ -93,6 +93,11 @@ impl Screen {
         self
     }
 
+    /// Get a script builder configured with current options
+    fn script_builder(&self) -> ScriptBuilder {
+        ScriptBuilder::with_configure(self.configure_options.clone())
+    }
+
     /// Unified get method that accepts a Selector enum and returns a single WebElement
     /// Throws an error if no elements match or if more than one match is found
     pub async fn get(&self, selector: Selector) -> WebDriverResult<WebElement> {
@@ -102,6 +107,7 @@ impl Screen {
             selector.function_suffix(),
             selector.value(),
             options_json,
+            false,
         )
         .await?
         .element()
@@ -116,6 +122,7 @@ impl Screen {
             selector.function_suffix(),
             selector.value(),
             options_json,
+            false,
         )
         .await?
         .elements()
@@ -126,10 +133,13 @@ impl Screen {
     pub async fn query(&self, selector: Selector) -> WebDriverResult<Option<WebElement>> {
         let options_json = selector.options_json()?;
 
-        let mut elements = self.execute_tl_selector_with_null_filter( "queryBy",
+        let mut elements = self.execute_tl_selector(
+            "queryBy",
             selector.function_suffix(),
             selector.value(),
-            options_json).await?.elements()?;
+            options_json,
+            true,
+        ).await?.elements()?;
 
         if elements.is_empty() {
             return Ok(None);
@@ -147,6 +157,7 @@ impl Screen {
             selector.function_suffix(),
             selector.value(),
             options_json,
+            false,
         )
         .await?
         .elements()
@@ -161,6 +172,7 @@ impl Screen {
             selector.function_suffix(),
             selector.value(),
             options_json,
+            false,
         )
         .await?
         .element()
@@ -175,34 +187,12 @@ impl Screen {
             selector.function_suffix(),
             selector.value(),
             options_json,
+            false,
         )
         .await?
         .elements()
     }
 
-    /// Specifict for the queryBy wich makes it easier to parse null values
-    async fn execute_tl_selector_with_null_filter(
-        &self,
-        method_prefix: &str,
-        function_suffix: &str,
-        value: &str,
-        options_json: Option<String>,
-    ) -> WebDriverResult<ScriptRet> {
-        let method_name = format!("{}{}", method_prefix, function_suffix);
-        let (container, arguments) = self.container_and_arguments()?;
-
-        // Use a filter to remove null values from the result
-        // this simplify the deserialization back to WebElement: null becomes an empty arry => []
-        let script = self.build_tl_script(
-            &method_name,
-            container,
-            value,
-            options_json.as_deref(),
-            true,
-        );
-
-        self.execute_and_retry_if_library_not_found(&script, arguments).await
-    }
 
     // Internal helper method for executing Testing Library methods with unified parameters
     async fn execute_tl_selector(
@@ -211,16 +201,17 @@ impl Screen {
         function_suffix: &str,
         value: &str,
         options_json: Option<String>,
+        with_null_filter: bool,
     ) -> WebDriverResult<ScriptRet> {
         let method_name = format!("{}{}", method_prefix, function_suffix);
         let (container, arguments) = self.container_and_arguments()?;
 
-        let script = self.build_tl_script(
+        let script = self.script_builder().build_and_wrap(
             &method_name,
             container,
             value,
             options_json.as_deref(),
-            false,
+            with_null_filter,
         );
 
         self.execute_and_retry_if_library_not_found(&script, arguments).await
@@ -234,6 +225,59 @@ impl Screen {
         }
     }
 
+
+    async fn execute_and_retry_if_library_not_found(
+        &self,
+        script: &str,
+        arguments: Vec<Value>,
+    ) -> WebDriverResult<ScriptRet> {
+        let script = script;
+
+        let result = self.driver.execute(script, arguments.clone()).await?;
+
+        
+        let string_value = result.json().as_str();
+        if string_value == Some(ScriptBuilder::LIBRARY_NOT_FOUND_ERROR) {
+            Self::load_testing_library(&self.driver).await?;
+            return  self.driver.execute(script, arguments).await;
+        }
+        
+        // If the library is found, we can return the result directly
+        return Ok(result);
+    }
+
+
+    async fn load_testing_library(driver: &WebDriver) -> WebDriverResult<()> {
+        // Load the testing library script in the browser
+        let testing_library = fs::read_to_string("js/testing-library.js").unwrap();
+        driver.execute(testing_library, vec![]).await?;
+
+        Ok(())
+    }
+}
+
+/// Helper struct for building Testing Library JavaScript scripts
+#[derive(Debug, Clone)]
+struct ScriptBuilder {
+    configure_options: Option<configure::Options>,
+}
+
+impl ScriptBuilder {
+    /// Create a new ScriptBuilder without configuration
+    fn new() -> Self {
+        Self {
+            configure_options: None,
+        }
+    }
+
+    /// Create a new ScriptBuilder with configuration options
+    fn with_configure(configure_options: Option<configure::Options>) -> Self {
+        Self { configure_options }
+    }
+
+    const LIBRARY_NOT_FOUND_ERROR: &str = "Testing Library not found";
+
+    /// Build a Testing Library script with the given parameters
     fn build_tl_script(
         &self,
         method_name: &str,
@@ -258,27 +302,8 @@ impl Screen {
         }
     }
 
-    async fn execute_and_retry_if_library_not_found(
-        &self,
-        script: &str,
-        arguments: Vec<Value>,
-    ) -> WebDriverResult<ScriptRet> {
-        let script = self.wrap_script(&script);
-
-        let result = self.driver.execute(&script, arguments.clone()).await?;
-
-        
-        let string_value = result.json().as_str();
-        if string_value == Some(LIBRARY_NOT_FOUND_ERROR) {
-            Self::load_testing_library(&self.driver).await?;
-            return  self.driver.execute(script, arguments).await;
-        }
-        
-        // If the library is found, we can return the result directly
-        return Ok(result);
-    }
-
-    fn wrap_script(&self, script: &str) -> String {
+    /// Wrap a script with library check and configuration
+    fn wrap_with_library_check(&self, script: &str) -> String {
         let configured_script = if let Some(ref options) = self.configure_options {
             if let Ok(options_json) = options.to_json_string() {
                 format!("window.__TL__.configure({}); {}", options_json, script)
@@ -291,20 +316,24 @@ impl Screen {
 
         format!(
             "if (!window.__TL__) return '{}'; {}",
-            LIBRARY_NOT_FOUND_ERROR,
+            Self::LIBRARY_NOT_FOUND_ERROR,
             configured_script
         )
     }
 
-    async fn load_testing_library(driver: &WebDriver) -> WebDriverResult<()> {
-        // Load the testing library script in the browser
-        let testing_library = fs::read_to_string("js/testing-library.js").unwrap();
-        driver.execute(testing_library, vec![]).await?;
-
-        Ok(())
+    /// Build and wrap a Testing Library script in one call
+    fn build_and_wrap(
+        &self,
+        method_name: &str,
+        container: &str,
+        value: &str,
+        options_json: Option<&str>,
+        with_null_filter: bool,
+    ) -> String {
+        let script = self.build_tl_script(method_name, container, value, options_json, with_null_filter);
+        self.wrap_with_library_check(&script)
     }
 }
-const LIBRARY_NOT_FOUND_ERROR: &str = "Testing Library not found";
 
 /// Options enum for unified option handling
 #[derive(Debug, Clone)]

@@ -32,7 +32,6 @@ use std::fs;
 use crate::{error::WebDriverResult, prelude::ScriptRet, WebDriver, WebElement};
 
 // TODO
-// - support configure
 // - better error handling
 // - logTestingPlaygroundURL
 
@@ -90,15 +89,6 @@ impl Screen {
     pub fn configure(mut self, options: configure::Options) -> Self {
         self.configure_options = Some(options);
         self
-    }
-
-    /// Get a query executor configured with current options
-    fn query_executor(&self) -> QueryExecutor {
-        QueryExecutor::new(
-            self.driver.clone(),
-            self.within_element.clone(),
-            self.configure_options.clone(),
-        )
     }
 
     /// Unified get method that accepts a Selector enum and returns a single WebElement
@@ -181,6 +171,15 @@ impl Screen {
 
         Ok(())
     }
+
+    /// Get a query executor configured with current options
+    fn query_executor(&self) -> QueryExecutor {
+        QueryExecutor::new(
+            self.driver.clone(),
+            self.within_element.clone(),
+            self.configure_options.clone(),
+        )
+    }
 }
 
 /// Helper struct for executing Testing Library queries
@@ -192,7 +191,6 @@ struct QueryExecutor {
 }
 
 impl QueryExecutor {
-    /// Create a new QueryExecutor
     fn new(
         driver: WebDriver,
         within_element: Option<WebElement>,
@@ -205,7 +203,7 @@ impl QueryExecutor {
         }
     }
 
-    /// Execute a Testing Library selector with unified parameters
+    /// Execute a Testing Library query
     pub async fn execute(
         &self,
         method_prefix: &str,
@@ -228,7 +226,20 @@ impl QueryExecutor {
         self.execute_and_retry_if_library_not_found(&script, arguments).await
     }
 
-    /// Build a Testing Library script with the given parameters
+     /// Build and wrap a Testing Library script in one call
+    fn build_and_wrap(
+        &self,
+        method_name: &str,
+        container: &str,
+        value: &str,
+        options_json: Option<&str>,
+        with_null_filter: bool,
+    ) -> String {
+        let script =
+            self.query_script(method_name, container, value, options_json, with_null_filter);
+        self.wrap_load_retry(&self.wrap_configure(&script))
+    }
+
     fn query_script(
         &self,
         method_name: &str,
@@ -290,20 +301,6 @@ impl QueryExecutor {
             Self::LIBRARY_NOT_FOUND_ERROR,
             configured_script
         )
-    }
-
-    /// Build and wrap a Testing Library script in one call
-    fn build_and_wrap(
-        &self,
-        method_name: &str,
-        container: &str,
-        value: &str,
-        options_json: Option<&str>,
-        with_null_filter: bool,
-    ) -> String {
-        let script =
-            self.query_script(method_name, container, value, options_json, with_null_filter);
-        self.wrap_load_retry(&self.wrap_configure(&script))
     }
 
     /// Get container and arguments for script execution

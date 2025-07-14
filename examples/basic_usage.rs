@@ -47,6 +47,11 @@ async fn main() -> WebDriverResult<()> {
             .with_test_id_attribute("data-cy")  // Use Cypress convention
             .with_default_hidden(false)         // Include hidden elements by default
     );
+    configured_screen
+        .get(By::test_id("submit-btn"))
+        .await?
+        .click()
+        .await?;
 
     // Clean up
     driver.quit().await?;

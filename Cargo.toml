@@ -34,7 +34,6 @@ regex = "1"
 tokio = { version = "1", features = ["fs"] }
 
 [dev-dependencies]
-assert_matches = "1.5"
 axum = "0.7"
 color-eyre = "0.6"
 rstest = { version = "0.25.0", default-features = false }

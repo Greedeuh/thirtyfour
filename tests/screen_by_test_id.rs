@@ -193,7 +193,9 @@ fn query_all_by_test_id_empty(test_harness: TestHarness) -> WebDriverResult<()> 
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let result = screen.query_all(By::test_id("non-existent-test-id")).await?;
+        let result = screen
+            .query_all(By::test_id("non-existent-test-id"))
+            .await?;
 
         assert_eq!(result.len(), 0);
 

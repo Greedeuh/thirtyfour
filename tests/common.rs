@@ -51,8 +51,10 @@ pub fn start_server() -> Arc<JoinHandle<()>> {
     SERVER
         .get_or_init(|| {
             let handle = std::thread::spawn(move || {
-                let rt =
-                    tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
+                let rt = tokio::runtime::Builder::new_current_thread()
+                    .enable_all()
+                    .build()
+                    .unwrap();
                 rt.block_on(async {
                     tracing::debug!("starting web server on http://localhost:{PORT}");
                     let addr = SocketAddr::from(([127, 0, 0, 1], PORT));
@@ -100,7 +102,9 @@ pub async fn launch_browser(browser: &str) -> WebDriver {
     tracing::debug!("launching browser {browser}");
     let caps = make_capabilities(browser);
     let webdriver_url = webdriver_url(browser);
-    WebDriver::new(webdriver_url, caps).await.expect("Failed to create WebDriver")
+    WebDriver::new(webdriver_url, caps)
+        .await
+        .expect("Failed to create WebDriver")
 }
 
 /// Helper struct for running tests.

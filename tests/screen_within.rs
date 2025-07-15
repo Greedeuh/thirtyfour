@@ -16,7 +16,10 @@ fn within(test_harness: TestHarness) -> WebDriverResult<()> {
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
         let result = screen.get(By::text("Some text")).await;
-        assert!(result.is_err(), "Expected error because there is 2 occurrences");
+        assert!(
+            result.is_err(),
+            "Expected error because there is 2 occurrences"
+        );
 
         let within_screen = screen.within(parent_element);
 

@@ -15,8 +15,9 @@ fn test_configure_default_hidden(test_harness: TestHarness) -> WebDriverResult<(
         // Create screen with configure options to include hidden elements by default
         let configure_options = configure::Options::new().with_default_hidden(true);
 
-        let screen =
-            Screen::build_with_testing_library(c.clone()).await?.configure(configure_options);
+        let screen = Screen::build_with_testing_library(c.clone())
+            .await?
+            .configure(configure_options);
 
         // Try to find hidden button using just the role selector
         // This should work because we configured the screen to include hidden elements by default
@@ -36,8 +37,9 @@ fn test_configure_default_ignore(test_harness: TestHarness) -> WebDriverResult<(
         // Create screen with configure options to change what elements are ignored
         let configure_options = configure::Options::new().with_default_ignore("div");
 
-        let screen =
-            Screen::build_with_testing_library(c.clone()).await?.configure(configure_options);
+        let screen = Screen::build_with_testing_library(c.clone())
+            .await?
+            .configure(configure_options);
 
         // Try to find text in the paragraph
         // This should work because we configured to ignore divs instead of script/style
@@ -59,8 +61,9 @@ fn test_configure_test_id_attribute(test_harness: TestHarness) -> WebDriverResul
         let configure_options =
             configure::Options::new().with_test_id_attribute("my-custom-testid");
 
-        let screen =
-            Screen::build_with_testing_library(c.clone()).await?.configure(configure_options);
+        let screen = Screen::build_with_testing_library(c.clone())
+            .await?
+            .configure(configure_options);
 
         // Try to find element using the custom test ID attribute
         let custom_button = screen.get(By::test_id("custom-test-id")).await?;

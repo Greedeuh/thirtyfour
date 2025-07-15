@@ -213,7 +213,9 @@ fn get_by_role_with_options_name_exact(test_harness: TestHarness) -> WebDriverRe
         // Test with exact name match
         let options = ByRoleOptions::new().name(TextMatch::Exact("Copy".to_string()));
 
-        let button = screen.get(By::role_with_options("button", options.clone())).await?;
+        let button = screen
+            .get(By::role_with_options("button", options.clone()))
+            .await?;
         assert_eq!(button.text().await?, "Copy");
 
         Ok(())
@@ -232,7 +234,9 @@ fn get_by_role_with_options_name_exact_specific(test_harness: TestHarness) -> We
         // Test with exact name match for specific button
         let options = ByRoleOptions::new().name(TextMatch::Exact("Show alert".to_string()));
 
-        let button = screen.get(By::role_with_options("button", options.clone())).await?;
+        let button = screen
+            .get(By::role_with_options("button", options.clone()))
+            .await?;
         assert_eq!(button.text().await?, "Show alert");
 
         Ok(())
@@ -251,7 +255,9 @@ fn get_by_role_with_options_name_another_button(test_harness: TestHarness) -> We
         // Test with exact name match for another button
         let options = ByRoleOptions::new().name(TextMatch::Exact("Show confirm".to_string()));
 
-        let button = screen.get(By::role_with_options("button", options.clone())).await?;
+        let button = screen
+            .get(By::role_with_options("button", options.clone()))
+            .await?;
         assert_eq!(button.text().await?, "Show confirm");
 
         Ok(())
@@ -268,9 +274,13 @@ fn get_by_role_with_options_multiple_options(test_harness: TestHarness) -> WebDr
         let screen = Screen::build_with_testing_library(c.clone()).await?;
 
         // Test with multiple options
-        let options = ByRoleOptions::new().name(TextMatch::Exact("Copy".to_string())).hidden(false);
+        let options = ByRoleOptions::new()
+            .name(TextMatch::Exact("Copy".to_string()))
+            .hidden(false);
 
-        let button = screen.get(By::role_with_options("button", options.clone())).await?;
+        let button = screen
+            .get(By::role_with_options("button", options.clone()))
+            .await?;
         assert_eq!(button.text().await?, "Copy");
 
         Ok(())

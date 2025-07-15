@@ -193,7 +193,9 @@ fn query_all_by_display_value_empty(test_harness: TestHarness) -> WebDriverResul
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let result = screen.query_all(By::display_value("NonExistentValue")).await?;
+        let result = screen
+            .query_all(By::display_value("NonExistentValue"))
+            .await?;
 
         assert_eq!(result.len(), 0);
 

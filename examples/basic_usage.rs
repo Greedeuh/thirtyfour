@@ -1,5 +1,5 @@
 use thirtyfour::prelude::*;
-use thirtyfour_testing_library_ext::{Screen, By};
+use thirtyfour_testing_library_ext::{By, Screen};
 
 #[tokio::main]
 async fn main() -> WebDriverResult<()> {
@@ -14,7 +14,7 @@ async fn main() -> WebDriverResult<()> {
     let screen = Screen::build_with_testing_library(driver.clone()).await?;
 
     // Query elements using semantic selectors
-    
+
     // Find by role (accessibility-focused)
     if let Ok(heading) = screen.get(By::role("heading")).await {
         println!("Found heading: {}", heading.text().await?);
@@ -34,7 +34,7 @@ async fn main() -> WebDriverResult<()> {
     // Scoped queries within a specific element
     if let Ok(form) = screen.get(By::role("form")).await {
         let form_screen = screen.within(form);
-        
+
         // Find input within the form
         if let Ok(input) = form_screen.get(By::label_text("Email")).await {
             input.send_keys("test@example.com").await?;
@@ -44,8 +44,8 @@ async fn main() -> WebDriverResult<()> {
     // Use configuration for custom behavior
     let configured_screen = screen.configure(
         thirtyfour_testing_library_ext::configure::Options::new()
-            .with_test_id_attribute("data-cy")  // Use Cypress convention
-            .with_default_hidden(false)         // Include hidden elements by default
+            .with_test_id_attribute("data-cy") // Use Cypress convention
+            .with_default_hidden(false), // Include hidden elements by default
     );
     configured_screen
         .get(By::test_id("submit-btn"))

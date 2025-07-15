@@ -450,7 +450,10 @@ mod tests {
         // Test with multiple markers
         let json_multiple = r#"{"name":"__RAW_JS__/button/","description":"__RAW_JS__/click.*/i"}"#;
         let processed_multiple = ByRoleOptions::process_raw_javascript_markers(json_multiple);
-        assert_eq!(processed_multiple, r#"{"name":/button/,"description":/click.*/i}"#);
+        assert_eq!(
+            processed_multiple,
+            r#"{"name":/button/,"description":/click.*/i}"#
+        );
 
         // Test with no markers (should remain unchanged)
         let json_no_markers = r#"{"name":"button","pressed":true}"#;

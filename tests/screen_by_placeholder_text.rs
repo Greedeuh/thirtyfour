@@ -46,7 +46,9 @@ fn get_all_by_placeholder_text(test_harness: TestHarness) -> WebDriverResult<()>
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let inputs = screen.get_all(By::placeholder_text("jean@email.fr")).await?;
+        let inputs = screen
+            .get_all(By::placeholder_text("jean@email.fr"))
+            .await?;
 
         assert_eq!(inputs.len(), 1);
         assert_eq!(inputs[0].id().await?.unwrap(), "email");
@@ -63,7 +65,9 @@ fn query_all_by_placeholder_text(test_harness: TestHarness) -> WebDriverResult<(
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let inputs = screen.query_all(By::placeholder_text("jean@email.fr")).await?;
+        let inputs = screen
+            .query_all(By::placeholder_text("jean@email.fr"))
+            .await?;
 
         assert_eq!(inputs.len(), 1);
         assert_eq!(inputs[0].id().await?.unwrap(), "email");
@@ -96,7 +100,9 @@ fn find_all_by_placeholder_text(test_harness: TestHarness) -> WebDriverResult<()
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let inputs = screen.find_all(By::placeholder_text("jean@email.fr")).await?;
+        let inputs = screen
+            .find_all(By::placeholder_text("jean@email.fr"))
+            .await?;
 
         assert_eq!(inputs.len(), 1);
         assert_eq!(inputs[0].id().await?.unwrap(), "email");
@@ -113,7 +119,9 @@ fn get_by_placeholder_text_should_fail(test_harness: TestHarness) -> WebDriverRe
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let result = screen.get(By::placeholder_text("NonExistentPlaceholder")).await;
+        let result = screen
+            .get(By::placeholder_text("NonExistentPlaceholder"))
+            .await;
 
         assert!(result.is_err());
 
@@ -129,7 +137,9 @@ fn get_all_by_placeholder_text_should_fail(test_harness: TestHarness) -> WebDriv
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let result = screen.get_all(By::placeholder_text("NonExistentPlaceholder")).await;
+        let result = screen
+            .get_all(By::placeholder_text("NonExistentPlaceholder"))
+            .await;
 
         assert!(result.is_err());
 
@@ -145,7 +155,9 @@ fn find_by_placeholder_text_should_fail(test_harness: TestHarness) -> WebDriverR
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let result = screen.find(By::placeholder_text("NonExistentPlaceholder")).await;
+        let result = screen
+            .find(By::placeholder_text("NonExistentPlaceholder"))
+            .await;
 
         assert!(result.is_err());
 
@@ -161,7 +173,9 @@ fn find_all_by_placeholder_text_should_fail(test_harness: TestHarness) -> WebDri
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let result = screen.find_all(By::placeholder_text("NonExistentPlaceholder")).await;
+        let result = screen
+            .find_all(By::placeholder_text("NonExistentPlaceholder"))
+            .await;
 
         assert!(result.is_err());
 
@@ -177,7 +191,9 @@ fn query_by_placeholder_text_not_found(test_harness: TestHarness) -> WebDriverRe
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let result = screen.query(By::placeholder_text("NonExistentPlaceholder")).await?;
+        let result = screen
+            .query(By::placeholder_text("NonExistentPlaceholder"))
+            .await?;
 
         assert!(result.is_none());
 
@@ -193,7 +209,9 @@ fn query_all_by_placeholder_text_empty(test_harness: TestHarness) -> WebDriverRe
         c.goto(&url).await?;
 
         let screen = Screen::build_with_testing_library(c.clone()).await?;
-        let result = screen.query_all(By::placeholder_text("NonExistentPlaceholder")).await?;
+        let result = screen
+            .query_all(By::placeholder_text("NonExistentPlaceholder"))
+            .await?;
 
         assert_eq!(result.len(), 0);
 

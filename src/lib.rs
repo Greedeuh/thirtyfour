@@ -83,9 +83,8 @@ pub use test_id::*;
 pub use text::*;
 pub use title::*;
 
-use std::fs;
 
-use thirtyfour::{error::WebDriverResult, prelude::ScriptRet, WebDriver, WebElement};
+use thirtyfour::{error::{WebDriverError, WebDriverResult}, prelude::ScriptRet, WebDriver, WebElement};
 
 // TODO
 // - better error handling
@@ -278,7 +277,9 @@ impl Screen {
 
     async fn load_testing_library(driver: &WebDriver) -> WebDriverResult<()> {
         // Load the testing library script in the browser
-        let testing_library = fs::read_to_string("js/testing-library.js").unwrap();
+        let testing_library = tokio::fs::read_to_string("js/testing-library.js")
+            .await
+            .map_err(|e| WebDriverError::Json(format!("Failed to load testing library: {e}")))?;
         driver.execute(testing_library, vec![]).await?;
 
         Ok(())
@@ -318,7 +319,8 @@ impl QueryExecutor {
     /// Execute a basic Testing Library script with retry logic
     pub async fn execute(&self, script: &str, arguments: Vec<Value>) -> WebDriverResult<ScriptRet> {
         let wrapped_script = self.wrap_load_retry(&script);
-        self.execute_and_retry_if_library_not_found(&wrapped_script, arguments).await
+        self.execute_and_retry_if_library_not_found(&wrapped_script, arguments)
+            .await
     }
 
     /// Execute a Testing Library query
@@ -341,7 +343,8 @@ impl QueryExecutor {
             with_null_filter,
         );
 
-        self.execute_and_retry_if_library_not_found(&script, arguments).await
+        self.execute_and_retry_if_library_not_found(&script, arguments)
+            .await
     }
 
     /// Build and wrap a Testing Library script in one call
@@ -353,8 +356,13 @@ impl QueryExecutor {
         options_json: Option<&str>,
         with_null_filter: bool,
     ) -> String {
-        let script =
-            self.query_script(method_name, container, value, options_json, with_null_filter);
+        let script = self.query_script(
+            method_name,
+            container,
+            value,
+            options_json,
+            with_null_filter,
+        );
         self.wrap_load_retry(&self.wrap_configure(&script))
     }
 

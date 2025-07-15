@@ -18,40 +18,67 @@ fn test_by_display_value_exact_option(test_harness: TestHarness) -> WebDriverRes
 
         // Test exact match - should find only "Submit" value, not "Submit Form"
         let element = screen
-            .get(By::display_value_with_options("Submit".to_string(), exact_options.clone()))
+            .get(By::display_value_with_options(
+                "Submit".to_string(),
+                exact_options.clone(),
+            ))
             .await?;
         assert_eq!(element.id().await?, Some("value-exact".to_string()));
 
         // Test get_all_by_display_value_with_options
-        let elements =
-            screen.get_all(By::display_value_with_options("Submit", exact_options.clone())).await?;
+        let elements = screen
+            .get_all(By::display_value_with_options(
+                "Submit",
+                exact_options.clone(),
+            ))
+            .await?;
         assert_eq!(elements.len(), 1);
         assert_eq!(elements[0].id().await?, Some("value-exact".to_string()));
 
         // Test query_by_display_value_with_options
-        let result =
-            screen.query(By::display_value_with_options("Submit", exact_options.clone())).await?;
+        let result = screen
+            .query(By::display_value_with_options(
+                "Submit",
+                exact_options.clone(),
+            ))
+            .await?;
         assert!(result.is_some());
         assert_eq!(result.unwrap().id().await?, Some("value-exact".to_string()));
 
         // Test query_all_by_display_value_with_options
         let query_elements = screen
-            .query_all(By::display_value_with_options("Submit", exact_options.clone()))
+            .query_all(By::display_value_with_options(
+                "Submit",
+                exact_options.clone(),
+            ))
             .await?;
         assert_eq!(query_elements.len(), 1);
-        assert_eq!(query_elements[0].id().await?, Some("value-exact".to_string()));
+        assert_eq!(
+            query_elements[0].id().await?,
+            Some("value-exact".to_string())
+        );
 
         // Test find_by_display_value_with_options
-        let find_element =
-            screen.find(By::display_value_with_options("Submit", exact_options.clone())).await?;
+        let find_element = screen
+            .find(By::display_value_with_options(
+                "Submit",
+                exact_options.clone(),
+            ))
+            .await?;
         assert_eq!(find_element.id().await?, Some("value-exact".to_string()));
 
         // Test find_all_by_display_value_with_options
         let find_elements = screen
-            .find_all(By::display_value_with_options("Submit", exact_options.clone()))
+            .find_all(By::display_value_with_options(
+                "Submit",
+                exact_options.clone(),
+            ))
             .await?;
         assert_eq!(find_elements.len(), 1);
-        assert_eq!(find_elements[0].id().await?, Some("value-exact".to_string()));
+        assert_eq!(
+            find_elements[0].id().await?,
+            Some("value-exact".to_string())
+        );
 
         Ok(())
     })

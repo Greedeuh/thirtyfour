@@ -55,7 +55,9 @@ mod tests {
 
     #[test]
     fn test_label_text_options_basic_serialization() {
-        let options = ByLabelTextOptions::new().selector("input".to_string()).exact(false);
+        let options = ByLabelTextOptions::new()
+            .selector("input".to_string())
+            .exact(false);
 
         let json_value = options.to_json_value().unwrap();
         assert_eq!(json_value["selector"], "input");
@@ -73,7 +75,9 @@ mod tests {
 
     #[test]
     fn test_label_text_options_json_string() {
-        let options = ByLabelTextOptions::new().selector("textarea".to_string()).exact(true);
+        let options = ByLabelTextOptions::new()
+            .selector("textarea".to_string())
+            .exact(true);
 
         let json_string = options.to_json_string().unwrap();
         assert!(json_string.contains("\"selector\":\"textarea\""));

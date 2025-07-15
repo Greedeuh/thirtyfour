@@ -18,10 +18,7 @@ fn test_by_title_exact_option(test_harness: TestHarness) -> WebDriverResult<()> 
 
         // Test exact match - should find only "Help" title, not "Click for Help"
         let element = screen
-            .get(By::title_with_options(
-                "Help".to_string(),
-                exact_options.clone(),
-            ))
+            .get(By::title_with_options("Help", exact_options.clone()))
             .await?;
         assert_eq!(element.id().await?, Some("title-exact".to_string()));
 

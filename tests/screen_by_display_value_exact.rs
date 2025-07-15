@@ -19,7 +19,7 @@ fn test_by_display_value_exact_option(test_harness: TestHarness) -> WebDriverRes
         // Test exact match - should find only "Submit" value, not "Submit Form"
         let element = screen
             .get(By::display_value_with_options(
-                "Submit".to_string(),
+                "Submit",
                 exact_options.clone(),
             ))
             .await?;

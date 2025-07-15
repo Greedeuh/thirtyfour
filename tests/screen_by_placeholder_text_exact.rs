@@ -19,7 +19,7 @@ fn test_by_placeholder_text_exact_option(test_harness: TestHarness) -> WebDriver
         // Test exact match - should find only "Username" placeholder, not "Enter your username"
         let element = screen
             .get(By::placeholder_text_with_options(
-                "Username".to_string(),
+                "Username",
                 exact_options.clone(),
             ))
             .await?;

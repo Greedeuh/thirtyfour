@@ -18,10 +18,7 @@ fn test_by_alt_text_exact_option(test_harness: TestHarness) -> WebDriverResult<(
 
         // Test exact match - should find only "Logo" alt text, not "Company Logo Image"
         let element = screen
-            .get(By::alt_text_with_options(
-                "Logo".to_string(),
-                exact_options.clone(),
-            ))
+            .get(By::alt_text_with_options("Logo", exact_options.clone()))
             .await?;
         assert_eq!(element.id().await?, Some("alt-exact".to_string()));
 

@@ -18,10 +18,7 @@ fn test_by_test_id_exact_option(test_harness: TestHarness) -> WebDriverResult<()
 
         // Test exact match - should find only "save" test ID, not "save-button"
         let element = screen
-            .get(By::test_id_with_options(
-                "save".to_string(),
-                exact_options.clone(),
-            ))
+            .get(By::test_id_with_options("save", exact_options.clone()))
             .await?;
         assert_eq!(element.id().await?, Some("testid-exact".to_string()));
 

@@ -25,65 +25,8 @@ let heading = screen.get(By::text("Welcome").exact(true)).await?;
 
 ## Implementation
 
-### Enhanced By enum with builder methods
-```rust
-impl By {
-    // Chainable option methods for all selector types
-    pub fn exact(mut self, exact: bool) -> Self {
-        match &mut self {
-            By::Role(_, ref mut opts) => {
-                let role_opts = opts.get_or_insert_with(|| Options::Role(ByRoleOptions::default()));
-                if let Options::Role(ref mut role_opts) = role_opts {
-                    role_opts.exact = Some(exact);
-                }
-            }
-            By::Text(_, ref mut opts) => {
-                let text_opts = opts.get_or_insert_with(|| Options::Text(ByTextOptions::default()));
-                if let Options::Text(ref mut text_opts) = text_opts {
-                    text_opts.exact = Some(exact);
-                }
-            }
-            // ... handle other variants
-        }
-        self
-    }
-    
-    pub fn hidden(mut self, hidden: bool) -> Self {
-        // Similar implementation for hidden option
-        self
-    }
-    
-    pub fn level(mut self, level: u8) -> Self {
-        // For heading level in role queries
-        self
-    }
-}
-```
 
-### Trait-based approach for type safety
-```rust
-trait HasExactOption {
-    fn exact(self, exact: bool) -> Self;
-}
-
-trait HasHiddenOption {
-    fn hidden(self, hidden: bool) -> Self;
-}
-
-impl HasExactOption for By {
-    fn exact(mut self, exact: bool) -> Self {
-        // Implementation
-    }
-}
-
-impl HasHiddenOption for By {
-    fn hidden(mut self, hidden: bool) -> Self {
-        // Implementation  
-    }
-}
-```
-
-### Alternative: Selector-specific builders
+### Selector-specific builders
 ```rust
 pub struct RoleSelector {
     value: String,
@@ -148,15 +91,3 @@ let welcome_text = screen.get(
         .exact(true)
 ).await?;
 ```
-
-## Benefits
-- Much more ergonomic API
-- Discoverable through IDE autocomplete
-- Type-safe option combinations
-- Backwards compatible
-- Reduces boilerplate code
-
-## Impact
-- **Ergonomics**: High (much cleaner API)
-- **Complexity**: Medium (requires careful design)
-- **Breaking**: Low (can maintain current API alongside)

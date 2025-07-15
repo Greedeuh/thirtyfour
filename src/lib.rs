@@ -83,8 +83,11 @@ pub use test_id::*;
 pub use text::*;
 pub use title::*;
 
-
-use thirtyfour::{error::{WebDriverError, WebDriverResult}, prelude::ScriptRet, WebDriver, WebElement};
+use thirtyfour::{
+    error::{WebDriverError, WebDriverResult},
+    prelude::ScriptRet,
+    WebDriver, WebElement,
+};
 
 // TODO
 // - better error handling
@@ -495,89 +498,83 @@ impl Options {
 
 impl By {
     /// Create a role selector without options
-    pub fn role(value: impl Into<String>) -> Self {
-        Self::Role(value.into(), None)
+    pub fn role(value: &str) -> Self {
+        Self::Role(value.to_string(), None)
     }
 
     /// Create a role selector with options
-    pub fn role_with_options(value: impl Into<String>, options: ByRoleOptions) -> Self {
-        Self::Role(value.into(), Some(Options::Role(options)))
+    pub fn role_with_options(value: &str, options: ByRoleOptions) -> Self {
+        Self::Role(value.to_string(), Some(Options::Role(options)))
     }
 
     /// Create a text selector without options
-    pub fn text(value: impl Into<String>) -> Self {
-        Self::Text(value.into(), None)
+    pub fn text(value: &str) -> Self {
+        Self::Text(value.to_string(), None)
     }
 
     /// Create a text selector with options
-    pub fn text_with_options(value: impl Into<String>, options: ByTextOptions) -> Self {
-        Self::Text(value.into(), Some(Options::Text(options)))
+    pub fn text_with_options(value: &str, options: ByTextOptions) -> Self {
+        Self::Text(value.to_string(), Some(Options::Text(options)))
     }
 
     /// Create a label text selector without options
-    pub fn label_text(value: impl Into<String>) -> Self {
-        Self::LabelText(value.into(), None)
+    pub fn label_text(value: &str) -> Self {
+        Self::LabelText(value.to_string(), None)
     }
 
     /// Create a label text selector with options
-    pub fn label_text_with_options(value: impl Into<String>, options: ByLabelTextOptions) -> Self {
-        Self::LabelText(value.into(), Some(Options::LabelText(options)))
+    pub fn label_text_with_options(value: &str, options: ByLabelTextOptions) -> Self {
+        Self::LabelText(value.to_string(), Some(Options::LabelText(options)))
     }
 
     /// Create a placeholder text selector without options
-    pub fn placeholder_text(value: impl Into<String>) -> Self {
-        Self::PlaceholderText(value.into(), None)
+    pub fn placeholder_text(value: &str) -> Self {
+        Self::PlaceholderText(value.to_string(), None)
     }
 
     /// Create a placeholder text selector with options
-    pub fn placeholder_text_with_options(
-        value: impl Into<String>,
-        options: ByPlaceholderTextOptions,
-    ) -> Self {
-        Self::PlaceholderText(value.into(), Some(Options::PlaceholderText(options)))
+    pub fn placeholder_text_with_options(value: &str, options: ByPlaceholderTextOptions) -> Self {
+        Self::PlaceholderText(value.to_string(), Some(Options::PlaceholderText(options)))
     }
 
     /// Create a display value selector without options
-    pub fn display_value(value: impl Into<String>) -> Self {
-        Self::DisplayValue(value.into(), None)
+    pub fn display_value(value: &str) -> Self {
+        Self::DisplayValue(value.to_string(), None)
     }
 
     /// Create a display value selector with options
-    pub fn display_value_with_options(
-        value: impl Into<String>,
-        options: ByDisplayValueOptions,
-    ) -> Self {
-        Self::DisplayValue(value.into(), Some(Options::DisplayValue(options)))
+    pub fn display_value_with_options(value: &str, options: ByDisplayValueOptions) -> Self {
+        Self::DisplayValue(value.to_string(), Some(Options::DisplayValue(options)))
     }
 
     /// Create an alt text selector without options
-    pub fn alt_text(value: impl Into<String>) -> Self {
-        Self::AltText(value.into(), None)
+    pub fn alt_text(value: &str) -> Self {
+        Self::AltText(value.to_string(), None)
     }
 
     /// Create an alt text selector with options
-    pub fn alt_text_with_options(value: impl Into<String>, options: ByAltTextOptions) -> Self {
-        Self::AltText(value.into(), Some(Options::AltText(options)))
+    pub fn alt_text_with_options(value: &str, options: ByAltTextOptions) -> Self {
+        Self::AltText(value.to_string(), Some(Options::AltText(options)))
     }
 
     /// Create a title selector without options
-    pub fn title(value: impl Into<String>) -> Self {
-        Self::Title(value.into(), None)
+    pub fn title(value: &str) -> Self {
+        Self::Title(value.to_string(), None)
     }
 
     /// Create a title selector with options
-    pub fn title_with_options(value: impl Into<String>, options: ByTitleOptions) -> Self {
-        Self::Title(value.into(), Some(Options::Title(options)))
+    pub fn title_with_options(value: &str, options: ByTitleOptions) -> Self {
+        Self::Title(value.to_string(), Some(Options::Title(options)))
     }
 
     /// Create a test ID selector without options
-    pub fn test_id(value: impl Into<String>) -> Self {
-        Self::TestId(value.into(), None)
+    pub fn test_id(value: &str) -> Self {
+        Self::TestId(value.to_string(), None)
     }
 
     /// Create a test ID selector with options
-    pub fn test_id_with_options(value: impl Into<String>, options: ByTestIdOptions) -> Self {
-        Self::TestId(value.into(), Some(Options::TestId(options)))
+    pub fn test_id_with_options(value: &str, options: ByTestIdOptions) -> Self {
+        Self::TestId(value.to_string(), Some(Options::TestId(options)))
     }
 
     /// Returns the function suffix for the Testing Library method name

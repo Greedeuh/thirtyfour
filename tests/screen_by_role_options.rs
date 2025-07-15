@@ -64,10 +64,7 @@ fn test_name_exact_match(test_harness: TestHarness) -> WebDriverResult<()> {
         let options_partial = ByRoleOptions::new().name(TextMatch::Exact("Submit For".to_string()));
 
         let result = screen
-            .get(By::role_with_options(
-                "button".to_string(),
-                options_partial.clone(),
-            ))
+            .get(By::role_with_options("button", options_partial.clone()))
             .await;
         assert!(result.is_err());
 
@@ -144,7 +141,7 @@ fn test_selected_option(test_harness: TestHarness) -> WebDriverResult<()> {
         let options = ByRoleOptions::new().selected(true);
 
         let tab = screen
-            .get(By::role_with_options("tab".to_string(), options.clone()))
+            .get(By::role_with_options("tab", options.clone()))
             .await?;
         assert_eq!(tab.text().await?, "Active Tab");
 
@@ -198,10 +195,7 @@ fn test_checked_checkbox(test_harness: TestHarness) -> WebDriverResult<()> {
         let options = ByRoleOptions::new().checked(true);
 
         let checkbox = screen
-            .get(By::role_with_options(
-                "checkbox".to_string(),
-                options.clone(),
-            ))
+            .get(By::role_with_options("checkbox", options.clone()))
             .await?;
         let aria_label = checkbox.attr("aria-label").await?.unwrap_or_default();
         assert_eq!(aria_label, "Enable notifications");
@@ -379,7 +373,7 @@ fn test_busy_loading(test_harness: TestHarness) -> WebDriverResult<()> {
         let options = ByRoleOptions::new().busy(true);
 
         let status = screen
-            .get(By::role_with_options("status".to_string(), options.clone()))
+            .get(By::role_with_options("status", options.clone()))
             .await?;
         assert_eq!(status.text().await?, "Loading...");
 
@@ -435,7 +429,7 @@ fn test_current_page(test_harness: TestHarness) -> WebDriverResult<()> {
         let options = ByRoleOptions::new().current(CurrentState::Page);
 
         let link = screen
-            .get(By::role_with_options("link".to_string(), options.clone()))
+            .get(By::role_with_options("link", options.clone()))
             .await?;
         assert_eq!(link.text().await?, "Home");
 
@@ -547,10 +541,7 @@ fn test_hidden_elements(test_harness: TestHarness) -> WebDriverResult<()> {
 
         // This should succeed - just verify the option is being passed
         let _buttons = screen
-            .get(By::role_with_options(
-                "button".to_string(),
-                options_hidden.clone(),
-            ))
+            .get(By::role_with_options("button", options_hidden.clone()))
             .await;
 
         // Without hidden=true, let's just verify we can find visible buttons
@@ -558,10 +549,7 @@ fn test_hidden_elements(test_harness: TestHarness) -> WebDriverResult<()> {
             ByRoleOptions::new().name(TextMatch::Exact("Visible Button".to_string()));
 
         let visible_button = screen
-            .get(By::role_with_options(
-                "button".to_string(),
-                visible_options.clone(),
-            ))
+            .get(By::role_with_options("button", visible_options.clone()))
             .await?;
         assert_eq!(visible_button.text().await?, "Visible Button");
 
@@ -618,10 +606,7 @@ fn test_level_heading(test_harness: TestHarness) -> WebDriverResult<()> {
         let options = ByRoleOptions::new().level(2);
 
         let heading = screen
-            .get(By::role_with_options(
-                "heading".to_string(),
-                options.clone(),
-            ))
+            .get(By::role_with_options("heading", options.clone()))
             .await?;
         assert_eq!(heading.text().await?, "Section Title");
 
@@ -686,7 +671,7 @@ fn test_value_min(test_harness: TestHarness) -> WebDriverResult<()> {
             .name(TextMatch::Exact("Volume".to_string()));
 
         let slider = screen
-            .get(By::role_with_options("slider".to_string(), options.clone()))
+            .get(By::role_with_options("slider", options.clone()))
             .await?;
         let aria_label = slider.attr("aria-label").await?.unwrap_or_default();
         assert_eq!(aria_label, "Volume");
@@ -762,7 +747,7 @@ fn test_value_max(test_harness: TestHarness) -> WebDriverResult<()> {
         let options = ByRoleOptions::new().value(value_opts);
 
         let slider = screen
-            .get(By::role_with_options("slider".to_string(), options.clone()))
+            .get(By::role_with_options("slider", options.clone()))
             .await?;
         let aria_label = slider.attr("aria-label").await?.unwrap_or_default();
         assert_eq!(aria_label, "Brightness");
@@ -838,7 +823,7 @@ fn test_value_now(test_harness: TestHarness) -> WebDriverResult<()> {
         let options = ByRoleOptions::new().value(value_opts);
 
         let slider = screen
-            .get(By::role_with_options("slider".to_string(), options.clone()))
+            .get(By::role_with_options("slider", options.clone()))
             .await?;
         let aria_label = slider.attr("aria-label").await?.unwrap_or_default();
         assert_eq!(aria_label, "Progress");
@@ -912,10 +897,7 @@ fn test_query_fallbacks(test_harness: TestHarness) -> WebDriverResult<()> {
 
         // Try to find the element by its fallback role "checkbox"
         let element = screen
-            .get(By::role_with_options(
-                "checkbox".to_string(),
-                options.clone(),
-            ))
+            .get(By::role_with_options("checkbox", options.clone()))
             .await?;
         assert_eq!(element.text().await?, "Toggle Switch");
 

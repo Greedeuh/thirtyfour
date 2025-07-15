@@ -17,11 +17,11 @@ fn test_selector_option_input_vs_textarea(test_harness: TestHarness) -> WebDrive
         let screen = Screen::build_with_testing_library(c.clone()).await?;
 
         // Test selector="input" finds input element
-        let input_options = ByLabelTextOptions::new().selector("input".to_string());
+        let input_options = ByLabelTextOptions::new().selector("input");
 
         let input_element = screen
             .get(By::label_text_with_options(
-                "Email Address".to_string(),
+                "Email Address",
                 input_options.clone(),
             ))
             .await?;
@@ -29,11 +29,11 @@ fn test_selector_option_input_vs_textarea(test_harness: TestHarness) -> WebDrive
         assert_eq!(input_element.id().await?, Some("email-input".to_string()));
 
         // Test selector="textarea" finds textarea element
-        let textarea_options = ByLabelTextOptions::new().selector("textarea".to_string());
+        let textarea_options = ByLabelTextOptions::new().selector("textarea");
 
         let textarea_element = screen
             .get(By::label_text_with_options(
-                "Email Address".to_string(),
+                "Email Address",
                 textarea_options.clone(),
             ))
             .await?;
@@ -116,11 +116,11 @@ fn test_selector_option_with_id(test_harness: TestHarness) -> WebDriverResult<()
         let screen = Screen::build_with_testing_library(c.clone()).await?;
 
         // Test selector with specific ID
-        let id_options = ByLabelTextOptions::new().selector("#email-input".to_string());
+        let id_options = ByLabelTextOptions::new().selector("#email-input");
 
         let element = screen
             .get(By::label_text_with_options(
-                "Email Address".to_string(),
+                "Email Address",
                 id_options.clone(),
             ))
             .await?;
@@ -169,7 +169,7 @@ fn test_exact_true_precise_match(test_harness: TestHarness) -> WebDriverResult<(
         // Test exact match for "Password" (should find only password-input, not confirm-password)
         let password_element = screen
             .get(By::label_text_with_options(
-                "Password".to_string(),
+                "Password",
                 exact_options.clone(),
             ))
             .await?;
@@ -181,7 +181,7 @@ fn test_exact_true_precise_match(test_harness: TestHarness) -> WebDriverResult<(
         // Test exact match for "Confirm Password"
         let confirm_element = screen
             .get(By::label_text_with_options(
-                "Confirm Password".to_string(),
+                "Confirm Password",
                 exact_options.clone(),
             ))
             .await?;
@@ -323,7 +323,7 @@ fn test_exact_case_sensitivity(test_harness: TestHarness) -> WebDriverResult<()>
         // Test exact case match - "Country" should find the country select
         let country_element = screen
             .get(By::label_text_with_options(
-                "Country".to_string(),
+                "Country",
                 exact_options.clone(),
             ))
             .await?;
@@ -333,7 +333,7 @@ fn test_exact_case_sensitivity(test_harness: TestHarness) -> WebDriverResult<()>
         // Test exact case match - "COUNTRY CODE" should find the country-code input
         let country_code_element = screen
             .get(By::label_text_with_options(
-                "COUNTRY CODE".to_string(),
+                "COUNTRY CODE",
                 exact_options.clone(),
             ))
             .await?;

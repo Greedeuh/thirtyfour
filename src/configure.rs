@@ -84,8 +84,8 @@ impl Options {
     }
 
     /// Builder method to set default_ignore
-    pub fn with_default_ignore(mut self, value: impl Into<String>) -> Self {
-        self.default_ignore = Some(value.into());
+    pub fn with_default_ignore(mut self, value: &str) -> Self {
+        self.default_ignore = Some(value.to_string());
         self
     }
 
@@ -102,8 +102,8 @@ impl Options {
     }
 
     /// Builder method to set test_id_attribute
-    pub fn with_test_id_attribute(mut self, value: impl Into<String>) -> Self {
-        self.test_id_attribute = Some(value.into());
+    pub fn with_test_id_attribute(mut self, value: &str) -> Self {
+        self.test_id_attribute = Some(value.to_string());
         self
     }
 

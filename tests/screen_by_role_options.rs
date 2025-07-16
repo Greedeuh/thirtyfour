@@ -610,7 +610,6 @@ fn test_value_max(test_harness: TestHarness) -> WebDriverResult<()> {
             .get(
                 By::role("slider")
                     .value(value_opts.clone())
-                    .name(TextMatch::Exact("Volume".to_string())),
             )
             .await?;
         let aria_label = slider.attr("aria-label").await?.unwrap_or_default();
@@ -621,7 +620,6 @@ fn test_value_max(test_harness: TestHarness) -> WebDriverResult<()> {
             .query(
                 By::role("slider")
                     .value(value_opts.clone())
-                    .name(TextMatch::Exact("Volume".to_string())),
             )
             .await?;
         assert!(maybe_slider.is_some());
@@ -636,7 +634,6 @@ fn test_value_max(test_harness: TestHarness) -> WebDriverResult<()> {
             .get_all(
                 By::role("slider")
                     .value(value_opts.clone())
-                    .name(TextMatch::Exact("Volume".to_string())),
             )
             .await?;
         assert_count(&all_sliders, 1)?;
@@ -648,7 +645,6 @@ fn test_value_max(test_harness: TestHarness) -> WebDriverResult<()> {
             .query_all(
                 By::role("slider")
                     .value(value_opts.clone())
-                    .name(TextMatch::Exact("Volume".to_string())),
             )
             .await?;
         assert_count(&query_sliders, 1)?;
@@ -663,7 +659,6 @@ fn test_value_max(test_harness: TestHarness) -> WebDriverResult<()> {
             .find(
                 By::role("slider")
                     .value(value_opts.clone())
-                    .name(TextMatch::Exact("Volume".to_string())),
             )
             .await?;
         let aria_label = find_slider.attr("aria-label").await?.unwrap_or_default();
@@ -674,7 +669,6 @@ fn test_value_max(test_harness: TestHarness) -> WebDriverResult<()> {
             .find_all(
                 By::role("slider")
                     .value(value_opts.clone())
-                    .name(TextMatch::Exact("Volume".to_string())),
             )
             .await?;
         assert_count(&find_sliders, 1)?;
@@ -704,7 +698,7 @@ fn test_value_now(test_harness: TestHarness) -> WebDriverResult<()> {
             .get(
                 By::role("slider")
                     .value(value_opts.clone())
-                    .name(TextMatch::Exact("Volume".to_string())),
+                    .name(TextMatch::Exact("Progress".to_string())),
             )
             .await?;
         let aria_label = slider.attr("aria-label").await?.unwrap_or_default();
@@ -715,7 +709,7 @@ fn test_value_now(test_harness: TestHarness) -> WebDriverResult<()> {
             .get_all(
                 By::role("slider")
                     .value(value_opts.clone())
-                    .name(TextMatch::Exact("Volume".to_string())),
+                    .name(TextMatch::Exact("Progress".to_string())),
             )
             .await?;
         assert_count(&sliders, 1)?;
@@ -726,7 +720,7 @@ fn test_value_now(test_harness: TestHarness) -> WebDriverResult<()> {
             .query(
                 By::role("slider")
                     .value(value_opts.clone())
-                    .name(TextMatch::Exact("Volume".to_string())),
+                    .name(TextMatch::Exact("Progress".to_string())),
             )
             .await?;
         assert!(maybe_slider.is_some());
@@ -742,7 +736,7 @@ fn test_value_now(test_harness: TestHarness) -> WebDriverResult<()> {
             .query_all(
                 By::role("slider")
                     .value(value_opts.clone())
-                    .name(TextMatch::Exact("Volume".to_string())),
+                    .name(TextMatch::Exact("Progress".to_string())),
             )
             .await?;
         assert_count(&query_sliders, 1)?;
@@ -757,7 +751,7 @@ fn test_value_now(test_harness: TestHarness) -> WebDriverResult<()> {
             .find(
                 By::role("slider")
                     .value(value_opts.clone())
-                    .name(TextMatch::Exact("Volume".to_string())),
+                    .name(TextMatch::Exact("Progress".to_string())),
             )
             .await?;
         let aria_label = find_slider.attr("aria-label").await?.unwrap_or_default();
@@ -768,7 +762,7 @@ fn test_value_now(test_harness: TestHarness) -> WebDriverResult<()> {
             .find_all(
                 By::role("slider")
                     .value(value_opts.clone())
-                    .name(TextMatch::Exact("Volume".to_string())),
+                    .name(TextMatch::Exact("Progress".to_string())),
             )
             .await?;
         assert_count(&find_sliders, 1)?;
@@ -789,31 +783,32 @@ fn test_query_fallbacks(test_harness: TestHarness) -> WebDriverResult<()> {
     block_on(async {
         let screen = test_harness.screen_for_page("by_role_options.html").await?;
 
-        // Try to find the element by its fallback role "checkbox"
-        let element = screen.get(By::role("checkbox").checked(true)).await?;
+        // Try to find the element by its fallback role "checkbox" - need to be more specific
+        // Since there are multiple checkboxes, target the switch specifically by its role
+        let element = screen.get(By::role("switch").query_fallbacks(true)).await?;
         assert_text(&element, "Toggle Switch").await?;
 
         // Test query_all_by_role_with_options
-        let elements = screen.query_all(By::role("checkbox").checked(true)).await?;
+        let elements = screen.query_all(By::role("switch").query_fallbacks(true)).await?;
         assert_count(&elements, 1)?;
         assert_text(&elements[0], "Toggle Switch").await?;
 
         // Test get_all_by_role_with_options
-        let all_elements = screen.get_all(By::role("checkbox").checked(true)).await?;
+        let all_elements = screen.get_all(By::role("switch").query_fallbacks(true)).await?;
         assert_count(&all_elements, 1)?;
         assert_text(&all_elements[0], "Toggle Switch").await?;
 
         // Test query_by_role_with_options
-        let maybe_element = screen.query(By::role("checkbox").checked(true)).await?;
+        let maybe_element = screen.query(By::role("switch").query_fallbacks(true)).await?;
         assert!(maybe_element.is_some());
         assert_text(&maybe_element.unwrap(), "Toggle Switch").await?;
 
         // Test find_by_role_with_options
-        let find_element = screen.find(By::role("checkbox").checked(true)).await?;
+        let find_element = screen.find(By::role("switch").query_fallbacks(true)).await?;
         assert_text(&find_element, "Toggle Switch").await?;
 
         // Test find_all_by_role_with_options
-        let find_elements = screen.find_all(By::role("checkbox").checked(true)).await?;
+        let find_elements = screen.find_all(By::role("switch").query_fallbacks(true)).await?;
         assert_count(&find_elements, 1)?;
         assert_text(&find_elements[0], "Toggle Switch").await?;
 

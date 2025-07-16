@@ -3,18 +3,14 @@ use common::*;
 use rstest::rstest;
 use thirtyfour::prelude::*;
 use thirtyfour::support::block_on;
-use thirtyfour_testing_library_ext::{By, ByLabelTextOptions, Screen};
+use thirtyfour_testing_library_ext::{By, ByLabelTextOptions};
 
 // 1. Selector Option Tests
 
 #[rstest]
 fn test_selector_option_input_vs_textarea(test_harness: TestHarness) -> WebDriverResult<()> {
-    let c = test_harness.driver();
     block_on(async {
-        let url = by_label_text_options_page_url();
-        c.goto(&url).await?;
-
-        let screen = Screen::build_with_testing_library(c.clone()).await?;
+        let screen = test_harness.screen_for_page("by_label_text_options.html").await?;
 
         // Test selector="input" finds input element
         let input_options = ByLabelTextOptions::new().selector("input");
@@ -50,7 +46,7 @@ fn test_selector_option_input_vs_textarea(test_harness: TestHarness) -> WebDrive
                 input_options.clone(),
             ))
             .await?;
-        assert_eq!(input_elements.len(), 1);
+        assert_count(&input_elements, 1)?;
         assert_eq!(input_elements[0].tag_name().await?, "input");
 
         // Test get_all_by_label_text_with_options with textarea selector
@@ -60,7 +56,7 @@ fn test_selector_option_input_vs_textarea(test_harness: TestHarness) -> WebDrive
                 textarea_options.clone(),
             ))
             .await?;
-        assert_eq!(textarea_elements.len(), 1);
+        assert_count(&textarea_elements, 1)?;
         assert_eq!(textarea_elements[0].tag_name().await?, "textarea");
 
         // Test query_by_label_text_with_options
@@ -80,7 +76,7 @@ fn test_selector_option_input_vs_textarea(test_harness: TestHarness) -> WebDrive
                 input_options.clone(),
             ))
             .await?;
-        assert_eq!(query_inputs.len(), 1);
+        assert_count(&query_inputs, 1)?;
         assert_eq!(query_inputs[0].tag_name().await?, "input");
 
         // Test find_by_label_text_with_options
@@ -99,7 +95,7 @@ fn test_selector_option_input_vs_textarea(test_harness: TestHarness) -> WebDrive
                 input_options.clone(),
             ))
             .await?;
-        assert_eq!(find_inputs.len(), 1);
+        assert_count(&find_inputs, 1)?;
         assert_eq!(find_inputs[0].tag_name().await?, "input");
 
         Ok(())
@@ -108,12 +104,8 @@ fn test_selector_option_input_vs_textarea(test_harness: TestHarness) -> WebDrive
 
 #[rstest]
 fn test_selector_option_with_id(test_harness: TestHarness) -> WebDriverResult<()> {
-    let c = test_harness.driver();
     block_on(async {
-        let url = by_label_text_options_page_url();
-        c.goto(&url).await?;
-
-        let screen = Screen::build_with_testing_library(c.clone()).await?;
+        let screen = test_harness.screen_for_page("by_label_text_options.html").await?;
 
         // Test selector with specific ID
         let id_options = ByLabelTextOptions::new().selector("#email-input");
@@ -157,12 +149,8 @@ fn test_selector_option_with_id(test_harness: TestHarness) -> WebDriverResult<()
 
 #[rstest]
 fn test_exact_true_precise_match(test_harness: TestHarness) -> WebDriverResult<()> {
-    let c = test_harness.driver();
     block_on(async {
-        let url = by_label_text_options_page_url();
-        c.goto(&url).await?;
-
-        let screen = Screen::build_with_testing_library(c.clone()).await?;
+        let screen = test_harness.screen_for_page("by_label_text_options.html").await?;
 
         let exact_options = ByLabelTextOptions::new().exact(true);
 
@@ -197,7 +185,7 @@ fn test_exact_true_precise_match(test_harness: TestHarness) -> WebDriverResult<(
                 exact_options.clone(),
             ))
             .await?;
-        assert_eq!(password_elements.len(), 1);
+        assert_count(&password_elements, 1)?;
         assert_eq!(
             password_elements[0].id().await?,
             Some("password-input".to_string())
@@ -223,7 +211,7 @@ fn test_exact_true_precise_match(test_harness: TestHarness) -> WebDriverResult<(
                 exact_options.clone(),
             ))
             .await?;
-        assert_eq!(query_passwords.len(), 1);
+        assert_count(&query_passwords, 1)?;
         assert_eq!(
             query_passwords[0].id().await?,
             Some("password-input".to_string())
@@ -248,7 +236,7 @@ fn test_exact_true_precise_match(test_harness: TestHarness) -> WebDriverResult<(
                 exact_options.clone(),
             ))
             .await?;
-        assert_eq!(find_passwords.len(), 1);
+        assert_count(&find_passwords, 1)?;
         assert_eq!(
             find_passwords[0].id().await?,
             Some("password-input".to_string())
@@ -260,12 +248,8 @@ fn test_exact_true_precise_match(test_harness: TestHarness) -> WebDriverResult<(
 
 #[rstest]
 fn test_exact_false_partial_match(test_harness: TestHarness) -> WebDriverResult<()> {
-    let c = test_harness.driver();
     block_on(async {
-        let url = by_label_text_options_page_url();
-        c.goto(&url).await?;
-
-        let screen = Screen::build_with_testing_library(c.clone()).await?;
+        let screen = test_harness.screen_for_page("by_label_text_options.html").await?;
 
         let partial_options = ByLabelTextOptions::new().exact(false);
 
@@ -276,7 +260,7 @@ fn test_exact_false_partial_match(test_harness: TestHarness) -> WebDriverResult<
                 partial_options.clone(),
             ))
             .await?;
-        assert_eq!(password_elements.len(), 2);
+        assert_count(&password_elements, 2)?;
 
         // Verify we got both password elements
         let mut ids = Vec::new();
@@ -294,7 +278,7 @@ fn test_exact_false_partial_match(test_harness: TestHarness) -> WebDriverResult<
                 partial_options.clone(),
             ))
             .await?;
-        assert_eq!(query_passwords.len(), 2);
+        assert_count(&query_passwords, 2)?;
 
         // Test find_all_by_label_text_with_options
         let find_passwords = screen
@@ -303,7 +287,7 @@ fn test_exact_false_partial_match(test_harness: TestHarness) -> WebDriverResult<
                 partial_options.clone(),
             ))
             .await?;
-        assert_eq!(find_passwords.len(), 2);
+        assert_count(&find_passwords, 2)?;
 
         Ok(())
     })
@@ -311,12 +295,8 @@ fn test_exact_false_partial_match(test_harness: TestHarness) -> WebDriverResult<
 
 #[rstest]
 fn test_exact_case_sensitivity(test_harness: TestHarness) -> WebDriverResult<()> {
-    let c = test_harness.driver();
     block_on(async {
-        let url = by_label_text_options_page_url();
-        c.goto(&url).await?;
-
-        let screen = Screen::build_with_testing_library(c.clone()).await?;
+        let screen = test_harness.screen_for_page("by_label_text_options.html").await?;
 
         let exact_options = ByLabelTextOptions::new().exact(true);
 
@@ -350,7 +330,7 @@ fn test_exact_case_sensitivity(test_harness: TestHarness) -> WebDriverResult<()>
                 exact_options.clone(),
             ))
             .await?;
-        assert!(lowercase_result.is_none());
+        assert_none(lowercase_result)?;
 
         // Test case sensitivity - "country code" (lowercase) should not find "COUNTRY CODE"
         let lowercase_code_result = screen
@@ -359,7 +339,7 @@ fn test_exact_case_sensitivity(test_harness: TestHarness) -> WebDriverResult<()>
                 exact_options.clone(),
             ))
             .await?;
-        assert!(lowercase_code_result.is_none());
+        assert_none(lowercase_code_result)?;
 
         Ok(())
     })

@@ -3,18 +3,14 @@ use common::*;
 use rstest::rstest;
 use thirtyfour::prelude::*;
 use thirtyfour::support::block_on;
-use thirtyfour_testing_library_ext::{By, Screen};
+use thirtyfour_testing_library_ext::By;
 
 #[rstest]
 fn within(test_harness: TestHarness) -> WebDriverResult<()> {
-    let c = test_harness.driver();
     block_on(async {
-        let url = screen_within_page_url();
-        c.goto(&url).await?;
+        let screen = test_harness.screen_for_page("screen_within.html").await?;
 
-        let parent_element = c.find(thirtyfour::prelude::By::Id("parent")).await?;
-
-        let screen = Screen::build_with_testing_library(c.clone()).await?;
+        let parent_element = test_harness.driver().find(thirtyfour::prelude::By::Id("parent")).await?;
         let result = screen.get(By::text("Some text")).await;
         assert!(
             result.is_err(),
@@ -25,10 +21,10 @@ fn within(test_harness: TestHarness) -> WebDriverResult<()> {
 
         // testing the `get` and `find` methods beaucse they use different execution methods
         let result = within_screen.get(By::text("Some text")).await;
-        assert_eq!(result.unwrap().id().await?.unwrap(), "child");
+        assert_id(&result.unwrap(), "child").await?;
 
         let result = within_screen.find(By::text("Some text")).await;
-        assert_eq!(result.unwrap().id().await?.unwrap(), "child");
+        assert_id(&result.unwrap(), "child").await?;
 
         Ok(())
     })

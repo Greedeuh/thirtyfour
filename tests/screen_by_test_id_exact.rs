@@ -3,16 +3,12 @@ use common::*;
 use rstest::rstest;
 use thirtyfour::prelude::*;
 use thirtyfour::support::block_on;
-use thirtyfour_testing_library_ext::{By, ByTestIdOptions, Screen};
+use thirtyfour_testing_library_ext::{By, ByTestIdOptions};
 
 #[rstest]
 fn test_by_test_id_exact_option(test_harness: TestHarness) -> WebDriverResult<()> {
-    let c = test_harness.driver();
     block_on(async {
-        let url = by_test_id_exact_page_url();
-        c.goto(&url).await?;
-
-        let screen = Screen::build_with_testing_library(c.clone()).await?;
+        let screen = test_harness.screen_for_page("by_test_id_exact.html").await?;
 
         let exact_options = ByTestIdOptions::new().exact(true);
 
@@ -20,50 +16,41 @@ fn test_by_test_id_exact_option(test_harness: TestHarness) -> WebDriverResult<()
         let element = screen
             .get(By::test_id_with_options("save", exact_options.clone()))
             .await?;
-        assert_eq!(element.id().await?, Some("testid-exact".to_string()));
+        assert_id(&element, "testid-exact").await?;
 
         // Test get_all_by_test_id_with_options
         let elements = screen
             .get_all(By::test_id_with_options("save", exact_options.clone()))
             .await?;
-        assert_eq!(elements.len(), 1);
-        assert_eq!(elements[0].id().await?, Some("testid-exact".to_string()));
+        assert_count(&elements, 1)?;
+        assert_id(&elements[0], "testid-exact").await?;
 
         // Test query_by_test_id_with_options
         let result = screen
             .query(By::test_id_with_options("save", exact_options.clone()))
             .await?;
         assert!(result.is_some());
-        assert_eq!(
-            result.unwrap().id().await?,
-            Some("testid-exact".to_string())
-        );
+        assert_id(&result.unwrap(), "testid-exact").await?;
 
         // Test query_all_by_test_id_with_options
         let query_elements = screen
             .query_all(By::test_id_with_options("save", exact_options.clone()))
             .await?;
-        assert_eq!(query_elements.len(), 1);
-        assert_eq!(
-            query_elements[0].id().await?,
-            Some("testid-exact".to_string())
-        );
+        assert_count(&query_elements, 1)?;
+        assert_id(&query_elements[0], "testid-exact").await?;
 
         // Test find_by_test_id_with_options
         let find_element = screen
             .find(By::test_id_with_options("save", exact_options.clone()))
             .await?;
-        assert_eq!(find_element.id().await?, Some("testid-exact".to_string()));
+        assert_id(&find_element, "testid-exact").await?;
 
         // Test find_all_by_test_id_with_options
         let find_elements = screen
             .find_all(By::test_id_with_options("save", exact_options.clone()))
             .await?;
-        assert_eq!(find_elements.len(), 1);
-        assert_eq!(
-            find_elements[0].id().await?,
-            Some("testid-exact".to_string())
-        );
+        assert_count(&find_elements, 1)?;
+        assert_id(&find_elements[0], "testid-exact").await?;
 
         Ok(())
     })

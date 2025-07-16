@@ -3,22 +3,16 @@ use common::*;
 use rstest::rstest;
 use thirtyfour::prelude::*;
 use thirtyfour::support::block_on;
-use thirtyfour_testing_library_ext::{By, Screen};
+use thirtyfour_testing_library_ext::By;
 
 #[rstest]
 fn switch_pages_reload_the_scripts(test_harness: TestHarness) -> WebDriverResult<()> {
-    let c = test_harness.driver();
     block_on(async {
-        let url = by_text_exact_page_url();
-        c.goto(&url).await?;
-
-        let screen = Screen::build_with_testing_library(c.clone()).await?;
+        let screen = test_harness.screen_for_page("by_text_exact.html").await?;
         // should not fail
         screen.get(By::text("Login")).await?;
 
-        let url = by_title_exact_page_url();
-        c.goto(&url).await?;
-
+        let screen = test_harness.screen_for_page("by_title_exact.html").await?;
         screen.get(By::title("Click for Help")).await?;
 
         Ok(())

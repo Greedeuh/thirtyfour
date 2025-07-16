@@ -8,6 +8,7 @@ use std::{
 };
 use thirtyfour::prelude::*;
 use thirtyfour::support::block_on;
+use thirtyfour_testing_library_ext::Screen;
 use tokio::sync::{Semaphore, SemaphorePermit};
 
 static SERVER: OnceLock<Arc<JoinHandle<()>>> = OnceLock::new();
@@ -140,6 +141,18 @@ impl TestHarness {
         self.driver.as_ref().expect("the driver to still be active")
     }
 
+    /// Navigate to a test HTML file and get a configured screen.
+    pub async fn screen_for_page(&self, html_file: &str) -> WebDriverResult<Screen> {
+        let url = format!("http://localhost:{PORT}/{html_file}");
+        self.driver().goto(&url).await?;
+        Ok(self.screen().await)
+    }
+
+    async fn screen(&self) -> Screen {
+        Screen::build_with_testing_library(self.driver().clone()).await
+            .expect("Failed to create Screen")
+    }
+
     /// Disable auto-closing the browser when the TestHarness is dropped.
     pub fn disable_auto_close(mut self) -> Self {
         if let Some(driver) = self.driver.take() {
@@ -206,4 +219,31 @@ pub fn screen_within_page_url() -> String {
 
 pub fn screen_configure_page_url() -> String {
     format!("http://localhost:{PORT}/screen_configure.html")
+}
+
+pub async fn assert_id(element: &WebElement, expected: &str) -> WebDriverResult<()> {
+    let actual_id = element.id().await?.unwrap();
+    assert_eq!(actual_id, expected);
+    Ok(())
+}
+
+pub async fn assert_text(element: &WebElement, expected: &str) -> WebDriverResult<()> {
+    let actual_text = element.text().await?;
+    assert_eq!(actual_text, expected);
+    Ok(())
+}
+
+pub fn assert_none<T>(result: Option<T>) -> WebDriverResult<()> {
+    assert!(result.is_none());
+    Ok(())
+}
+
+pub fn assert_error<T>(result: WebDriverResult<T>) -> WebDriverResult<()> {
+    assert!(result.is_err());
+    Ok(())
+}
+
+pub fn assert_count<T>(elements: &[T], expected: usize) -> WebDriverResult<()> {
+    assert_eq!(elements.len(), expected);
+    Ok(())
 }

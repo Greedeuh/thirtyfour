@@ -3,19 +3,15 @@ use common::*;
 use rstest::rstest;
 use thirtyfour::prelude::*;
 use thirtyfour::support::block_on;
-use thirtyfour_testing_library_ext::{By, Screen};
+use thirtyfour_testing_library_ext::By;
 
 #[rstest]
 fn get_by_placeholder_text(test_harness: TestHarness) -> WebDriverResult<()> {
-    let c = test_harness.driver();
     block_on(async {
-        let url = sample_page_url();
-        c.goto(&url).await?;
-
-        let screen = Screen::build_with_testing_library(c.clone()).await?;
+        let screen = test_harness.screen_for_page("sample_page.html").await?;
         let email_input = screen.get(By::placeholder_text("jean@email.fr")).await?;
 
-        assert_eq!(email_input.id().await?.unwrap(), "email");
+        assert_id(&email_input, "email").await?;
 
         Ok(())
     })
@@ -23,16 +19,12 @@ fn get_by_placeholder_text(test_harness: TestHarness) -> WebDriverResult<()> {
 
 #[rstest]
 fn query_by_placeholder_text(test_harness: TestHarness) -> WebDriverResult<()> {
-    let c = test_harness.driver();
     block_on(async {
-        let url = sample_page_url();
-        c.goto(&url).await?;
-
-        let screen = Screen::build_with_testing_library(c.clone()).await?;
+        let screen = test_harness.screen_for_page("sample_page.html").await?;
         let email_input = screen.query(By::placeholder_text("jean@email.fr")).await?;
 
         assert!(email_input.is_some());
-        assert_eq!(email_input.unwrap().id().await?.unwrap(), "email");
+        assert_id(&email_input.unwrap(), "email").await?;
 
         Ok(())
     })
@@ -40,18 +32,14 @@ fn query_by_placeholder_text(test_harness: TestHarness) -> WebDriverResult<()> {
 
 #[rstest]
 fn get_all_by_placeholder_text(test_harness: TestHarness) -> WebDriverResult<()> {
-    let c = test_harness.driver();
     block_on(async {
-        let url = sample_page_url();
-        c.goto(&url).await?;
-
-        let screen = Screen::build_with_testing_library(c.clone()).await?;
+        let screen = test_harness.screen_for_page("sample_page.html").await?;
         let inputs = screen
             .get_all(By::placeholder_text("jean@email.fr"))
             .await?;
 
-        assert_eq!(inputs.len(), 1);
-        assert_eq!(inputs[0].id().await?.unwrap(), "email");
+        assert_count(&inputs, 1)?;
+        assert_id(&inputs[0], "email").await?;
 
         Ok(())
     })
@@ -59,18 +47,14 @@ fn get_all_by_placeholder_text(test_harness: TestHarness) -> WebDriverResult<()>
 
 #[rstest]
 fn query_all_by_placeholder_text(test_harness: TestHarness) -> WebDriverResult<()> {
-    let c = test_harness.driver();
     block_on(async {
-        let url = sample_page_url();
-        c.goto(&url).await?;
-
-        let screen = Screen::build_with_testing_library(c.clone()).await?;
+        let screen = test_harness.screen_for_page("sample_page.html").await?;
         let inputs = screen
             .query_all(By::placeholder_text("jean@email.fr"))
             .await?;
 
-        assert_eq!(inputs.len(), 1);
-        assert_eq!(inputs[0].id().await?.unwrap(), "email");
+        assert_count(&inputs, 1)?;
+        assert_id(&inputs[0], "email").await?;
 
         Ok(())
     })
@@ -78,15 +62,11 @@ fn query_all_by_placeholder_text(test_harness: TestHarness) -> WebDriverResult<(
 
 #[rstest]
 fn find_by_placeholder_text(test_harness: TestHarness) -> WebDriverResult<()> {
-    let c = test_harness.driver();
     block_on(async {
-        let url = sample_page_url();
-        c.goto(&url).await?;
-
-        let screen = Screen::build_with_testing_library(c.clone()).await?;
+        let screen = test_harness.screen_for_page("sample_page.html").await?;
         let input = screen.find(By::placeholder_text("jean@email.fr")).await?;
 
-        assert_eq!(input.id().await?.unwrap(), "email");
+        assert_id(&input, "email").await?;
 
         Ok(())
     })
@@ -94,18 +74,14 @@ fn find_by_placeholder_text(test_harness: TestHarness) -> WebDriverResult<()> {
 
 #[rstest]
 fn find_all_by_placeholder_text(test_harness: TestHarness) -> WebDriverResult<()> {
-    let c = test_harness.driver();
     block_on(async {
-        let url = sample_page_url();
-        c.goto(&url).await?;
-
-        let screen = Screen::build_with_testing_library(c.clone()).await?;
+        let screen = test_harness.screen_for_page("sample_page.html").await?;
         let inputs = screen
             .find_all(By::placeholder_text("jean@email.fr"))
             .await?;
 
-        assert_eq!(inputs.len(), 1);
-        assert_eq!(inputs[0].id().await?.unwrap(), "email");
+        assert_count(&inputs, 1)?;
+        assert_id(&inputs[0], "email").await?;
 
         Ok(())
     })
@@ -113,17 +89,13 @@ fn find_all_by_placeholder_text(test_harness: TestHarness) -> WebDriverResult<()
 
 #[rstest]
 fn get_by_placeholder_text_should_fail(test_harness: TestHarness) -> WebDriverResult<()> {
-    let c = test_harness.driver();
     block_on(async {
-        let url = sample_page_url();
-        c.goto(&url).await?;
-
-        let screen = Screen::build_with_testing_library(c.clone()).await?;
+        let screen = test_harness.screen_for_page("sample_page.html").await?;
         let result = screen
             .get(By::placeholder_text("NonExistentPlaceholder"))
             .await;
 
-        assert!(result.is_err());
+        assert_error(result)?;
 
         Ok(())
     })
@@ -131,17 +103,13 @@ fn get_by_placeholder_text_should_fail(test_harness: TestHarness) -> WebDriverRe
 
 #[rstest]
 fn get_all_by_placeholder_text_should_fail(test_harness: TestHarness) -> WebDriverResult<()> {
-    let c = test_harness.driver();
     block_on(async {
-        let url = sample_page_url();
-        c.goto(&url).await?;
-
-        let screen = Screen::build_with_testing_library(c.clone()).await?;
+        let screen = test_harness.screen_for_page("sample_page.html").await?;
         let result = screen
             .get_all(By::placeholder_text("NonExistentPlaceholder"))
             .await;
 
-        assert!(result.is_err());
+        assert_error(result)?;
 
         Ok(())
     })
@@ -149,17 +117,13 @@ fn get_all_by_placeholder_text_should_fail(test_harness: TestHarness) -> WebDriv
 
 #[rstest]
 fn find_by_placeholder_text_should_fail(test_harness: TestHarness) -> WebDriverResult<()> {
-    let c = test_harness.driver();
     block_on(async {
-        let url = sample_page_url();
-        c.goto(&url).await?;
-
-        let screen = Screen::build_with_testing_library(c.clone()).await?;
+        let screen = test_harness.screen_for_page("sample_page.html").await?;
         let result = screen
             .find(By::placeholder_text("NonExistentPlaceholder"))
             .await;
 
-        assert!(result.is_err());
+        assert_error(result)?;
 
         Ok(())
     })
@@ -167,17 +131,13 @@ fn find_by_placeholder_text_should_fail(test_harness: TestHarness) -> WebDriverR
 
 #[rstest]
 fn find_all_by_placeholder_text_should_fail(test_harness: TestHarness) -> WebDriverResult<()> {
-    let c = test_harness.driver();
     block_on(async {
-        let url = sample_page_url();
-        c.goto(&url).await?;
-
-        let screen = Screen::build_with_testing_library(c.clone()).await?;
+        let screen = test_harness.screen_for_page("sample_page.html").await?;
         let result = screen
             .find_all(By::placeholder_text("NonExistentPlaceholder"))
             .await;
 
-        assert!(result.is_err());
+        assert_error(result)?;
 
         Ok(())
     })
@@ -185,17 +145,13 @@ fn find_all_by_placeholder_text_should_fail(test_harness: TestHarness) -> WebDri
 
 #[rstest]
 fn query_by_placeholder_text_not_found(test_harness: TestHarness) -> WebDriverResult<()> {
-    let c = test_harness.driver();
     block_on(async {
-        let url = sample_page_url();
-        c.goto(&url).await?;
-
-        let screen = Screen::build_with_testing_library(c.clone()).await?;
+        let screen = test_harness.screen_for_page("sample_page.html").await?;
         let result = screen
             .query(By::placeholder_text("NonExistentPlaceholder"))
             .await?;
 
-        assert!(result.is_none());
+        assert_none(result)?;
 
         Ok(())
     })
@@ -203,17 +159,13 @@ fn query_by_placeholder_text_not_found(test_harness: TestHarness) -> WebDriverRe
 
 #[rstest]
 fn query_all_by_placeholder_text_empty(test_harness: TestHarness) -> WebDriverResult<()> {
-    let c = test_harness.driver();
     block_on(async {
-        let url = sample_page_url();
-        c.goto(&url).await?;
-
-        let screen = Screen::build_with_testing_library(c.clone()).await?;
+        let screen = test_harness.screen_for_page("sample_page.html").await?;
         let result = screen
             .query_all(By::placeholder_text("NonExistentPlaceholder"))
             .await?;
 
-        assert_eq!(result.len(), 0);
+        assert_count(&result, 0)?;
 
         Ok(())
     })

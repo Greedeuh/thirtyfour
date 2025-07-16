@@ -307,7 +307,7 @@ impl QueryExecutor {
 
     /// Execute a basic Testing Library script with retry logic
     pub async fn execute(&self, script: &str, arguments: Vec<Value>) -> WebDriverResult<ScriptRet> {
-        let wrapped_script = self.wrap_load_retry(&script);
+        let wrapped_script = self.wrap_load_retry(script);
         self.execute_and_retry_if_library_not_found(&wrapped_script, arguments)
             .await
     }

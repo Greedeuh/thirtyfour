@@ -3,7 +3,7 @@ use common::*;
 use rstest::rstest;
 use thirtyfour::prelude::*;
 use thirtyfour::support::block_on;
-use thirtyfour_testing_library_ext::{By, ByRoleOptions, Screen, TextMatch};
+use thirtyfour_testing_library_ext::{By, ByRoleOptions, TextMatch};
 
 #[rstest]
 fn query_all_by_role(test_harness: TestHarness) -> WebDriverResult<()> {

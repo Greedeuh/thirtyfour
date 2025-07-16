@@ -1,6 +1,7 @@
 use regex;
 use serde::{Serialize, Serializer};
 use serde_json::Value;
+use crate::options_common::TestingLibraryOptions;
 
 /// A wrapper type that indicates a value should be serialized as raw JavaScript
 #[derive(Debug, Clone)]
@@ -282,6 +283,15 @@ impl ByRoleOptions {
     /// Serialize the options to a JSON Value for use in Testing Library method calls
     pub fn to_json_value(&self) -> Result<Value, serde_json::Error> {
         serde_json::to_value(self)
+    }
+}
+
+impl TestingLibraryOptions for ByRoleOptions {
+    /// Custom implementation to handle raw JavaScript processing
+    fn to_json_string(&self) -> Result<String, serde_json::Error> {
+        let json = serde_json::to_string(self)?;
+        // Post-process to convert marked raw JavaScript values
+        Ok(Self::process_raw_javascript_markers(&json))
     }
 }
 

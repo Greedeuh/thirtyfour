@@ -54,34 +54,22 @@
 //!
 //! Each selector type supports options for advanced filtering and matching.
 
-/// Alt text query options and utilities
-pub mod alt_text;
 /// Configuration options for the testing library
 pub mod configure;
-/// Display value query options and utilities
-pub mod display_value;
 /// Label text query options and utilities
 pub mod label_text;
-/// Placeholder text query options and utilities
-pub mod placeholder_text;
+/// Common trait for all testing library options
+pub mod options_common;
 /// Role-based query options and utilities
 pub mod role;
-/// Test ID query options and utilities
-pub mod test_id;
-/// Text query options and utilities
-pub mod text;
-/// Title query options and utilities
-pub mod title;
+/// Consolidated simple options for common query types
+pub mod simple_options;
 
-pub use alt_text::*;
-pub use display_value::*;
 pub use label_text::*;
-pub use placeholder_text::*;
+pub use options_common::TestingLibraryOptions;
 pub use role::*;
+pub use simple_options::*;
 use serde_json::Value;
-pub use test_id::*;
-pub use text::*;
-pub use title::*;
 
 use thirtyfour::{
     error::{WebDriverError, WebDriverResult},

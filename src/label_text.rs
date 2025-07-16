@@ -1,5 +1,5 @@
 use serde::Serialize;
-use serde_json::Value;
+use crate::options_common::TestingLibraryOptions;
 
 /// Options for label text queries
 #[derive(Debug, Clone, Default, Serialize)]
@@ -20,8 +20,8 @@ impl ByLabelTextOptions {
     }
 
     /// Set the selector option
-    pub fn selector(mut self, selector: &str) -> Self {
-        self.selector = Some(selector.to_string());
+    pub fn selector(mut self, selector: impl Into<String>) -> Self {
+        self.selector = Some(selector.into());
         self
     }
 
@@ -30,17 +30,9 @@ impl ByLabelTextOptions {
         self.exact = Some(exact);
         self
     }
-
-    /// Serialize the options to a JSON string for use in Testing Library method calls
-    pub fn to_json_string(&self) -> Result<String, serde_json::Error> {
-        serde_json::to_string(self)
-    }
-
-    /// Serialize the options to a JSON Value for use in Testing Library method calls
-    pub fn to_json_value(&self) -> Result<Value, serde_json::Error> {
-        serde_json::to_value(self)
-    }
 }
+
+impl TestingLibraryOptions for ByLabelTextOptions {}
 
 #[cfg(test)]
 mod tests {

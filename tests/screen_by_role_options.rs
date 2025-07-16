@@ -607,20 +607,14 @@ fn test_value_max(test_harness: TestHarness) -> WebDriverResult<()> {
         };
 
         let slider = screen
-            .get(
-                By::role("slider")
-                    .value(value_opts.clone())
-            )
+            .get(By::role("slider").value(value_opts.clone()))
             .await?;
         let aria_label = slider.attr("aria-label").await?.unwrap_or_default();
         assert_eq!(aria_label, "Brightness");
 
         // Test query_by_role_with_options
         let maybe_slider = screen
-            .query(
-                By::role("slider")
-                    .value(value_opts.clone())
-            )
+            .query(By::role("slider").value(value_opts.clone()))
             .await?;
         assert!(maybe_slider.is_some());
         let aria_label = maybe_slider
@@ -631,10 +625,7 @@ fn test_value_max(test_harness: TestHarness) -> WebDriverResult<()> {
         assert_eq!(aria_label, "Brightness");
         // Test get_all_by_role_with_options
         let all_sliders = screen
-            .get_all(
-                By::role("slider")
-                    .value(value_opts.clone())
-            )
+            .get_all(By::role("slider").value(value_opts.clone()))
             .await?;
         assert_count(&all_sliders, 1)?;
         let aria_label = all_sliders[0].attr("aria-label").await?.unwrap_or_default();
@@ -642,10 +633,7 @@ fn test_value_max(test_harness: TestHarness) -> WebDriverResult<()> {
 
         // Test query_all_by_role_with_options
         let query_sliders = screen
-            .query_all(
-                By::role("slider")
-                    .value(value_opts.clone())
-            )
+            .query_all(By::role("slider").value(value_opts.clone()))
             .await?;
         assert_count(&query_sliders, 1)?;
         let aria_label = query_sliders[0]
@@ -656,20 +644,14 @@ fn test_value_max(test_harness: TestHarness) -> WebDriverResult<()> {
 
         // Test find_by_role_with_options
         let find_slider = screen
-            .find(
-                By::role("slider")
-                    .value(value_opts.clone())
-            )
+            .find(By::role("slider").value(value_opts.clone()))
             .await?;
         let aria_label = find_slider.attr("aria-label").await?.unwrap_or_default();
         assert_eq!(aria_label, "Brightness");
 
         // Test find_all_by_role_with_options
         let find_sliders = screen
-            .find_all(
-                By::role("slider")
-                    .value(value_opts.clone())
-            )
+            .find_all(By::role("slider").value(value_opts.clone()))
             .await?;
         assert_count(&find_sliders, 1)?;
         let aria_label = find_sliders[0]
@@ -789,26 +771,36 @@ fn test_query_fallbacks(test_harness: TestHarness) -> WebDriverResult<()> {
         assert_text(&element, "Toggle Switch").await?;
 
         // Test query_all_by_role_with_options
-        let elements = screen.query_all(By::role("switch").query_fallbacks(true)).await?;
+        let elements = screen
+            .query_all(By::role("switch").query_fallbacks(true))
+            .await?;
         assert_count(&elements, 1)?;
         assert_text(&elements[0], "Toggle Switch").await?;
 
         // Test get_all_by_role_with_options
-        let all_elements = screen.get_all(By::role("switch").query_fallbacks(true)).await?;
+        let all_elements = screen
+            .get_all(By::role("switch").query_fallbacks(true))
+            .await?;
         assert_count(&all_elements, 1)?;
         assert_text(&all_elements[0], "Toggle Switch").await?;
 
         // Test query_by_role_with_options
-        let maybe_element = screen.query(By::role("switch").query_fallbacks(true)).await?;
+        let maybe_element = screen
+            .query(By::role("switch").query_fallbacks(true))
+            .await?;
         assert!(maybe_element.is_some());
         assert_text(&maybe_element.unwrap(), "Toggle Switch").await?;
 
         // Test find_by_role_with_options
-        let find_element = screen.find(By::role("switch").query_fallbacks(true)).await?;
+        let find_element = screen
+            .find(By::role("switch").query_fallbacks(true))
+            .await?;
         assert_text(&find_element, "Toggle Switch").await?;
 
         // Test find_all_by_role_with_options
-        let find_elements = screen.find_all(By::role("switch").query_fallbacks(true)).await?;
+        let find_elements = screen
+            .find_all(By::role("switch").query_fallbacks(true))
+            .await?;
         assert_count(&find_elements, 1)?;
         assert_text(&find_elements[0], "Toggle Switch").await?;
 

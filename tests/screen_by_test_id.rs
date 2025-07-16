@@ -56,7 +56,9 @@ fn test_by_test_id_failure(test_harness: TestHarness) -> WebDriverResult<()> {
         let query_result = screen.query(By::test_id("non-existent-test-id")).await?;
         assert_none(query_result)?;
 
-        let query_all_result = screen.query_all(By::test_id("non-existent-test-id")).await?;
+        let query_all_result = screen
+            .query_all(By::test_id("non-existent-test-id"))
+            .await?;
         assert_count(&query_all_result, 0)?;
 
         Ok(())

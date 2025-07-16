@@ -56,7 +56,9 @@ fn test_by_display_value_failure(test_harness: TestHarness) -> WebDriverResult<(
         let query_result = screen.query(By::display_value("NonExistentValue")).await?;
         assert_none(query_result)?;
 
-        let query_all_result = screen.query_all(By::display_value("NonExistentValue")).await?;
+        let query_all_result = screen
+            .query_all(By::display_value("NonExistentValue"))
+            .await?;
         assert_count(&query_all_result, 0)?;
 
         Ok(())

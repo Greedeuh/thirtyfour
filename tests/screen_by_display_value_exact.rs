@@ -16,32 +16,27 @@ fn test_by_display_value_exact_option(test_harness: TestHarness) -> WebDriverRes
         let element = screen.get(By::display_value("Submit").exact(true)).await?;
         assert_id(&element, "value-exact").await?;
 
-        // Test get_all_by_display_value_with_options
         let elements = screen
             .get_all(By::display_value("Submit").exact(true))
             .await?;
         assert_count(&elements, 1)?;
         assert_id(&elements[0], "value-exact").await?;
 
-        // Test query_by_display_value_with_options
         let result = screen
             .query(By::display_value("Submit").exact(true))
             .await?;
         assert!(result.is_some());
         assert_id(&result.unwrap(), "value-exact").await?;
 
-        // Test query_all_by_display_value_with_options
         let query_elements = screen
             .query_all(By::display_value("Submit").exact(true))
             .await?;
         assert_count(&query_elements, 1)?;
         assert_id(&query_elements[0], "value-exact").await?;
 
-        // Test find_by_display_value_with_options
         let find_element = screen.find(By::display_value("Submit").exact(true)).await?;
         assert_id(&find_element, "value-exact").await?;
 
-        // Test find_all_by_display_value_with_options
         let find_elements = screen
             .find_all(By::display_value("Submit").exact(true))
             .await?;

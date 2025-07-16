@@ -18,34 +18,29 @@ fn test_by_placeholder_text_exact_option(test_harness: TestHarness) -> WebDriver
             .await?;
         assert_id(&element, "placeholder-exact").await?;
 
-        // Test get_all_by_placeholder_text_with_options
         let elements = screen
             .get_all(By::placeholder_text("Username").exact(true))
             .await?;
         assert_count(&elements, 1)?;
         assert_id(&elements[0], "placeholder-exact").await?;
 
-        // Test query_by_placeholder_text_with_options
         let result = screen
             .query(By::placeholder_text("Username").exact(true))
             .await?;
         assert!(result.is_some());
         assert_id(&result.unwrap(), "placeholder-exact").await?;
 
-        // Test query_all_by_placeholder_text_with_options
         let query_elements = screen
             .query_all(By::placeholder_text("Username").exact(true))
             .await?;
         assert_count(&query_elements, 1)?;
         assert_id(&query_elements[0], "placeholder-exact").await?;
 
-        // Test find_by_placeholder_text_with_options
         let find_element = screen
             .find(By::placeholder_text("Username").exact(true))
             .await?;
         assert_id(&find_element, "placeholder-exact").await?;
 
-        // Test find_all_by_placeholder_text_with_options
         let find_elements = screen
             .find_all(By::placeholder_text("Username").exact(true))
             .await?;

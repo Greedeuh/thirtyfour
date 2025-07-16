@@ -6,150 +6,58 @@ use thirtyfour::support::block_on;
 use thirtyfour_testing_library_ext::By;
 
 #[rstest]
-fn get_by_display_value(test_harness: TestHarness) -> WebDriverResult<()> {
+fn test_by_display_value_success(test_harness: TestHarness) -> WebDriverResult<()> {
     block_on(async {
         let screen = test_harness.screen_for_page("sample_page.html").await?;
-        let option = screen.get(By::display_value("Red")).await?;
 
-        assert_eq!(option.value().await?.unwrap(), "red");
+        let element = screen.get(By::display_value("Red")).await?;
+        assert_eq!(element.value().await?.unwrap(), "red");
+
+        let elements = screen.get_all(By::display_value("Red")).await?;
+        assert_count(&elements, 1)?;
+        assert_eq!(elements[0].value().await?.unwrap(), "red");
+
+        let result = screen.query(By::display_value("Red")).await?;
+        assert!(result.is_some());
+        assert_eq!(result.unwrap().value().await?.unwrap(), "red");
+
+        let query_elements = screen.query_all(By::display_value("Red")).await?;
+        assert_count(&query_elements, 1)?;
+        assert_eq!(query_elements[0].value().await?.unwrap(), "red");
+
+        let find_element = screen.find(By::display_value("Red")).await?;
+        assert_eq!(find_element.value().await?.unwrap(), "red");
+
+        let find_elements = screen.find_all(By::display_value("Red")).await?;
+        assert_count(&find_elements, 1)?;
+        assert_eq!(find_elements[0].value().await?.unwrap(), "red");
 
         Ok(())
     })
 }
 
 #[rstest]
-fn query_by_display_value(test_harness: TestHarness) -> WebDriverResult<()> {
+fn test_by_display_value_failure(test_harness: TestHarness) -> WebDriverResult<()> {
     block_on(async {
         let screen = test_harness.screen_for_page("sample_page.html").await?;
-        let option = screen.query(By::display_value("Red")).await?;
 
-        assert!(option.is_some());
-        assert_eq!(option.unwrap().value().await?.unwrap(), "red");
+        let get_result = screen.get(By::display_value("NonExistentValue")).await;
+        assert_error(get_result)?;
 
-        Ok(())
-    })
-}
+        let get_all_result = screen.get_all(By::display_value("NonExistentValue")).await;
+        assert_error(get_all_result)?;
 
-#[rstest]
-fn get_all_by_display_value(test_harness: TestHarness) -> WebDriverResult<()> {
-    block_on(async {
-        let screen = test_harness.screen_for_page("sample_page.html").await?;
-        let options = screen.get_all(By::display_value("Red")).await?;
+        let find_result = screen.find(By::display_value("NonExistentValue")).await;
+        assert_error(find_result)?;
 
-        assert_count(&options, 1)?;
-        assert_eq!(options[0].value().await?.unwrap(), "red");
+        let find_all_result = screen.find_all(By::display_value("NonExistentValue")).await;
+        assert_error(find_all_result)?;
 
-        Ok(())
-    })
-}
+        let query_result = screen.query(By::display_value("NonExistentValue")).await?;
+        assert_none(query_result)?;
 
-#[rstest]
-fn query_all_by_display_value(test_harness: TestHarness) -> WebDriverResult<()> {
-    block_on(async {
-        let screen = test_harness.screen_for_page("sample_page.html").await?;
-        let options = screen.query_all(By::display_value("Red")).await?;
-
-        assert_count(&options, 1)?;
-        assert_eq!(options[0].value().await?.unwrap(), "red");
-
-        Ok(())
-    })
-}
-
-#[rstest]
-fn find_by_display_value(test_harness: TestHarness) -> WebDriverResult<()> {
-    block_on(async {
-        let screen = test_harness.screen_for_page("sample_page.html").await?;
-        let option = screen.find(By::display_value("Red")).await?;
-
-        assert_eq!(option.value().await?.unwrap(), "red");
-
-        Ok(())
-    })
-}
-
-#[rstest]
-fn find_all_by_display_value(test_harness: TestHarness) -> WebDriverResult<()> {
-    block_on(async {
-        let screen = test_harness.screen_for_page("sample_page.html").await?;
-        let options = screen.find_all(By::display_value("Red")).await?;
-
-        assert_count(&options, 1)?;
-        assert_eq!(options[0].value().await?.unwrap(), "red");
-
-        Ok(())
-    })
-}
-
-#[rstest]
-fn get_by_display_value_should_fail(test_harness: TestHarness) -> WebDriverResult<()> {
-    block_on(async {
-        let screen = test_harness.screen_for_page("sample_page.html").await?;
-        let result = screen.get(By::display_value("NonExistentValue")).await;
-
-        assert_error(result)?;
-
-        Ok(())
-    })
-}
-
-#[rstest]
-fn get_all_by_display_value_should_fail(test_harness: TestHarness) -> WebDriverResult<()> {
-    block_on(async {
-        let screen = test_harness.screen_for_page("sample_page.html").await?;
-        let result = screen.get_all(By::display_value("NonExistentValue")).await;
-
-        assert_error(result)?;
-
-        Ok(())
-    })
-}
-
-#[rstest]
-fn find_by_display_value_should_fail(test_harness: TestHarness) -> WebDriverResult<()> {
-    block_on(async {
-        let screen = test_harness.screen_for_page("sample_page.html").await?;
-        let result = screen.find(By::display_value("NonExistentValue")).await;
-
-        assert_error(result)?;
-
-        Ok(())
-    })
-}
-
-#[rstest]
-fn find_all_by_display_value_should_fail(test_harness: TestHarness) -> WebDriverResult<()> {
-    block_on(async {
-        let screen = test_harness.screen_for_page("sample_page.html").await?;
-        let result = screen.find_all(By::display_value("NonExistentValue")).await;
-
-        assert_error(result)?;
-
-        Ok(())
-    })
-}
-
-#[rstest]
-fn query_by_display_value_not_found(test_harness: TestHarness) -> WebDriverResult<()> {
-    block_on(async {
-        let screen = test_harness.screen_for_page("sample_page.html").await?;
-        let result = screen.query(By::display_value("NonExistentValue")).await?;
-
-        assert_none(result)?;
-
-        Ok(())
-    })
-}
-
-#[rstest]
-fn query_all_by_display_value_empty(test_harness: TestHarness) -> WebDriverResult<()> {
-    block_on(async {
-        let screen = test_harness.screen_for_page("sample_page.html").await?;
-        let result = screen
-            .query_all(By::display_value("NonExistentValue"))
-            .await?;
-
-        assert_count(&result, 0)?;
+        let query_all_result = screen.query_all(By::display_value("NonExistentValue")).await?;
+        assert_count(&query_all_result, 0)?;
 
         Ok(())
     })

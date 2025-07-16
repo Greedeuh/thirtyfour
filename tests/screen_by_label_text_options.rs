@@ -10,7 +10,9 @@ use thirtyfour_testing_library_ext::{By, ByLabelTextOptions};
 #[rstest]
 fn test_selector_option_input_vs_textarea(test_harness: TestHarness) -> WebDriverResult<()> {
     block_on(async {
-        let screen = test_harness.screen_for_page("by_label_text_options.html").await?;
+        let screen = test_harness
+            .screen_for_page("by_label_text_options.html")
+            .await?;
 
         // Test selector="input" finds input element
         let input_options = ByLabelTextOptions::new().selector("input");
@@ -105,7 +107,9 @@ fn test_selector_option_input_vs_textarea(test_harness: TestHarness) -> WebDrive
 #[rstest]
 fn test_selector_option_with_id(test_harness: TestHarness) -> WebDriverResult<()> {
     block_on(async {
-        let screen = test_harness.screen_for_page("by_label_text_options.html").await?;
+        let screen = test_harness
+            .screen_for_page("by_label_text_options.html")
+            .await?;
 
         // Test selector with specific ID
         let id_options = ByLabelTextOptions::new().selector("#email-input");
@@ -150,7 +154,9 @@ fn test_selector_option_with_id(test_harness: TestHarness) -> WebDriverResult<()
 #[rstest]
 fn test_exact_true_precise_match(test_harness: TestHarness) -> WebDriverResult<()> {
     block_on(async {
-        let screen = test_harness.screen_for_page("by_label_text_options.html").await?;
+        let screen = test_harness
+            .screen_for_page("by_label_text_options.html")
+            .await?;
 
         let exact_options = ByLabelTextOptions::new().exact(true);
 
@@ -249,7 +255,9 @@ fn test_exact_true_precise_match(test_harness: TestHarness) -> WebDriverResult<(
 #[rstest]
 fn test_exact_false_partial_match(test_harness: TestHarness) -> WebDriverResult<()> {
     block_on(async {
-        let screen = test_harness.screen_for_page("by_label_text_options.html").await?;
+        let screen = test_harness
+            .screen_for_page("by_label_text_options.html")
+            .await?;
 
         let partial_options = ByLabelTextOptions::new().exact(false);
 
@@ -296,7 +304,9 @@ fn test_exact_false_partial_match(test_harness: TestHarness) -> WebDriverResult<
 #[rstest]
 fn test_exact_case_sensitivity(test_harness: TestHarness) -> WebDriverResult<()> {
     block_on(async {
-        let screen = test_harness.screen_for_page("by_label_text_options.html").await?;
+        let screen = test_harness
+            .screen_for_page("by_label_text_options.html")
+            .await?;
 
         let exact_options = ByLabelTextOptions::new().exact(true);
 

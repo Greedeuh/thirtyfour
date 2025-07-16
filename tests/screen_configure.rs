@@ -8,7 +8,9 @@ use thirtyfour_testing_library_ext::{configure, By};
 #[rstest]
 fn test_configure_default_hidden(test_harness: TestHarness) -> WebDriverResult<()> {
     block_on(async {
-        let screen = test_harness.screen_for_page("screen_configure.html").await?;
+        let screen = test_harness
+            .screen_for_page("screen_configure.html")
+            .await?;
 
         // Create screen with configure options to include hidden elements by default
         let configure_options = configure::Options::new().with_default_hidden(true);
@@ -26,7 +28,9 @@ fn test_configure_default_hidden(test_harness: TestHarness) -> WebDriverResult<(
 #[rstest]
 fn test_configure_default_ignore(test_harness: TestHarness) -> WebDriverResult<()> {
     block_on(async {
-        let screen = test_harness.screen_for_page("screen_configure.html").await?;
+        let screen = test_harness
+            .screen_for_page("screen_configure.html")
+            .await?;
 
         // Create screen with configure options to change what elements are ignored
         let configure_options = configure::Options::new().with_default_ignore("div");
@@ -45,7 +49,9 @@ fn test_configure_default_ignore(test_harness: TestHarness) -> WebDriverResult<(
 #[rstest]
 fn test_configure_test_id_attribute(test_harness: TestHarness) -> WebDriverResult<()> {
     block_on(async {
-        let screen = test_harness.screen_for_page("screen_configure.html").await?;
+        let screen = test_harness
+            .screen_for_page("screen_configure.html")
+            .await?;
 
         // Create screen with custom test ID attribute
         let configure_options =

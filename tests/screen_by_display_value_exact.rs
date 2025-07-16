@@ -8,7 +8,9 @@ use thirtyfour_testing_library_ext::{By, ByDisplayValueOptions};
 #[rstest]
 fn test_by_display_value_exact_option(test_harness: TestHarness) -> WebDriverResult<()> {
     block_on(async {
-        let screen = test_harness.screen_for_page("by_display_value_exact.html").await?;
+        let screen = test_harness
+            .screen_for_page("by_display_value_exact.html")
+            .await?;
 
         let exact_options = ByDisplayValueOptions::new().exact(true);
 

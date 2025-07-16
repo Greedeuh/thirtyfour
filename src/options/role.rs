@@ -1,7 +1,7 @@
+use crate::options::common::TestingLibraryOptions;
 use regex;
 use serde::{Serialize, Serializer};
 use serde_json::Value;
-use crate::options::common::TestingLibraryOptions;
 
 /// A wrapper type that indicates a value should be serialized as raw JavaScript
 #[derive(Debug, Clone)]

@@ -3,9 +3,7 @@ use common::*;
 use rstest::rstest;
 use thirtyfour::prelude::*;
 use thirtyfour::support::block_on;
-use thirtyfour_testing_library_ext::{
-    By, ByRoleOptions, CurrentState, TextMatch, ValueOptions,
-};
+use thirtyfour_testing_library_ext::{By, ByRoleOptions, CurrentState, TextMatch, ValueOptions};
 
 // 1. Basic Name Matching Tests
 

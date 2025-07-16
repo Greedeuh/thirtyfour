@@ -8,7 +8,9 @@ use thirtyfour_testing_library_ext::{By, ByPlaceholderTextOptions};
 #[rstest]
 fn test_by_placeholder_text_exact_option(test_harness: TestHarness) -> WebDriverResult<()> {
     block_on(async {
-        let screen = test_harness.screen_for_page("by_placeholder_text_exact.html").await?;
+        let screen = test_harness
+            .screen_for_page("by_placeholder_text_exact.html")
+            .await?;
 
         let exact_options = ByPlaceholderTextOptions::new().exact(true);
 

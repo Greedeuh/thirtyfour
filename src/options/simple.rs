@@ -1,8 +1,8 @@
-use serde::Serialize;
 use crate::options::common::TestingLibraryOptions;
+use serde::Serialize;
 
 /// Simple options struct for testing-library queries that only need exact matching.
-/// 
+///
 /// This struct consolidates the common pattern used by text, alt_text, display_value,
 /// placeholder_text, test_id, and title options.
 #[derive(Debug, Clone, Default, Serialize)]
@@ -18,7 +18,7 @@ impl SimpleOptions {
     pub fn new() -> Self {
         Self::default()
     }
-    
+
     /// Set the exact option
     pub fn exact(mut self, exact: bool) -> Self {
         self.exact = Some(exact);
@@ -82,18 +82,36 @@ mod tests {
         let title_options = ByTitleOptions::new().exact(false);
 
         // All should serialize correctly
-        assert!(text_options.to_json_string().unwrap().contains("\"exact\":true"));
-        assert!(alt_text_options.to_json_string().unwrap().contains("\"exact\":false"));
-        assert!(display_value_options.to_json_string().unwrap().contains("\"exact\":true"));
-        assert!(placeholder_text_options.to_json_string().unwrap().contains("\"exact\":false"));
-        assert!(test_id_options.to_json_string().unwrap().contains("\"exact\":true"));
-        assert!(title_options.to_json_string().unwrap().contains("\"exact\":false"));
+        assert!(text_options
+            .to_json_string()
+            .unwrap()
+            .contains("\"exact\":true"));
+        assert!(alt_text_options
+            .to_json_string()
+            .unwrap()
+            .contains("\"exact\":false"));
+        assert!(display_value_options
+            .to_json_string()
+            .unwrap()
+            .contains("\"exact\":true"));
+        assert!(placeholder_text_options
+            .to_json_string()
+            .unwrap()
+            .contains("\"exact\":false"));
+        assert!(test_id_options
+            .to_json_string()
+            .unwrap()
+            .contains("\"exact\":true"));
+        assert!(title_options
+            .to_json_string()
+            .unwrap()
+            .contains("\"exact\":false"));
     }
 
     #[test]
     fn test_trait_implementation() {
         let options = ByTextOptions::new().exact(true);
-        
+
         // Test that trait methods work
         assert!(options.to_json_string().is_ok());
         assert!(options.to_json_value().is_ok());

@@ -149,7 +149,8 @@ impl TestHarness {
     }
 
     async fn screen(&self) -> Screen {
-        Screen::build_with_testing_library(self.driver().clone()).await
+        Screen::build_with_testing_library(self.driver().clone())
+            .await
             .expect("Failed to create Screen")
     }
 

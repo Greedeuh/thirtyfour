@@ -10,7 +10,10 @@ fn within(test_harness: TestHarness) -> WebDriverResult<()> {
     block_on(async {
         let screen = test_harness.screen_for_page("screen_within.html").await?;
 
-        let parent_element = test_harness.driver().find(thirtyfour::prelude::By::Id("parent")).await?;
+        let parent_element = test_harness
+            .driver()
+            .find(thirtyfour::prelude::By::Id("parent"))
+            .await?;
         let result = screen.get(By::text("Some text")).await;
         assert!(
             result.is_err(),

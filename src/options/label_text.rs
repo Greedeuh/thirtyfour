@@ -1,5 +1,5 @@
 use serde::Serialize;
-use crate::options_common::TestingLibraryOptions;
+use crate::options::common::TestingLibraryOptions;
 
 /// Options for label text queries
 #[derive(Debug, Clone, Default, Serialize)]

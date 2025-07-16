@@ -56,19 +56,11 @@
 
 /// Configuration options for the testing library
 pub mod configure;
-/// Label text query options and utilities
-pub mod label_text;
-/// Common trait for all testing library options
-pub mod options_common;
-/// Role-based query options and utilities
-pub mod role;
-/// Consolidated simple options for common query types
-pub mod simple_options;
+/// Testing library options module
+pub mod options;
 
-pub use label_text::*;
-pub use options_common::TestingLibraryOptions;
-pub use role::*;
-pub use simple_options::*;
+// Re-export all options for convenience
+pub use options::*;
 use serde_json::Value;
 
 use thirtyfour::{

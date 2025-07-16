@@ -1,5 +1,5 @@
 use serde::Serialize;
-use crate::options_common::TestingLibraryOptions;
+use crate::options::common::TestingLibraryOptions;
 
 /// Simple options struct for testing-library queries that only need exact matching.
 /// 

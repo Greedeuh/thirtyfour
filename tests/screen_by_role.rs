@@ -3,7 +3,7 @@ use common::*;
 use rstest::rstest;
 use thirtyfour::prelude::*;
 use thirtyfour::support::block_on;
-use thirtyfour_testing_library_ext::{By, ByRoleOptions, TextMatch};
+use thirtyfour_testing_library_ext::{By, TextMatch};
 
 #[rstest]
 fn query_all_by_role(test_harness: TestHarness) -> WebDriverResult<()> {
@@ -159,10 +159,8 @@ fn get_by_role_with_options_name_exact(test_harness: TestHarness) -> WebDriverRe
         let screen = test_harness.screen_for_page("sample_page.html").await?;
 
         // Test with exact name match
-        let options = ByRoleOptions::new().name(TextMatch::Exact("Copy".to_string()));
-
         let button = screen
-            .get(By::role_with_options("button", options.clone()))
+            .get(By::role("button").name(TextMatch::Exact("Copy".to_string())))
             .await?;
         assert_text(&button, "Copy").await?;
 
@@ -176,10 +174,8 @@ fn get_by_role_with_options_name_exact_specific(test_harness: TestHarness) -> We
         let screen = test_harness.screen_for_page("sample_page.html").await?;
 
         // Test with exact name match for specific button
-        let options = ByRoleOptions::new().name(TextMatch::Exact("Show alert".to_string()));
-
         let button = screen
-            .get(By::role_with_options("button", options.clone()))
+            .get(By::role("button").name(TextMatch::Exact("Show alert".to_string())))
             .await?;
         assert_text(&button, "Show alert").await?;
 
@@ -193,10 +189,8 @@ fn get_by_role_with_options_name_another_button(test_harness: TestHarness) -> We
         let screen = test_harness.screen_for_page("sample_page.html").await?;
 
         // Test with exact name match for another button
-        let options = ByRoleOptions::new().name(TextMatch::Exact("Show confirm".to_string()));
-
         let button = screen
-            .get(By::role_with_options("button", options.clone()))
+            .get(By::role("button").name(TextMatch::Exact("Show confirm".to_string())))
             .await?;
         assert_text(&button, "Show confirm").await?;
 
@@ -210,12 +204,12 @@ fn get_by_role_with_options_multiple_options(test_harness: TestHarness) -> WebDr
         let screen = test_harness.screen_for_page("sample_page.html").await?;
 
         // Test with multiple options
-        let options = ByRoleOptions::new()
-            .name(TextMatch::Exact("Copy".to_string()))
-            .hidden(false);
-
         let button = screen
-            .get(By::role_with_options("button", options.clone()))
+            .get(
+                By::role("button")
+                    .name(TextMatch::Exact("Copy".to_string()))
+                    .hidden(false),
+            )
             .await?;
         assert_text(&button, "Copy").await?;
 

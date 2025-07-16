@@ -690,19 +690,9 @@ impl By {
         RoleSelector::new(value)
     }
 
-    /// Create a role selector with options
-    pub fn role_with_options(value: &str, options: ByRoleOptions) -> Self {
-        Self::Role(value.to_string(), Some(Options::Role(options)))
-    }
-
     /// Create a text selector without options
     pub fn text(value: &str) -> SimpleSelector {
         SimpleSelector::new(value, SimpleSelectorType::Text)
-    }
-
-    /// Create a text selector with options
-    pub fn text_with_options(value: &str, options: ByTextOptions) -> Self {
-        Self::Text(value.to_string(), Some(Options::Text(options)))
     }
 
     /// Create a label text selector without options
@@ -710,19 +700,9 @@ impl By {
         LabelTextSelector::new(value)
     }
 
-    /// Create a label text selector with options
-    pub fn label_text_with_options(value: &str, options: ByLabelTextOptions) -> Self {
-        Self::LabelText(value.to_string(), Some(Options::LabelText(options)))
-    }
-
     /// Create a placeholder text selector without options
     pub fn placeholder_text(value: &str) -> SimpleSelector {
         SimpleSelector::new(value, SimpleSelectorType::PlaceholderText)
-    }
-
-    /// Create a placeholder text selector with options
-    pub fn placeholder_text_with_options(value: &str, options: ByPlaceholderTextOptions) -> Self {
-        Self::PlaceholderText(value.to_string(), Some(Options::PlaceholderText(options)))
     }
 
     /// Create a display value selector without options
@@ -730,19 +710,9 @@ impl By {
         SimpleSelector::new(value, SimpleSelectorType::DisplayValue)
     }
 
-    /// Create a display value selector with options
-    pub fn display_value_with_options(value: &str, options: ByDisplayValueOptions) -> Self {
-        Self::DisplayValue(value.to_string(), Some(Options::DisplayValue(options)))
-    }
-
     /// Create an alt text selector without options
     pub fn alt_text(value: &str) -> SimpleSelector {
         SimpleSelector::new(value, SimpleSelectorType::AltText)
-    }
-
-    /// Create an alt text selector with options
-    pub fn alt_text_with_options(value: &str, options: ByAltTextOptions) -> Self {
-        Self::AltText(value.to_string(), Some(Options::AltText(options)))
     }
 
     /// Create a title selector without options
@@ -750,19 +720,9 @@ impl By {
         SimpleSelector::new(value, SimpleSelectorType::Title)
     }
 
-    /// Create a title selector with options
-    pub fn title_with_options(value: &str, options: ByTitleOptions) -> Self {
-        Self::Title(value.to_string(), Some(Options::Title(options)))
-    }
-
     /// Create a test ID selector without options
     pub fn test_id(value: &str) -> SimpleSelector {
         SimpleSelector::new(value, SimpleSelectorType::TestId)
-    }
-
-    /// Create a test ID selector with options
-    pub fn test_id_with_options(value: &str, options: ByTestIdOptions) -> Self {
-        Self::TestId(value.to_string(), Some(Options::TestId(options)))
     }
 
     /// Returns the function suffix for the Testing Library method name

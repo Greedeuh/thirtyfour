@@ -9,9 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install browsers
-        run: |
-          ./ci/ubuntu-latest-firefox
-          ./ci/ubuntu-latest-chrome
+        run: ./ci/ubuntu-latest-chrome
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal

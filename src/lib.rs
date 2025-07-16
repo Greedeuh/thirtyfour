@@ -130,7 +130,8 @@ impl Screen {
 
     /// Unified get method that accepts a Selector enum and returns a single WebElement
     /// Throws an error if no elements match or if more than one match is found
-    pub async fn get(&self, selector: By) -> WebDriverResult<WebElement> {
+    pub async fn get(&self, selector: impl Into<By>) -> WebDriverResult<WebElement> {
+        let selector = selector.into();
         let options_json = selector.options_json()?;
         self.query_executor()
             .execute_query(
@@ -146,7 +147,8 @@ impl Screen {
 
     /// Unified get_all method that accepts a Selector enum and returns all matching WebElements
     /// Throws an error if no elements match
-    pub async fn get_all(&self, selector: By) -> WebDriverResult<Vec<WebElement>> {
+    pub async fn get_all(&self, selector: impl Into<By>) -> WebDriverResult<Vec<WebElement>> {
+        let selector = selector.into();
         let options_json = selector.options_json()?;
         self.query_executor()
             .execute_query(
@@ -162,7 +164,8 @@ impl Screen {
 
     /// Unified query method that accepts a Selector enum and returns a single WebElement
     /// Returns None if no elements match
-    pub async fn query(&self, selector: By) -> WebDriverResult<Option<WebElement>> {
+    pub async fn query(&self, selector: impl Into<By>) -> WebDriverResult<Option<WebElement>> {
+        let selector = selector.into();
         let options_json = selector.options_json()?;
         let mut elements = self
             .query_executor()
@@ -185,7 +188,8 @@ impl Screen {
 
     /// Unified query_all method that accepts a Selector enum and returns all matching WebElements
     /// Returns empty Vec if no elements match
-    pub async fn query_all(&self, selector: By) -> WebDriverResult<Vec<WebElement>> {
+    pub async fn query_all(&self, selector: impl Into<By>) -> WebDriverResult<Vec<WebElement>> {
+        let selector = selector.into();
         let options_json = selector.options_json()?;
         self.query_executor()
             .execute_query(
@@ -201,7 +205,8 @@ impl Screen {
 
     /// Unified find method that accepts a Selector enum and returns a single WebElement
     /// Waits for the element to appear and throws an error if not found
-    pub async fn find(&self, selector: By) -> WebDriverResult<WebElement> {
+    pub async fn find(&self, selector: impl Into<By>) -> WebDriverResult<WebElement> {
+        let selector = selector.into();
         let options_json = selector.options_json()?;
         self.query_executor()
             .execute_query(
@@ -217,7 +222,8 @@ impl Screen {
 
     /// Unified find_all method that accepts a Selector enum and returns all matching WebElements
     /// Waits for elements to appear and throws an error if none are found
-    pub async fn find_all(&self, selector: By) -> WebDriverResult<Vec<WebElement>> {
+    pub async fn find_all(&self, selector: impl Into<By>) -> WebDriverResult<Vec<WebElement>> {
+        let selector = selector.into();
         let options_json = selector.options_json()?;
         self.query_executor()
             .execute_query(
@@ -476,10 +482,212 @@ impl Options {
     }
 }
 
+/// Fluent builder for role-based queries with comprehensive options
+#[derive(Debug, Clone)]
+pub struct RoleSelector {
+    value: String,
+    options: ByRoleOptions,
+}
+
+impl RoleSelector {
+    /// Create a new RoleSelector with the given role value
+    pub fn new(value: impl Into<String>) -> Self {
+        Self {
+            value: value.into(),
+            options: ByRoleOptions::default(),
+        }
+    }
+
+    /// Set the hidden option - include elements normally excluded from accessibility tree
+    pub fn hidden(mut self, hidden: bool) -> Self {
+        self.options.hidden = Some(hidden);
+        self
+    }
+
+    /// Set the name option - filter by accessible name
+    pub fn name(mut self, name: TextMatch) -> Self {
+        self.options.name = Some(name);
+        self
+    }
+
+    /// Set the description option - filter by accessible description
+    pub fn description(mut self, description: TextMatch) -> Self {
+        self.options.description = Some(description);
+        self
+    }
+
+    /// Set the selected option - filter by selected state (aria-selected)
+    pub fn selected(mut self, selected: bool) -> Self {
+        self.options.selected = Some(selected);
+        self
+    }
+
+    /// Set the busy option - filter by busy state (aria-busy)
+    pub fn busy(mut self, busy: bool) -> Self {
+        self.options.busy = Some(busy);
+        self
+    }
+
+    /// Set the checked option - filter by checked state (aria-checked)
+    pub fn checked(mut self, checked: bool) -> Self {
+        self.options.checked = Some(checked);
+        self
+    }
+
+    /// Set the pressed option - filter by pressed state (aria-pressed)
+    pub fn pressed(mut self, pressed: bool) -> Self {
+        self.options.pressed = Some(pressed);
+        self
+    }
+
+    /// Set the suggest option - enable/disable query suggestions
+    pub fn suggest(mut self, suggest: bool) -> Self {
+        self.options.suggest = Some(suggest);
+        self
+    }
+
+    /// Set the current option - filter by current state (aria-current)
+    pub fn current(mut self, current: CurrentState) -> Self {
+        self.options.current = Some(current);
+        self
+    }
+
+    /// Set the expanded option - filter by expanded state (aria-expanded)
+    pub fn expanded(mut self, expanded: bool) -> Self {
+        self.options.expanded = Some(expanded);
+        self
+    }
+
+    /// Set the query_fallbacks option - enable querying fallback roles
+    pub fn query_fallbacks(mut self, query_fallbacks: bool) -> Self {
+        self.options.query_fallbacks = Some(query_fallbacks);
+        self
+    }
+
+    /// Set the level option - filter by heading level (only for heading role)
+    pub fn level(mut self, level: u8) -> Self {
+        self.options.level = Some(level);
+        self
+    }
+
+    /// Set the value option - filter by value properties (only for range widgets)
+    pub fn value(mut self, value: ValueOptions) -> Self {
+        self.options.value = Some(value);
+        self
+    }
+}
+
+impl From<RoleSelector> for By {
+    fn from(selector: RoleSelector) -> Self {
+        By::Role(selector.value, Some(Options::Role(selector.options)))
+    }
+}
+
+/// Fluent builder for simple queries that only support exact matching
+#[derive(Debug, Clone)]
+pub struct SimpleSelector {
+    value: String,
+    selector_type: SimpleSelectorType,
+    options: SimpleOptions,
+}
+
+#[derive(Debug, Clone)]
+enum SimpleSelectorType {
+    Text,
+    AltText,
+    DisplayValue,
+    PlaceholderText,
+    TestId,
+    Title,
+}
+
+impl SimpleSelector {
+    /// Create a new SimpleSelector with the given value and type
+    fn new(value: impl Into<String>, selector_type: SimpleSelectorType) -> Self {
+        Self {
+            value: value.into(),
+            selector_type,
+            options: SimpleOptions::default(),
+        }
+    }
+
+    /// Set the exact option - whether to use exact text matching
+    pub fn exact(mut self, exact: bool) -> Self {
+        self.options.exact = Some(exact);
+        self
+    }
+}
+
+impl From<SimpleSelector> for By {
+    fn from(selector: SimpleSelector) -> Self {
+        let options = if selector.options.exact.is_some() {
+            Some(match selector.selector_type {
+                SimpleSelectorType::Text => Options::Text(selector.options),
+                SimpleSelectorType::AltText => Options::AltText(selector.options),
+                SimpleSelectorType::DisplayValue => Options::DisplayValue(selector.options),
+                SimpleSelectorType::PlaceholderText => Options::PlaceholderText(selector.options),
+                SimpleSelectorType::TestId => Options::TestId(selector.options),
+                SimpleSelectorType::Title => Options::Title(selector.options),
+            })
+        } else {
+            None
+        };
+
+        match selector.selector_type {
+            SimpleSelectorType::Text => By::Text(selector.value, options),
+            SimpleSelectorType::AltText => By::AltText(selector.value, options),
+            SimpleSelectorType::DisplayValue => By::DisplayValue(selector.value, options),
+            SimpleSelectorType::PlaceholderText => By::PlaceholderText(selector.value, options),
+            SimpleSelectorType::TestId => By::TestId(selector.value, options),
+            SimpleSelectorType::Title => By::Title(selector.value, options),
+        }
+    }
+}
+
+/// Fluent builder for label text queries with selector and exact options
+#[derive(Debug, Clone)]
+pub struct LabelTextSelector {
+    value: String,
+    options: ByLabelTextOptions,
+}
+
+impl LabelTextSelector {
+    /// Create a new LabelTextSelector with the given label text value
+    pub fn new(value: impl Into<String>) -> Self {
+        Self {
+            value: value.into(),
+            options: ByLabelTextOptions::default(),
+        }
+    }
+
+    /// Set the selector option - CSS selector to filter elements
+    pub fn selector(mut self, selector: impl Into<String>) -> Self {
+        self.options.selector = Some(selector.into());
+        self
+    }
+
+    /// Set the exact option - whether to use exact text matching
+    pub fn exact(mut self, exact: bool) -> Self {
+        self.options.exact = Some(exact);
+        self
+    }
+}
+
+impl From<LabelTextSelector> for By {
+    fn from(selector: LabelTextSelector) -> Self {
+        let options = if selector.options.selector.is_some() || selector.options.exact.is_some() {
+            Some(Options::LabelText(selector.options))
+        } else {
+            None
+        };
+        By::LabelText(selector.value, options)
+    }
+}
+
 impl By {
     /// Create a role selector without options
-    pub fn role(value: &str) -> Self {
-        Self::Role(value.to_string(), None)
+    pub fn role(value: &str) -> RoleSelector {
+        RoleSelector::new(value)
     }
 
     /// Create a role selector with options
@@ -488,8 +696,8 @@ impl By {
     }
 
     /// Create a text selector without options
-    pub fn text(value: &str) -> Self {
-        Self::Text(value.to_string(), None)
+    pub fn text(value: &str) -> SimpleSelector {
+        SimpleSelector::new(value, SimpleSelectorType::Text)
     }
 
     /// Create a text selector with options
@@ -498,8 +706,8 @@ impl By {
     }
 
     /// Create a label text selector without options
-    pub fn label_text(value: &str) -> Self {
-        Self::LabelText(value.to_string(), None)
+    pub fn label_text(value: &str) -> LabelTextSelector {
+        LabelTextSelector::new(value)
     }
 
     /// Create a label text selector with options
@@ -508,8 +716,8 @@ impl By {
     }
 
     /// Create a placeholder text selector without options
-    pub fn placeholder_text(value: &str) -> Self {
-        Self::PlaceholderText(value.to_string(), None)
+    pub fn placeholder_text(value: &str) -> SimpleSelector {
+        SimpleSelector::new(value, SimpleSelectorType::PlaceholderText)
     }
 
     /// Create a placeholder text selector with options
@@ -518,8 +726,8 @@ impl By {
     }
 
     /// Create a display value selector without options
-    pub fn display_value(value: &str) -> Self {
-        Self::DisplayValue(value.to_string(), None)
+    pub fn display_value(value: &str) -> SimpleSelector {
+        SimpleSelector::new(value, SimpleSelectorType::DisplayValue)
     }
 
     /// Create a display value selector with options
@@ -528,8 +736,8 @@ impl By {
     }
 
     /// Create an alt text selector without options
-    pub fn alt_text(value: &str) -> Self {
-        Self::AltText(value.to_string(), None)
+    pub fn alt_text(value: &str) -> SimpleSelector {
+        SimpleSelector::new(value, SimpleSelectorType::AltText)
     }
 
     /// Create an alt text selector with options
@@ -538,8 +746,8 @@ impl By {
     }
 
     /// Create a title selector without options
-    pub fn title(value: &str) -> Self {
-        Self::Title(value.to_string(), None)
+    pub fn title(value: &str) -> SimpleSelector {
+        SimpleSelector::new(value, SimpleSelectorType::Title)
     }
 
     /// Create a title selector with options
@@ -548,8 +756,8 @@ impl By {
     }
 
     /// Create a test ID selector without options
-    pub fn test_id(value: &str) -> Self {
-        Self::TestId(value.to_string(), None)
+    pub fn test_id(value: &str) -> SimpleSelector {
+        SimpleSelector::new(value, SimpleSelectorType::TestId)
     }
 
     /// Create a test ID selector with options

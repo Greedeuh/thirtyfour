@@ -28,7 +28,9 @@ exclude = [
     "testing-library/*",
     "ci/*",
     ".codecov.yml",
-    "CLAUDE.md"
+    "CLAUDE.md",
+    ".github/*",
+    ".gitignore",
 ]
 
 [dependencies]

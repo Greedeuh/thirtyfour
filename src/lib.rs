@@ -266,9 +266,7 @@ impl Screen {
 
     async fn load_testing_library(driver: &WebDriver) -> WebDriverResult<()> {
         // Load the testing library script in the browser
-        let testing_library = tokio::fs::read_to_string("js/testing-library.js")
-            .await
-            .map_err(|e| WebDriverError::Json(format!("Failed to load testing library: {e}")))?;
+        let testing_library = include_str!("../js/testing-library.js");
         driver.execute(testing_library, vec![]).await?;
 
         Ok(())

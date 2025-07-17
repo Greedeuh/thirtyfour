@@ -22,7 +22,7 @@ keywords = [
 categories = [
     "api-bindings",
     "development-tools::testing",
-    "web-programming::http-client",
+    "web-programming",
 ]
 
 [dependencies]

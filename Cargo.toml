@@ -47,15 +47,10 @@ tracing = "0.1"
 all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
-# Include JavaScript assets in the package
-[package.metadata.cargo-all-features]
-skip_optional_dependencies = true
-
 # Ensure JavaScript assets and test files are included when publishing
 include = [
     "src/**/*",
     "js/**/*",
-    "tests/**/*",
     "Cargo.toml",
     "README.md",
     "LICENSE*"

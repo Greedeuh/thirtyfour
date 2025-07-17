@@ -257,7 +257,7 @@ impl Screen {
             .json()
             .as_str()
             .ok_or_else(|| {
-                thirtyfour::error::WebDriverError::Json(
+                WebDriverError::Json(
                     "logTestingPlaygroundURL returned non-string value".to_string(),
                 )
             })
@@ -766,10 +766,10 @@ impl By {
     }
 
     /// Returns the serialized options JSON string if any
-    fn options_json(&self) -> Result<Option<String>, thirtyfour::error::WebDriverError> {
+    fn options_json(&self) -> Result<Option<String>, WebDriverError> {
         match self.options() {
             Some(options) => options.to_json_string().map(Some).map_err(|e| {
-                thirtyfour::error::WebDriverError::Json(format!("Failed to serialize options: {e}"))
+                WebDriverError::Json(format!("Failed to serialize options: {e}"))
             }),
             None => Ok(None),
         }

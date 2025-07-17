@@ -7,6 +7,20 @@ A standalone Testing Library integration for the [Thirtyfour](https://github.com
 
 This crate extends Thirtyfour's WebDriver capabilities with a Testing Library-inspired API that emphasizes accessibility and user-centric testing approaches.
 
+Find elements using testing library approches and relay on Thirtyfour library to get their properties, click on them, ect.
+
+## About Testing Library
+
+[Testing Library](https://testing-library.com/docs) is a family of packages that help you test UI components in a way that resembles how users interact with your application. The core philosophy is: **"The more your tests resemble the way your software is used, the more confidence they can give you."**
+
+This extension brings Testing Library's semantic query approach to Rust WebDriver testing:
+
+- **Focus on user experience**: Query elements by their role, label, or text content rather than implementation details
+- **Accessibility-first**: Prioritize queries that work well with assistive technologies
+- **Resilient tests**: Less brittle tests that survive UI refactoring
+
+As The Thirtyfour Testing Library Extension is just a binding to the official Testing Library it is really recommended to rely on their doc to understand how to write your tests: [official documentation](https://testing-library.com/docs).
+
 ## Features
 
 - **Semantic selectors**: Query elements by role, text, label, placeholder, and other semantic attributes
@@ -25,37 +39,50 @@ thirtyfour = "0.36.1"
 thirtyfour-testing-library-ext = "0.1"
 ```
 
-> **Note**: This crate is a standalone extension that depends on the published `thirtyfour` crate from crates.io. You don't need to fork or clone the entire thirtyfour repository to use this extension.
+> **Note**: This crate is a extension that depends on the published `thirtyfour` crate from crates.io. So the [thirtyfour doc](https://docs.rs/thirtyfour/latest/thirtyfour/) is a good starting point.
 
 ## Usage
 
 ```rust
 use thirtyfour::prelude::*;
-use thirtyfour_testing_library_ext::{Screen, By};
+use thirtyfour_testing_library_ext::{Screen, By, Configure};
 
 #[tokio::main]
 async fn main() -> WebDriverResult<()> {
+    // Setup the thirtyfour WebDriver as need, https://docs.rs/thirtyfour/latest/thirtyfour/
     let caps = DesiredCapabilities::chrome();
     let driver = WebDriver::new("http://localhost:9515", caps).await?;
     
     driver.goto("https://example.com").await?;
     
-    // Create a screen instance
+    // Basic usage - create a screen instance
     let screen = Screen::build_with_testing_library(driver.clone()).await?;
     
     // Query by role (semantic selector)
     let button = screen.get(By::role("button")).await?;
     button.click().await?;
     
-    // Query by text content
-    let heading = screen.get(By::text("Welcome")).await?;
+    // Wait for elements to appear with find()
+    let heading = screen.find(By::text("Welcome")).await?;
     println!("Found heading: {}", heading.text().await?);
     
-    // Query within a specific element
+    // Get all matching elements (returns empty vec if none found)
+    let all_links = screen.query_all(By::role("link")).await?;
+    println!("Found {} links", all_links.len());
+    
+    // Query with options for more specific matching
+    let submit_button = screen.find(By::role("button").name("Submit")).await?;
+    let error_messages = screen.find_all(By::title("Error").exact(false)).await?;
+    
+    // Query within a specific element scope
     let form = screen.get(By::role("form")).await?;
     let form_screen = screen.within(form);
     let input = form_screen.get(By::label_text("Email")).await?;
     input.send_keys("test@example.com").await?;
+    
+    // Configure testing library behavior
+    let config = Configure::new().timeout(5000).test_id_attribute("data-cy");
+    let configured_screen = Screen::build_with_testing_library_and_configure(driver.clone(), config).await?;
     
     driver.quit().await?;
     Ok(())
@@ -70,31 +97,55 @@ The Screen struct provides several query methods with different behaviors:
 - `query()` / `query_all()` - Return `None` / empty Vec for missing elements  
 - `find()` / `find_all()` - Wait for elements to appear with retries
 
+Learn more about Testing Library queries on [the official guide](https://testing-library.com/docs/queries/about)
+
 ## Selector Types
 
-- `By::role()` - Query by ARIA role
-- `By::text()` - Query by text content
-- `By::label_text()` - Query by label text
-- `By::placeholder_text()` - Query by placeholder text
-- `By::alt_text()` - Query by alt text
-- `By::title()` - Query by title attribute
-- `By::test_id()` - Query by test ID
-- `By::display_value()` - Query by display value
+- `By::role()` - [ref](https://testing-library.com/docs/queries/byrole)
+- `By::text()` - [ref](https://testing-library.com/docs/queries/bytext)
+- `By::label_text()` - [ref](https://testing-library.com/docs/queries/bylabeltext)
+- `By::placeholder_text()` - [ref](https://testing-library.com/docs/queries/byplaceholdertext)
+- `By::alt_text()` - [ref](https://testing-library.com/docs/queries/byalttext)
+- `By::title()` - [ref](https://testing-library.com/docs/queries/bytitle)
+- `By::test_id()` - [ref](https://testing-library.com/docs/queries/bytestid)
+- `By::display_value()` - [ref](https://testing-library.com/docs/queries/bydisplayvalue)
 
 Each selector type supports options for advanced filtering and matching.
 
-## Testing
+## How It Works
 
-Tests require WebDriver instances running in the background:
-- For Chrome: `chromedriver` (default on port 9515)
-- For Firefox: `geckodriver` (default on port 4444)
+This extension works by injecting the official Testing Library JavaScript code into the browser and bridging it with Thirtyfour's WebDriver capabilities. Here's what happens under the hood:
 
-Run tests with:
-```bash
-cargo test -- --test-threads=1
-```
+1. **JavaScript Injection**: When you create a `Screen` instance, the extension injects the Testing Library JavaScript bundle into the current page
+2. **Query Translation**: Your Rust `By::role()`, `By::text()`, etc. calls are translated into JavaScript Testing Library queries
+3. **Element Resolution**: The JavaScript Testing Library finds elements in the DOM using its semantic selectors
+4. **WebDriver Bridge**: Found elements are returned as standard Thirtyfour `WebElement` objects that you can interact with normally
 
-Use `THIRTYFOUR_BROWSER=firefox cargo test` to test with Firefox instead of Chrome.
+This approach gives you:
+- **Full Testing Library compatibility**: All the same query logic and options from the JavaScript version
+- **Seamless integration**: Results work with all existing Thirtyfour methods (`.click()`, `.send_keys()`, etc.)
+- **Robustness**: JavaScript execution is fast and Testing Library is battle-tested
+
+This approach is inspired by [Webdriverio Testing Library](https://testing-library.com/docs/webdriverio-testing-library/intro/), [selenium-testing-library](https://medium.com/codex/the-testing-library-meets-selenium-5f74cc712114) (Kotlin) and [selenium-testing-library](https://github.com/anze3db/selenium-testing-library).
+
+## Contributing: 
+
+> You only need to run the tests if you plan on contributing to the development of `thirtyfour-testing-library-ext`.
+> If you just want to use the crate in your own project, you can skip this section.
+
+To run the tests, you need to have an instance of `chromedriver` running in the background, perhaps in separate tabs in your terminal.
+
+Download chromedriver: https://chromedriver.chromium.org/downloads
+
+In separate terminal tabs, run the following:
+
+* Tab 1:
+
+      chromedriver
+
+* Tab 2 (navigate to the root of this repository):
+
+      cargo test
 
 ## License
 

@@ -118,13 +118,13 @@ This extension works by injecting the official Testing Library JavaScript code i
 
 1. **JavaScript Injection**: When you create a `Screen` instance, the extension injects the Testing Library JavaScript bundle into the current page
 2. **Query Translation**: Your Rust `By::role()`, `By::text()`, etc. calls are translated into JavaScript Testing Library queries
-3. **Element Resolution**: The JavaScript Testing Library finds elements in the DOM using its semantic selectors
+3. **Element Resolution**: The JavaScript Testing Library finds elements in the DOM
 4. **WebDriver Bridge**: Found elements are returned as standard Thirtyfour `WebElement` objects that you can interact with normally
 
 This approach gives you:
-- **Full Testing Library compatibility**: All the same query logic and options from the JavaScript version
+- **Testing Library compatibility**: All the same query logic and options from the JavaScript version
 - **Seamless integration**: Results work with all existing Thirtyfour methods (`.click()`, `.send_keys()`, etc.)
-- **Robustness**: JavaScript execution is fast and Testing Library is battle-tested
+- **Robustness**: The Testing Library is battle-tested
 
 This approach is inspired by [Webdriverio Testing Library](https://testing-library.com/docs/webdriverio-testing-library/intro/), [selenium-testing-library](https://medium.com/codex/the-testing-library-meets-selenium-5f74cc712114) (Kotlin) and [selenium-testing-library](https://github.com/anze3db/selenium-testing-library).
 

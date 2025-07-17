@@ -1,0 +1,17 @@
+{
+  "name": "testing-library-screen",
+  "version": "1.0.0",
+  "description": "Generate a Testing Library self-contained script so it can be used in the browser",
+  "scripts": {
+    "predeploy": "webpack",
+    "deploy": "cp dist/* ../thirtyfour-testing-library-ext/js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@testing-library/dom": "10.4.0",
+    "webpack": "5.99.9",
+    "webpack-cli": "6.0.1"
+  }
+}

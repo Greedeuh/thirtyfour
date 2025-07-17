@@ -1,0 +1,63 @@
+[package]
+name = "thirtyfour-testing-library-ext"
+version = "0.1.0"
+authors = ["Steve Pryde <steve@stevepryde.com>", "Vrtgs <vrtgs@vrtgs.xyz>"]
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = """
+Testing Library integration for Thirtyfour WebDriver library.
+Provides DOM queries with semantic selectors similar to React Testing Library.
+"""
+homepage = "https://github.com/your-username/thirtyfour-testing-library-ext"
+repository = "https://github.com/your-username/thirtyfour-testing-library-ext"
+documentation = "https://docs.rs/thirtyfour-testing-library-ext"
+
+readme = "README.md"
+keywords = [
+    "selenium",
+    "webdriver",
+    "testing-library",
+    "dom",
+    "automation",
+]
+categories = [
+    "api-bindings",
+    "development-tools::testing",
+    "web-programming::http-client",
+]
+
+[dependencies]
+thirtyfour = "0.36.1"
+serde = { version = "1.0.210", features = ["derive"] }
+serde_json = { version = "1.0.132", features = ["preserve_order"] }
+regex = "1"
+tokio = { version = "1", features = ["fs"] }
+
+[dev-dependencies]
+assert_matches = "1.5"
+axum = "0.7"
+color-eyre = "0.6"
+rstest = { version = "0.25.0", default-features = false }
+tower-http = { version = "0.6", features = ["fs"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tokio = { version = "1", features = ["rt-multi-thread"] }
+serial_test = "3.2.0"
+tracing = "0.1"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+# Include JavaScript assets in the package
+[package.metadata.cargo-all-features]
+skip_optional_dependencies = true
+
+# Ensure JavaScript assets and test files are included when publishing
+include = [
+    "src/**/*",
+    "js/**/*",
+    "tests/**/*",
+    "Cargo.toml",
+    "README.md",
+    "LICENSE*"
+]

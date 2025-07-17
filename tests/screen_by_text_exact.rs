@@ -1,0 +1,53 @@
+mod common;
+use common::*;
+use rstest::rstest;
+use thirtyfour::prelude::*;
+use thirtyfour::support::block_on;
+use thirtyfour_testing_library_ext::{By, ByTextOptions, Screen};
+
+#[rstest]
+fn test_by_text_exact_option(test_harness: TestHarness) -> WebDriverResult<()> {
+    let c = test_harness.driver();
+    block_on(async {
+        let url = by_text_exact_page_url();
+        c.goto(&url).await?;
+
+        let screen = Screen::build_with_testing_library(c.clone()).await?;
+
+        let exact_options = ByTextOptions::new().exact(true);
+
+        // Test exact match - should find only "Login" text, not "Please Login Here"
+        let element = screen.get(By::text_with_options("Login", exact_options.clone())).await?;
+        assert_eq!(element.id().await?, Some("text-exact".to_string()));
+
+        // Test get_all_by_text_with_options
+        let elements =
+            screen.get_all(By::text_with_options("Login", exact_options.clone())).await?;
+        assert_eq!(elements.len(), 1);
+        assert_eq!(elements[0].id().await?, Some("text-exact".to_string()));
+
+        // Test query_by_text_with_options
+        let result = screen.query(By::text_with_options("Login", exact_options.clone())).await?;
+        assert!(result.is_some());
+        assert_eq!(result.unwrap().id().await?, Some("text-exact".to_string()));
+
+        // Test query_all_by_text_with_options
+        let query_elements =
+            screen.query_all(By::text_with_options("Login", exact_options.clone())).await?;
+        assert_eq!(query_elements.len(), 1);
+        assert_eq!(query_elements[0].id().await?, Some("text-exact".to_string()));
+
+        // Test find_by_text_with_options
+        let find_element =
+            screen.find(By::text_with_options("Login", exact_options.clone())).await?;
+        assert_eq!(find_element.id().await?, Some("text-exact".to_string()));
+
+        // Test find_all_by_text_with_options
+        let find_elements =
+            screen.find_all(By::text_with_options("Login", exact_options.clone())).await?;
+        assert_eq!(find_elements.len(), 1);
+        assert_eq!(find_elements[0].id().await?, Some("text-exact".to_string()));
+
+        Ok(())
+    })
+}

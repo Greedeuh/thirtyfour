@@ -1,0 +1,9 @@
+/target
+**/*.rs.bk
+Cargo.lock
+.idea/
+thirtyfour.iml
+/ci/geckodriver.exe
+**/*.DS_Store
+testing-library/node_modules/
+testing-library/dist/

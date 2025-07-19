@@ -388,10 +388,10 @@ impl QueryExecutor {
     fn format_query_value(value: &str) -> String {
         if Self::is_regex_pattern(value) {
             // It's a regex pattern - use the marker system for post-processing
-            format!("\"__RAW_JS__{}\"", value)
+            format!("\"__RAW_JS__{value}\"")
         } else {
             // Regular string - quote it
-            format!("'{}'", value)
+            format!("'{value}'")
         }
     }
 

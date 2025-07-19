@@ -361,21 +361,48 @@ impl QueryExecutor {
         options_json: Option<&str>,
         with_null_filter: bool,
     ) -> String {
+        // Format the value - detect regex patterns and handle appropriately
+        let formatted_value = Self::format_query_value(value);
+        
         let base_call = match options_json {
             Some(options) => {
-                format!("window.__TL__.{method_name}({container}, '{value}', {options})")
+                format!("window.__TL__.{method_name}({container}, {formatted_value}, {options})")
             }
             None => {
-                format!("window.__TL__.{method_name}({container}, '{value}')")
+                format!("window.__TL__.{method_name}({container}, {formatted_value})")
             }
         };
 
-        if with_null_filter {
+        let script = if with_null_filter {
             // Transform null values to empty arrays easier to parse in Rust
             format!("return [{base_call}].filter(n => n);")
         } else {
             format!("return {base_call};")
+        };
+
+        // Process any regex markers in the final script
+        process_raw_javascript_markers(&script)
+    }
+
+    /// Format a query value, detecting regex patterns and handling them appropriately
+    fn format_query_value(value: &str) -> String {
+        if Self::is_regex_pattern(value) {
+            // It's a regex pattern - use the marker system for post-processing
+            format!("\"__RAW_JS__{}\"", value)
+        } else {
+            // Regular string - quote it
+            format!("'{}'", value)
         }
+    }
+
+    /// Detect if a value is a regex pattern (starts and ends with '/')
+    fn is_regex_pattern(value: &str) -> bool {
+        if value.starts_with('/') && value.len() > 2 {
+            if let Some(last_slash) = value.rfind('/') {
+                return last_slash > 0; // Ensure it's not just the opening slash
+            }
+        }
+        false
     }
 
     const LIBRARY_NOT_FOUND_ERROR: &str = "Testing Library not found";
@@ -795,4 +822,66 @@ pub enum By {
     Title(String, Option<Options>),
     /// Query by test ID
     TestId(String, Option<Options>),
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_is_regex_pattern() {
+        // Valid regex patterns
+        assert!(QueryExecutor::is_regex_pattern("/hello/"));
+        assert!(QueryExecutor::is_regex_pattern("/hello/i"));
+        assert!(QueryExecutor::is_regex_pattern("/^submit.*$/i"));
+        assert!(QueryExecutor::is_regex_pattern("/Hello W?oRlD/i"));
+        
+        // Invalid regex patterns (not regex)
+        assert!(!QueryExecutor::is_regex_pattern("hello"));
+        assert!(!QueryExecutor::is_regex_pattern("hello/"));
+        assert!(!QueryExecutor::is_regex_pattern("/hello"));
+        assert!(!QueryExecutor::is_regex_pattern("/"));
+        assert!(!QueryExecutor::is_regex_pattern(""));
+        assert!(!QueryExecutor::is_regex_pattern("regular text"));
+    }
+
+    #[test]
+    fn test_format_query_value() {
+        // Regular strings should be quoted
+        assert_eq!(QueryExecutor::format_query_value("hello"), "'hello'");
+        assert_eq!(QueryExecutor::format_query_value("Hello World"), "'Hello World'");
+        assert_eq!(QueryExecutor::format_query_value("Submit"), "'Submit'");
+        
+        // Regex patterns should use marker system
+        assert_eq!(QueryExecutor::format_query_value("/hello/"), "\"__RAW_JS__/hello/\"");
+        assert_eq!(QueryExecutor::format_query_value("/hello/i"), "\"__RAW_JS__/hello/i\"");
+        assert_eq!(QueryExecutor::format_query_value("/^submit.*$/i"), "\"__RAW_JS__/^submit.*$/i\"");
+    }
+
+    #[test]
+    fn test_regex_functionality_examples() {
+        // Test that our TextMatch From implementation works correctly
+        let exact_text = TextMatch::from("Hello World");
+        assert!(matches!(exact_text, TextMatch::Exact(_)));
+        assert_eq!(exact_text.text_value(), "Hello World");
+        assert!(!exact_text.is_regex());
+        
+        let regex_text = TextMatch::from("/hello/i");
+        assert!(matches!(regex_text, TextMatch::Regex(_)));
+        assert_eq!(regex_text.text_value(), "/hello/i");
+        assert!(regex_text.is_regex());
+    }
+
+    #[test]
+    fn test_process_raw_javascript_markers() {
+        // Test the marker processing function works correctly
+        let json_with_markers = r#"return window.__TL__.getByText(document, "__RAW_JS__/Hello World/i");"#;
+        let processed = process_raw_javascript_markers(json_with_markers);
+        assert_eq!(processed, r#"return window.__TL__.getByText(document, /Hello World/i);"#);
+        
+        // Test with regular strings (should remain unchanged)
+        let json_no_markers = r#"return window.__TL__.getByText(document, 'Hello World');"#;
+        let processed_no_markers = process_raw_javascript_markers(json_no_markers);
+        assert_eq!(processed_no_markers, r#"return window.__TL__.getByText(document, 'Hello World');"#);
+    }
 }

@@ -1,50 +1,11 @@
-use crate::options::common::TestingLibraryOptions;
-use regex;
+use crate::options::common::{TestingLibraryOptions, TextMatch};
 use serde::{Serialize, Serializer};
+
+#[cfg(test)]
+use crate::options::common::process_raw_javascript_markers;
+
+#[cfg(test)]
 use serde_json::Value;
-
-/// A wrapper type that indicates a value should be serialized as raw JavaScript
-#[derive(Debug, Clone)]
-struct RawJavaScript(String);
-
-impl Serialize for RawJavaScript {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        // Mark this as a special regex value that needs post-processing
-        // We'll use a special marker that we can detect and replace later
-        let marked_value = format!("__RAW_JS__{}", self.0);
-        marked_value.serialize(serializer)
-    }
-}
-
-/// Represents text matching options for Testing Library queries
-#[derive(Debug, Clone)]
-pub enum TextMatch {
-    /// Exact string match
-    Exact(String),
-    /// Substring match
-    Substring(String),
-    /// Regular expression match
-    Regex(String),
-}
-
-impl Serialize for TextMatch {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        match self {
-            TextMatch::Exact(s) => s.serialize(serializer),
-            TextMatch::Substring(s) => s.serialize(serializer),
-            TextMatch::Regex(pattern) => {
-                // Use RawJavaScript wrapper to indicate this should be raw JS
-                RawJavaScript(pattern.clone()).serialize(serializer)
-            }
-        }
-    }
-}
 
 /// Options for value-based queries on range widgets
 #[derive(Debug, Clone, Default, Serialize)]
@@ -148,38 +109,6 @@ impl Serialize for CurrentState {
     }
 }
 
-impl TextMatch {
-    /// Validate that the regex pattern is properly formatted
-    pub fn validate_regex(&self) -> Result<(), String> {
-        match self {
-            TextMatch::Regex(pattern) => {
-                // Check if it looks like a regex literal
-                if !pattern.starts_with('/') {
-                    return Err(
-                        "Regex pattern must start with '/' (e.g., '/pattern/' or '/pattern/i')"
-                            .to_string(),
-                    );
-                }
-
-                // Find the last '/' to separate pattern from flags
-                let last_slash = pattern.rfind('/');
-                if last_slash.is_none() || last_slash.unwrap() == 0 {
-                    return Err("Regex pattern must contain at least one '/' after the pattern (e.g., '/pattern/')".to_string());
-                }
-
-                let last_slash_pos = last_slash.unwrap();
-                let inner_pattern = &pattern[1..last_slash_pos];
-
-                // Validate the regex pattern (ignore flags for now)
-                regex::Regex::new(inner_pattern)
-                    .map_err(|e| format!("Invalid regex pattern: {e}"))?;
-
-                Ok(())
-            }
-            _ => Ok(()),
-        }
-    }
-}
 
 impl ByRoleOptions {
     /// Create a new empty ByRoleOptions
@@ -265,35 +194,9 @@ impl ByRoleOptions {
         self
     }
 
-    /// Serialize the options to a JSON string for use in Testing Library method calls
-    pub fn to_json_string(&self) -> Result<String, serde_json::Error> {
-        let json = serde_json::to_string(self)?;
-        // Post-process to convert marked raw JavaScript values
-        Ok(Self::process_raw_javascript_markers(&json))
-    }
-
-    /// Convert marked raw JavaScript values to actual raw JavaScript
-    fn process_raw_javascript_markers(json: &str) -> String {
-        // Replace "__RAW_JS__/pattern/" with /pattern/ (remove quotes and marker)
-        use regex::Regex;
-        let re = Regex::new(r#""__RAW_JS__([^"]+)""#).unwrap();
-        re.replace_all(json, "$1").to_string()
-    }
-
-    /// Serialize the options to a JSON Value for use in Testing Library method calls
-    pub fn to_json_value(&self) -> Result<Value, serde_json::Error> {
-        serde_json::to_value(self)
-    }
 }
 
-impl TestingLibraryOptions for ByRoleOptions {
-    /// Custom implementation to handle raw JavaScript processing
-    fn to_json_string(&self) -> Result<String, serde_json::Error> {
-        let json = serde_json::to_string(self)?;
-        // Post-process to convert marked raw JavaScript values
-        Ok(Self::process_raw_javascript_markers(&json))
-    }
-}
+impl TestingLibraryOptions for ByRoleOptions {}
 
 #[cfg(test)]
 mod tests {
@@ -449,17 +352,17 @@ mod tests {
     fn test_raw_javascript_marker_processing() {
         // Test the marker processing function
         let json_with_markers = r#"{"name":"__RAW_JS__/Save.*/","pressed":false}"#;
-        let processed = ByRoleOptions::process_raw_javascript_markers(json_with_markers);
+        let processed = process_raw_javascript_markers(json_with_markers);
         assert_eq!(processed, r#"{"name":/Save.*/,"pressed":false}"#);
 
         // Test with flags
         let json_with_flags = r#"{"name":"__RAW_JS__/save/i","hidden":true}"#;
-        let processed_flags = ByRoleOptions::process_raw_javascript_markers(json_with_flags);
+        let processed_flags = process_raw_javascript_markers(json_with_flags);
         assert_eq!(processed_flags, r#"{"name":/save/i,"hidden":true}"#);
 
         // Test with multiple markers
         let json_multiple = r#"{"name":"__RAW_JS__/button/","description":"__RAW_JS__/click.*/i"}"#;
-        let processed_multiple = ByRoleOptions::process_raw_javascript_markers(json_multiple);
+        let processed_multiple = process_raw_javascript_markers(json_multiple);
         assert_eq!(
             processed_multiple,
             r#"{"name":/button/,"description":/click.*/i}"#
@@ -467,7 +370,7 @@ mod tests {
 
         // Test with no markers (should remain unchanged)
         let json_no_markers = r#"{"name":"button","pressed":true}"#;
-        let processed_no_markers = ByRoleOptions::process_raw_javascript_markers(json_no_markers);
+        let processed_no_markers = process_raw_javascript_markers(json_no_markers);
         assert_eq!(processed_no_markers, r#"{"name":"button","pressed":true}"#);
     }
 }

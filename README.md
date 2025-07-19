@@ -110,6 +110,22 @@ Learn more about Testing Library queries on [the official guide](https://testing
 
 Each selector type supports options for advanced filtering and matching.
 
+## Advanced usage
+
+### Regex
+
+Prefix & suffix by `/` to match by regex
+```rust
+      By::text("/Hello.*/"),                       
+      By::text("/hello world/i"),                  
+      By::label_text("/username|email/i"),         
+      By::placeholder_text("/enter.*/i"),         
+      By::alt_text("/profile|avatar/i"),           
+      By::title("/click|tap/i"),                  
+      By::test_id("/submit|send/"),                
+      By::display_value("/[0-9]+%/"),              
+```
+
 ## How It Works
 
 This extension works by injecting the official Testing Library JavaScript code into the browser and bridging it with Thirtyfour's WebDriver capabilities. Here's what happens under the hood:

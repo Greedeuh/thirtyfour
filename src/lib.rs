@@ -391,6 +391,7 @@ impl QueryExecutor {
             format!("\"__RAW_JS__{value}\"")
         } else {
             // Regular string - quote it
+            // TODO: could be an issue if the value contains quotes
             format!("'{value}'")
         }
     }

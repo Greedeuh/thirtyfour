@@ -110,6 +110,25 @@ Learn more about Testing Library queries on [the official guide](https://testing
 
 Each selector type supports options for advanced filtering and matching.
 
+## Advanced usage
+
+### Regex
+
+[TextMatch](https://testing-library.com/docs/queries/about#textmatch) from testing library allow regex matching, to use them prefix & suffix by `/`:
+```rust
+      By::text("/Hello.*/"),                       
+      By::text("/hello world/i"),                  
+      By::label_text("/username|email/i"),         
+      By::placeholder_text("/enter.*/i"),         
+      By::alt_text("/profile|avatar/i"),           
+      By::title("/click|tap/i"),                  
+      By::test_id("/submit|send/"),                
+      By::display_value("/[0-9]+%/"),              
+      
+      By::role("button").name("/submit|send/i"),   
+      By::role("textbox").description("/enter.*here/"), 
+```
+
 ## How It Works
 
 This extension works by injecting the official Testing Library JavaScript code into the browser and bridging it with Thirtyfour's WebDriver capabilities. Here's what happens under the hood:

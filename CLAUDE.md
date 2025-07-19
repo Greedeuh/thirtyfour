@@ -4,122 +4,109 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Thirtyfour is a Selenium WebDriver library for Rust that provides async automation for web browser testing. It supports the W3C WebDriver v1 specification and is tested primarily with Chrome and Firefox.
+This is a Testing Library integration for the Thirtyfour WebDriver library. It provides DOM queries with semantic selectors similar to React Testing Library, bringing the popular Testing Library philosophy to Rust WebDriver testing.
 
 ## Development Commands
 
 ### Core Commands
 - `cargo build` - Build the project
-- `cargo test` - Run tests (requires running WebDriver instances)
-- `cargo test -- --test-threads=1` - Run tests with single thread (recommended for WebDriver tests)
+- `cargo test` - Run tests (requires WebDriver instances)
+- `cargo test test_name` - Run specific test
 - `cargo fmt` - Format code according to project standards
 - `cargo clippy` - Run linter and static analysis
-- `cargo doc --no-deps --all-features` - Generate documentation
-- `cargo run --example <example_name>` - Run specific examples
 
-### Testing Setup
+### Testing Requirements
 Tests require WebDriver instances running in the background:
-- For Chrome: `chromedriver` (default on port 9515)
-- For Firefox: `geckodriver` (default on port 4444)
-- Use `THIRTYFOUR_BROWSER=firefox cargo test` to test with Firefox instead of Chrome
+- **Chrome**: `chromedriver` on port 9515 (default)
 
-### Examples
-Run examples with: `cargo run --example <name>`
-- `tokio_async` - Basic async example
-- `tokio_basic` - Simple WebDriver usage
-- `selenium_example` - Selenium Grid example
-- `minimal_async` - Minimal async setup
-- `wikipedia` - Advanced query example
-- `chrome_devtools` - Chrome DevTools Protocol usage
-- `playground` - Component usage example
+### JavaScript Build Process
+- `cd testing-library && npm run predeploy` - Build JavaScript bundles
+- `cd testing-library && npm run deploy` - Copy bundles to `/js/`
 
 ## Code Architecture
 
-### Core Components
-- **WebDriver** (`web_driver.rs`): Main driver session management
-- **WebElement** (`web_element.rs`): Individual element manipulation
-- **SessionHandle** (`session/handle.rs`): Low-level session management
-- **Query System** (`extensions/query/`): Advanced element querying with polling and filtering
-- **Components** (`components/`): Page Object Model-like wrappers for elements
-- **Screen** (`screen.rs`): Testing Library integration for DOM queries
+### Core Library Structure
+- **`lib.rs`**: Main entry point with `Screen` struct and query methods
+- **`configure.rs`**: Configuration options for Testing Library behavior
+- **`options/`**: Query option types for different selector strategies
+  - `role.rs`: ARIA role-based queries with extensive options
+  - `label_text.rs`: Label text queries with selector and exact matching
+  - `simple.rs`: Simple queries for text, alt text, display value, etc.
+  - `common.rs`: Common traits and utilities
 
-### Key Modules
-- `session/`: HTTP client, session creation, and management
-- `common/`: Shared types, capabilities, commands, and browser-specific configs
-- `extensions/`: Browser-specific extensions (Chrome CDP, Firefox tools)
-- `action_chain.rs`: Complex user interaction sequences
-- `alert.rs`: JavaScript alert handling
-- `switch_to.rs`: Context switching (frames, windows, alerts)
+### Query Method Patterns
+The library provides three types of query methods with different behaviors:
+- **`get()` / `get_all()`**: Throw errors if elements aren't found
+- **`query()` / `query_all()`**: Return `None` / empty Vec for missing elements  
+- **`find()` / `find_all()`**: Wait for elements to appear with retries
 
-### Component System
-Components use derive macros to create smart element resolvers:
-- `#[derive(Component)]` for component structs
-- `#[by(...)]` attributes for element selectors
-- `ElementResolver<T>` for lazy element resolution
-- Supports nesting and caching for complex web apps
+### Selector Types
+- **`By::role()`**: ARIA role-based queries with extensive options
+- **`By::text()`**: Text content queries
+- **`By::label_text()`**: Label text queries
+- **`By::placeholder_text()`**: Placeholder text queries
+- **`By::alt_text()`**: Alt text queries
+- **`By::title()`**: Title attribute queries
+- **`By::test_id()`**: Test ID queries
+- **`By::display_value()`**: Display value queries
 
-### Query Interface
-Advanced querying with `driver.query()` and `element.query()`:
-- Supports polling with customizable timeouts
-- Multiple selector strategies with `.or()` chaining
-- Filtering capabilities with custom predicates
-- Explicit wait conditions
+### Key Features
+- **Scoped queries**: `within()` method for querying within specific elements
+- **Configuration options**: Customizable Testing Library behavior
+- **Debugging support**: Testing playground URL generation via `log_testing_playground_url()`
+- **Fluent API**: Builder pattern for complex queries with options
 
-## Project Structure
+## JavaScript Integration
 
-### Workspace Layout
-- `thirtyfour/` - Main library crate
-- `thirtyfour-macros/` - Derive macros for Component system
-- `testing-library/` - JavaScript testing library integration
-- `docs/` - mdBook documentation source
-- `ci/` - Platform-specific CI scripts
+### Architecture
+- JavaScript Testing Library is injected into the browser and bridged with Rust WebDriver
+- Webpack builds self-contained JavaScript bundles in `/js/`
+- Bridge pattern connects Rust queries to JavaScript Testing Library implementation
 
-### Feature Flags
-- `rustls-tls` (default): Use rustls for TLS
-- `native-tls`: Use system TLS
-- `component` (default): Enable Component derive macros
-- `tokio-multi-threaded`: Enable multi-threaded tokio runtime
-- `debug_sync_quit`: Debug synchronous quit behavior
+### Build System
+- Webpack configuration in `testing-library/webpack.config.js`
+- Source files in `testing-library/src/`
+- Output bundles in `/js/` directory
 
 ## Testing
 
+### Test Structure
+- `tests/common.rs`: Test harness with axum server setup for HTML fixtures
+- `tests/test_html/`: HTML fixtures for testing different scenarios
+- `tests/screen_by_*.rs`: Individual test files for each query type
+
 ### Test Environment
-Tests use HTML fixtures in `tests/test_html/` and require WebDriver instances:
-- Chrome tests: chromedriver on port 9515
-- Firefox tests: geckodriver on port 4444 (set `THIRTYFOUR_BROWSER=firefox`)
+- Uses axum web server to serve HTML fixtures
+- Browser-agnostic testing with Chrome and Firefox support
+- Single-threaded execution to avoid WebDriver conflicts
+- `TestHarness` struct manages WebDriver lifecycle and server setup
 
-### Test Categories
-- `elements.rs`: Basic element operations
-- `queries.rs`: Advanced query interface
-- `components.rs`: Component system
-- `screen_by_*.rs`: Testing library integration
-- `actions.rs`: Action chains and user interactions
-- `alert.rs`: JavaScript alert handling
-- `window.rs`: Window and frame management
-
-## Browser Support
-
-### Chrome/Chromium
-- Chrome DevTools Protocol (CDP) support in `extensions/cdp/`
-- Chrome-specific capabilities in `common/capabilities/chrome.rs`
-- Network condition simulation
-- Performance metrics collection
-
-### Firefox
-- Firefox-specific tools in `extensions/addons/firefox/`
-- Preference management
-- Firefox-specific capabilities
+### Test Patterns
+- Parameterized testing with `rstest`
+- Comprehensive coverage of all query methods and options
+- Error condition testing alongside success cases
 
 ## Development Notes
 
-### Async Patterns
-- Uses tokio for async runtime
-- WebDriver sessions must be explicitly closed with `driver.quit()`
-- No async destructors - use explicit cleanup to avoid blocking
-- Single-threaded test execution recommended due to WebDriver limitations
+### Testing Library Philosophy
+The library follows Testing Library's core philosophy:
+- Query elements by how users interact with them (accessibility-first)
+- Prioritize semantic selectors over implementation details
+- Write resilient tests that survive UI changes
 
-### Code Style
-- Uses rustfmt with max_width=100 and small heuristics disabled
+### Error Handling
 - Comprehensive error handling with `WebDriverResult<T>`
-- Extensive use of traits for extensibility
-- Builder patterns for complex configurations
+- Detailed error messages for failed queries
+- Automatic Testing Library injection with retry logic
+
+### Dependencies
+- **Core**: `thirtyfour` (WebDriver), `serde` (JSON), `tokio` (async)
+- **Dev**: `axum` (test server), `rstest` (parameterized tests), `serial_test` (sequential execution)
+- **JavaScript**: `@testing-library/dom`, `webpack` (bundling)
+
+## Platform Support
+
+CI scripts support multiple platforms:
+- Linux (Ubuntu) with Chrome/Firefox
+- macOS with Chrome/Firefox  
+- Windows with Chrome/Firefox

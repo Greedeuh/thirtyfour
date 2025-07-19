@@ -3,9 +3,7 @@
 [![Crates.io](https://img.shields.io/crates/v/thirtyfour-testing-library-ext.svg)](https://crates.io/crates/thirtyfour-testing-library-ext)
 [![Documentation](https://docs.rs/thirtyfour-testing-library-ext/badge.svg)](https://docs.rs/thirtyfour-testing-library-ext)
 
-A standalone Testing Library integration for the [Thirtyfour](https://github.com/Vrtgs/thirtyfour) WebDriver library, providing DOM queries with semantic selectors similar to React Testing Library.
-
-This crate extends Thirtyfour's WebDriver capabilities with a Testing Library-inspired API that emphasizes accessibility and user-centric testing approaches.
+Extends [Thirtyfour](https://github.com/Vrtgs/thirtyfour)'s crate capabilities with the [Javascript Testing Library API](https://testing-library.com/docs) that emphasizes accessibility and user-centric testing approaches.
 
 Find elements using testing library approches and relay on Thirtyfour library to get their properties, click on them, ect.
 

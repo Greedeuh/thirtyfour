@@ -257,7 +257,7 @@ impl Screen {
             .json()
             .as_str()
             .ok_or_else(|| {
-                thirtyfour::error::WebDriverError::Json(
+                WebDriverError::Json(
                     "logTestingPlaygroundURL returned non-string value".to_string(),
                 )
             })
@@ -266,9 +266,7 @@ impl Screen {
 
     async fn load_testing_library(driver: &WebDriver) -> WebDriverResult<()> {
         // Load the testing library script in the browser
-        let testing_library = tokio::fs::read_to_string("js/testing-library.js")
-            .await
-            .map_err(|e| WebDriverError::Json(format!("Failed to load testing library: {e}")))?;
+        let testing_library = include_str!("../js/testing-library.js");
         driver.execute(testing_library, vec![]).await?;
 
         Ok(())
@@ -768,10 +766,10 @@ impl By {
     }
 
     /// Returns the serialized options JSON string if any
-    fn options_json(&self) -> Result<Option<String>, thirtyfour::error::WebDriverError> {
+    fn options_json(&self) -> Result<Option<String>, WebDriverError> {
         match self.options() {
             Some(options) => options.to_json_string().map(Some).map_err(|e| {
-                thirtyfour::error::WebDriverError::Json(format!("Failed to serialize options: {e}"))
+                WebDriverError::Json(format!("Failed to serialize options: {e}"))
             }),
             None => Ok(None),
         }

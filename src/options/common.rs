@@ -1,6 +1,6 @@
+use regex;
 use serde::{Serialize, Serializer};
 use serde_json::Value;
-use regex;
 
 /// Common trait for all testing-library option types.
 ///

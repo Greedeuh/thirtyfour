@@ -3,7 +3,7 @@ use common::*;
 use rstest::rstest;
 use thirtyfour::prelude::*;
 use thirtyfour::support::block_on;
-use thirtyfour_testing_library_ext::{By, CurrentState, TextMatch, ValueOptions};
+use thirtyfour_testing_library_ext::{By, CurrentState, ValueOptions};
 
 // 1. Basic Name Matching Tests
 
@@ -14,47 +14,47 @@ fn test_name_exact_match(test_harness: TestHarness) -> WebDriverResult<()> {
 
         // Test exact match succeeds
         let button = screen
-            .get(By::role("button").name(TextMatch::Exact("Submit Form".to_string())))
+            .get(By::role("button").name("Submit Form"))
             .await?;
         assert_text(&button, "Submit Form").await?;
 
         // Test get_all_by_role_with_options as well
         let buttons = screen
-            .get_all(By::role("button").name(TextMatch::Exact("Submit Form".to_string())))
+            .get_all(By::role("button").name("Submit Form"))
             .await?;
         assert_count(&buttons, 1)?;
         assert_text(&buttons[0], "Submit Form").await?;
 
         // Test query_by_role_with_options
         let maybe_button = screen
-            .query(By::role("button").name(TextMatch::Exact("Submit Form".to_string())))
+            .query(By::role("button").name("Submit Form"))
             .await?;
         assert!(maybe_button.is_some());
         assert_text(&maybe_button.unwrap(), "Submit Form").await?;
 
         // Test query_all_by_role_with_options
         let query_buttons = screen
-            .query_all(By::role("button").name(TextMatch::Exact("Submit Form".to_string())))
+            .query_all(By::role("button").name("Submit Form"))
             .await?;
         assert_count(&query_buttons, 1)?;
         assert_text(&query_buttons[0], "Submit Form").await?;
 
         // Test find_by_role_with_options
         let find_button = screen
-            .find(By::role("button").name(TextMatch::Exact("Submit Form".to_string())))
+            .find(By::role("button").name("Submit Form"))
             .await?;
         assert_text(&find_button, "Submit Form").await?;
 
         // Test find_all_by_role_with_options
         let find_buttons = screen
-            .find_all(By::role("button").name(TextMatch::Exact("Submit Form".to_string())))
+            .find_all(By::role("button").name("Submit Form"))
             .await?;
         assert_count(&find_buttons, 1)?;
         assert_text(&find_buttons[0], "Submit Form").await?;
 
         // Test partial match fails
         let result = screen
-            .get(By::role("button").name(TextMatch::Exact("Submit For".to_string())))
+            .get(By::role("button").name("Submit For"))
             .await;
         assert_error(result)?;
 
@@ -67,42 +67,42 @@ fn test_name_regex_match(test_harness: TestHarness) -> WebDriverResult<()> {
     block_on(async {
         let screen = test_harness.screen_for_page("by_role_options.html").await?;
 
-        // Test regex match with proper regex literal syntax
+        // Test regex match with automatic detection
         let button = screen
-            .get(By::role("button").name(TextMatch::Regex("/Save.*Document/".to_string())))
+            .get(By::role("button").name("/Save.*Document/"))
             .await?;
         assert_text(&button, "Save Document").await?;
 
         // Test query_by_role_with_options
         let maybe_button = screen
-            .query(By::role("button").name(TextMatch::Regex("/Save.*Document/".to_string())))
+            .query(By::role("button").name("/Save.*Document/"))
             .await?;
         assert!(maybe_button.is_some());
         assert_text(&maybe_button.unwrap(), "Save Document").await?;
 
         // Test get_all_by_role_with_options
         let buttons = screen
-            .get_all(By::role("button").name(TextMatch::Regex("/Save.*Document/".to_string())))
+            .get_all(By::role("button").name("/Save.*Document/"))
             .await?;
         assert_count(&buttons, 1)?;
         assert_text(&buttons[0], "Save Document").await?;
 
         // Test query_all_by_role_with_options
         let query_buttons = screen
-            .query_all(By::role("button").name(TextMatch::Regex("/Save.*Document/".to_string())))
+            .query_all(By::role("button").name("/Save.*Document/"))
             .await?;
         assert_count(&query_buttons, 1)?;
         assert_text(&query_buttons[0], "Save Document").await?;
 
         // Test find_by_role_with_options
         let find_button = screen
-            .find(By::role("button").name(TextMatch::Regex("/Save.*Document/".to_string())))
+            .find(By::role("button").name("/Save.*Document/"))
             .await?;
         assert_text(&find_button, "Save Document").await?;
 
         // Test find_all_by_role_with_options
         let find_buttons = screen
-            .find_all(By::role("button").name(TextMatch::Regex("/Save.*Document/".to_string())))
+            .find_all(By::role("button").name("/Save.*Document/"))
             .await?;
         assert_count(&find_buttons, 1)?;
         assert_text(&find_buttons[0], "Save Document").await?;
@@ -420,40 +420,40 @@ fn test_hidden_elements(test_harness: TestHarness) -> WebDriverResult<()> {
 
         // Without hidden=true, let's just verify we can find visible buttons
         let visible_button = screen
-            .get(By::role("button").name(TextMatch::Exact("Visible Button".to_string())))
+            .get(By::role("button").name("Visible Button"))
             .await?;
         assert_text(&visible_button, "Visible Button").await?;
 
         // Test query_all_by_role_with_options
         let visible_buttons = screen
-            .query_all(By::role("button").name(TextMatch::Exact("Visible Button".to_string())))
+            .query_all(By::role("button").name("Visible Button"))
             .await?;
         assert_count(&visible_buttons, 1)?;
         assert_text(&visible_buttons[0], "Visible Button").await?;
 
         // Test get_all_by_role_with_options
         let all_visible_buttons = screen
-            .get_all(By::role("button").name(TextMatch::Exact("Visible Button".to_string())))
+            .get_all(By::role("button").name("Visible Button"))
             .await?;
         assert_count(&all_visible_buttons, 1)?;
         assert_text(&all_visible_buttons[0], "Visible Button").await?;
 
         // Test query_by_role_with_options
         let maybe_visible_button = screen
-            .query(By::role("button").name(TextMatch::Exact("Visible Button".to_string())))
+            .query(By::role("button").name("Visible Button"))
             .await?;
         assert!(maybe_visible_button.is_some());
         assert_text(&maybe_visible_button.unwrap(), "Visible Button").await?;
 
         // Test find_by_role_with_options
         let find_visible_button = screen
-            .find(By::role("button").name(TextMatch::Exact("Visible Button".to_string())))
+            .find(By::role("button").name("Visible Button"))
             .await?;
         assert_text(&find_visible_button, "Visible Button").await?;
 
         // Test find_all_by_role_with_options
         let find_visible_buttons = screen
-            .find_all(By::role("button").name(TextMatch::Exact("Visible Button".to_string())))
+            .find_all(By::role("button").name("Visible Button"))
             .await?;
         assert_count(&find_visible_buttons, 1)?;
         assert_text(&find_visible_buttons[0], "Visible Button").await?;
@@ -516,7 +516,7 @@ fn test_value_min(test_harness: TestHarness) -> WebDriverResult<()> {
             .get(
                 By::role("slider")
                     .value(value_opts.clone())
-                    .name(TextMatch::Exact("Volume".to_string())),
+                    .name("Volume"),
             )
             .await?;
         let aria_label = slider.attr("aria-label").await?.unwrap_or_default();
@@ -527,7 +527,7 @@ fn test_value_min(test_harness: TestHarness) -> WebDriverResult<()> {
             .find(
                 By::role("slider")
                     .value(value_opts.clone())
-                    .name(TextMatch::Exact("Volume".to_string())),
+                    .name("Volume"),
             )
             .await?;
         let aria_label = find_slider.attr("aria-label").await?.unwrap_or_default();
@@ -537,7 +537,7 @@ fn test_value_min(test_harness: TestHarness) -> WebDriverResult<()> {
             .get_all(
                 By::role("slider")
                     .value(value_opts.clone())
-                    .name(TextMatch::Exact("Volume".to_string())),
+                    .name("Volume"),
             )
             .await?;
         assert_count(&all_sliders, 1)?;
@@ -549,7 +549,7 @@ fn test_value_min(test_harness: TestHarness) -> WebDriverResult<()> {
             .query(
                 By::role("slider")
                     .value(value_opts.clone())
-                    .name(TextMatch::Exact("Volume".to_string())),
+                    .name("Volume"),
             )
             .await?;
         assert!(maybe_slider.is_some());
@@ -565,7 +565,7 @@ fn test_value_min(test_harness: TestHarness) -> WebDriverResult<()> {
             .query_all(
                 By::role("slider")
                     .value(value_opts.clone())
-                    .name(TextMatch::Exact("Volume".to_string())),
+                    .name("Volume"),
             )
             .await?;
         assert_count(&query_sliders, 1)?;
@@ -580,7 +580,7 @@ fn test_value_min(test_harness: TestHarness) -> WebDriverResult<()> {
             .find_all(
                 By::role("slider")
                     .value(value_opts.clone())
-                    .name(TextMatch::Exact("Volume".to_string())),
+                    .name("Volume"),
             )
             .await?;
         assert_count(&find_sliders, 1)?;
@@ -680,7 +680,7 @@ fn test_value_now(test_harness: TestHarness) -> WebDriverResult<()> {
             .get(
                 By::role("slider")
                     .value(value_opts.clone())
-                    .name(TextMatch::Exact("Progress".to_string())),
+                    .name("Progress"),
             )
             .await?;
         let aria_label = slider.attr("aria-label").await?.unwrap_or_default();
@@ -691,7 +691,7 @@ fn test_value_now(test_harness: TestHarness) -> WebDriverResult<()> {
             .get_all(
                 By::role("slider")
                     .value(value_opts.clone())
-                    .name(TextMatch::Exact("Progress".to_string())),
+                    .name("Progress"),
             )
             .await?;
         assert_count(&sliders, 1)?;
@@ -702,7 +702,7 @@ fn test_value_now(test_harness: TestHarness) -> WebDriverResult<()> {
             .query(
                 By::role("slider")
                     .value(value_opts.clone())
-                    .name(TextMatch::Exact("Progress".to_string())),
+                    .name("Progress"),
             )
             .await?;
         assert!(maybe_slider.is_some());
@@ -718,7 +718,7 @@ fn test_value_now(test_harness: TestHarness) -> WebDriverResult<()> {
             .query_all(
                 By::role("slider")
                     .value(value_opts.clone())
-                    .name(TextMatch::Exact("Progress".to_string())),
+                    .name("Progress"),
             )
             .await?;
         assert_count(&query_sliders, 1)?;
@@ -733,7 +733,7 @@ fn test_value_now(test_harness: TestHarness) -> WebDriverResult<()> {
             .find(
                 By::role("slider")
                     .value(value_opts.clone())
-                    .name(TextMatch::Exact("Progress".to_string())),
+                    .name("Progress"),
             )
             .await?;
         let aria_label = find_slider.attr("aria-label").await?.unwrap_or_default();
@@ -744,7 +744,7 @@ fn test_value_now(test_harness: TestHarness) -> WebDriverResult<()> {
             .find_all(
                 By::role("slider")
                     .value(value_opts.clone())
-                    .name(TextMatch::Exact("Progress".to_string())),
+                    .name("Progress"),
             )
             .await?;
         assert_count(&find_sliders, 1)?;

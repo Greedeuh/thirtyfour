@@ -363,7 +363,7 @@ impl QueryExecutor {
     ) -> String {
         // Format the value - detect regex patterns and handle appropriately
         let formatted_value = Self::format_query_value(value);
-        
+
         let base_call = match options_json {
             Some(options) => {
                 format!("window.__TL__.{method_name}({container}, {formatted_value}, {options})")
@@ -530,14 +530,18 @@ impl RoleSelector {
     }
 
     /// Set the name option - filter by accessible name
-    pub fn name(mut self, name: TextMatch) -> Self {
-        self.options.name = Some(name);
+    /// Accepts strings and automatically detects regex patterns (strings starting and ending with '/')
+    pub fn name(mut self, name: impl Into<String>) -> Self {
+        let name_str = name.into();
+        self.options.name = Some(TextMatch::from(name_str));
         self
     }
 
-    /// Set the description option - filter by accessible description
-    pub fn description(mut self, description: TextMatch) -> Self {
-        self.options.description = Some(description);
+    /// Set the description option - filter by accessible description  
+    /// Accepts strings and automatically detects regex patterns (strings starting and ending with '/')
+    pub fn description(mut self, description: impl Into<String>) -> Self {
+        let desc_str = description.into();
+        self.options.description = Some(TextMatch::from(desc_str));
         self
     }
 
@@ -795,9 +799,10 @@ impl By {
     /// Returns the serialized options JSON string if any
     fn options_json(&self) -> Result<Option<String>, WebDriverError> {
         match self.options() {
-            Some(options) => options.to_json_string().map(Some).map_err(|e| {
-                WebDriverError::Json(format!("Failed to serialize options: {e}"))
-            }),
+            Some(options) => options
+                .to_json_string()
+                .map(Some)
+                .map_err(|e| WebDriverError::Json(format!("Failed to serialize options: {e}"))),
             None => Ok(None),
         }
     }
@@ -835,7 +840,7 @@ mod tests {
         assert!(QueryExecutor::is_regex_pattern("/hello/i"));
         assert!(QueryExecutor::is_regex_pattern("/^submit.*$/i"));
         assert!(QueryExecutor::is_regex_pattern("/Hello W?oRlD/i"));
-        
+
         // Invalid regex patterns (not regex)
         assert!(!QueryExecutor::is_regex_pattern("hello"));
         assert!(!QueryExecutor::is_regex_pattern("hello/"));
@@ -849,13 +854,25 @@ mod tests {
     fn test_format_query_value() {
         // Regular strings should be quoted
         assert_eq!(QueryExecutor::format_query_value("hello"), "'hello'");
-        assert_eq!(QueryExecutor::format_query_value("Hello World"), "'Hello World'");
+        assert_eq!(
+            QueryExecutor::format_query_value("Hello World"),
+            "'Hello World'"
+        );
         assert_eq!(QueryExecutor::format_query_value("Submit"), "'Submit'");
-        
+
         // Regex patterns should use marker system
-        assert_eq!(QueryExecutor::format_query_value("/hello/"), "\"__RAW_JS__/hello/\"");
-        assert_eq!(QueryExecutor::format_query_value("/hello/i"), "\"__RAW_JS__/hello/i\"");
-        assert_eq!(QueryExecutor::format_query_value("/^submit.*$/i"), "\"__RAW_JS__/^submit.*$/i\"");
+        assert_eq!(
+            QueryExecutor::format_query_value("/hello/"),
+            "\"__RAW_JS__/hello/\""
+        );
+        assert_eq!(
+            QueryExecutor::format_query_value("/hello/i"),
+            "\"__RAW_JS__/hello/i\""
+        );
+        assert_eq!(
+            QueryExecutor::format_query_value("/^submit.*$/i"),
+            "\"__RAW_JS__/^submit.*$/i\""
+        );
     }
 
     #[test]
@@ -865,7 +882,7 @@ mod tests {
         assert!(matches!(exact_text, TextMatch::Exact(_)));
         assert_eq!(exact_text.text_value(), "Hello World");
         assert!(!exact_text.is_regex());
-        
+
         let regex_text = TextMatch::from("/hello/i");
         assert!(matches!(regex_text, TextMatch::Regex(_)));
         assert_eq!(regex_text.text_value(), "/hello/i");
@@ -875,13 +892,20 @@ mod tests {
     #[test]
     fn test_process_raw_javascript_markers() {
         // Test the marker processing function works correctly
-        let json_with_markers = r#"return window.__TL__.getByText(document, "__RAW_JS__/Hello World/i");"#;
+        let json_with_markers =
+            r#"return window.__TL__.getByText(document, "__RAW_JS__/Hello World/i");"#;
         let processed = process_raw_javascript_markers(json_with_markers);
-        assert_eq!(processed, r#"return window.__TL__.getByText(document, /Hello World/i);"#);
-        
+        assert_eq!(
+            processed,
+            r#"return window.__TL__.getByText(document, /Hello World/i);"#
+        );
+
         // Test with regular strings (should remain unchanged)
         let json_no_markers = r#"return window.__TL__.getByText(document, 'Hello World');"#;
         let processed_no_markers = process_raw_javascript_markers(json_no_markers);
-        assert_eq!(processed_no_markers, r#"return window.__TL__.getByText(document, 'Hello World');"#);
+        assert_eq!(
+            processed_no_markers,
+            r#"return window.__TL__.getByText(document, 'Hello World');"#
+        );
     }
 }

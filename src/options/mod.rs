@@ -13,7 +13,7 @@ pub mod role;
 pub mod simple;
 
 // Re-export everything for convenience
-pub use common::{TestingLibraryOptions, TextMatch, RawJavaScript, process_raw_javascript_markers};
+pub use common::{process_raw_javascript_markers, RawJavaScript, TestingLibraryOptions, TextMatch};
 pub use label_text::*;
 pub use role::*;
 pub use simple::*;

@@ -109,7 +109,6 @@ impl Serialize for CurrentState {
     }
 }
 
-
 impl ByRoleOptions {
     /// Create a new empty ByRoleOptions
     pub fn new() -> Self {
@@ -123,14 +122,18 @@ impl ByRoleOptions {
     }
 
     /// Set the name option
-    pub fn name(mut self, name: TextMatch) -> Self {
-        self.name = Some(name);
+    /// Accepts strings and automatically detects regex patterns (strings starting and ending with '/')
+    pub fn name(mut self, name: impl Into<String>) -> Self {
+        let name_str = name.into();
+        self.name = Some(TextMatch::from(name_str));
         self
     }
 
     /// Set the description option
-    pub fn description(mut self, description: TextMatch) -> Self {
-        self.description = Some(description);
+    /// Accepts strings and automatically detects regex patterns (strings starting and ending with '/')
+    pub fn description(mut self, description: impl Into<String>) -> Self {
+        let desc_str = description.into();
+        self.description = Some(TextMatch::from(desc_str));
         self
     }
 
@@ -193,7 +196,6 @@ impl ByRoleOptions {
         self.value = Some(value);
         self
     }
-
 }
 
 impl TestingLibraryOptions for ByRoleOptions {}
@@ -221,7 +223,7 @@ mod tests {
 
     #[test]
     fn test_text_match_exact_serialization() {
-        let options = ByRoleOptions::new().name(TextMatch::Exact("Submit".to_string()));
+        let options = ByRoleOptions::new().name("Submit");
 
         let json_value = options.to_json_value().unwrap();
         assert_eq!(json_value["name"], "Submit");
@@ -229,7 +231,7 @@ mod tests {
 
     #[test]
     fn test_text_match_regex_serialization() {
-        let options = ByRoleOptions::new().name(TextMatch::Regex("/^submit.*/".to_string()));
+        let options = ByRoleOptions::new().name("/^submit.*/");
 
         // Test the string serialization (which processes markers)
         let json_string = options.to_json_string().unwrap();
@@ -287,7 +289,7 @@ mod tests {
     #[test]
     fn test_complex_options_serialization() {
         let options = ByRoleOptions::new()
-            .name(TextMatch::Substring("button".to_string()))
+            .name("button")
             .hidden(false)
             .pressed(true)
             .level(2)
@@ -308,7 +310,7 @@ mod tests {
     fn test_serialization_example() {
         // Example usage: Creating complex options for a button query
         let options = ByRoleOptions::new()
-            .name(TextMatch::Regex("/submit|send/".to_string()))
+            .name("/submit|send/")
             .pressed(false)
             .hidden(false)
             .suggest(true);

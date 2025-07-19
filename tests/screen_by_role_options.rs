@@ -13,9 +13,7 @@ fn test_name_exact_match(test_harness: TestHarness) -> WebDriverResult<()> {
         let screen = test_harness.screen_for_page("by_role_options.html").await?;
 
         // Test exact match succeeds
-        let button = screen
-            .get(By::role("button").name("Submit Form"))
-            .await?;
+        let button = screen.get(By::role("button").name("Submit Form")).await?;
         assert_text(&button, "Submit Form").await?;
 
         // Test get_all_by_role_with_options as well
@@ -26,9 +24,7 @@ fn test_name_exact_match(test_harness: TestHarness) -> WebDriverResult<()> {
         assert_text(&buttons[0], "Submit Form").await?;
 
         // Test query_by_role_with_options
-        let maybe_button = screen
-            .query(By::role("button").name("Submit Form"))
-            .await?;
+        let maybe_button = screen.query(By::role("button").name("Submit Form")).await?;
         assert!(maybe_button.is_some());
         assert_text(&maybe_button.unwrap(), "Submit Form").await?;
 
@@ -40,9 +36,7 @@ fn test_name_exact_match(test_harness: TestHarness) -> WebDriverResult<()> {
         assert_text(&query_buttons[0], "Submit Form").await?;
 
         // Test find_by_role_with_options
-        let find_button = screen
-            .find(By::role("button").name("Submit Form"))
-            .await?;
+        let find_button = screen.find(By::role("button").name("Submit Form")).await?;
         assert_text(&find_button, "Submit Form").await?;
 
         // Test find_all_by_role_with_options
@@ -53,9 +47,7 @@ fn test_name_exact_match(test_harness: TestHarness) -> WebDriverResult<()> {
         assert_text(&find_buttons[0], "Submit Form").await?;
 
         // Test partial match fails
-        let result = screen
-            .get(By::role("button").name("Submit For"))
-            .await;
+        let result = screen.get(By::role("button").name("Submit For")).await;
         assert_error(result)?;
 
         Ok(())
@@ -513,32 +505,20 @@ fn test_value_min(test_harness: TestHarness) -> WebDriverResult<()> {
         };
 
         let slider = screen
-            .get(
-                By::role("slider")
-                    .value(value_opts.clone())
-                    .name("Volume"),
-            )
+            .get(By::role("slider").value(value_opts.clone()).name("Volume"))
             .await?;
         let aria_label = slider.attr("aria-label").await?.unwrap_or_default();
         assert_eq!(aria_label, "Volume");
 
         // Test find_by_role_with_options
         let find_slider = screen
-            .find(
-                By::role("slider")
-                    .value(value_opts.clone())
-                    .name("Volume"),
-            )
+            .find(By::role("slider").value(value_opts.clone()).name("Volume"))
             .await?;
         let aria_label = find_slider.attr("aria-label").await?.unwrap_or_default();
         assert_eq!(aria_label, "Volume");
         // Test get_all_by_role_with_options
         let all_sliders = screen
-            .get_all(
-                By::role("slider")
-                    .value(value_opts.clone())
-                    .name("Volume"),
-            )
+            .get_all(By::role("slider").value(value_opts.clone()).name("Volume"))
             .await?;
         assert_count(&all_sliders, 1)?;
         let aria_label = all_sliders[0].attr("aria-label").await?.unwrap_or_default();
@@ -546,11 +526,7 @@ fn test_value_min(test_harness: TestHarness) -> WebDriverResult<()> {
 
         // Test query_by_role_with_options
         let maybe_slider = screen
-            .query(
-                By::role("slider")
-                    .value(value_opts.clone())
-                    .name("Volume"),
-            )
+            .query(By::role("slider").value(value_opts.clone()).name("Volume"))
             .await?;
         assert!(maybe_slider.is_some());
         let aria_label = maybe_slider
@@ -562,11 +538,7 @@ fn test_value_min(test_harness: TestHarness) -> WebDriverResult<()> {
 
         // Test query_all_by_role_with_options
         let query_sliders = screen
-            .query_all(
-                By::role("slider")
-                    .value(value_opts.clone())
-                    .name("Volume"),
-            )
+            .query_all(By::role("slider").value(value_opts.clone()).name("Volume"))
             .await?;
         assert_count(&query_sliders, 1)?;
         let aria_label = query_sliders[0]
@@ -577,11 +549,7 @@ fn test_value_min(test_harness: TestHarness) -> WebDriverResult<()> {
 
         // Test find_all_by_role_with_options
         let find_sliders = screen
-            .find_all(
-                By::role("slider")
-                    .value(value_opts.clone())
-                    .name("Volume"),
-            )
+            .find_all(By::role("slider").value(value_opts.clone()).name("Volume"))
             .await?;
         assert_count(&find_sliders, 1)?;
         let aria_label = find_sliders[0]

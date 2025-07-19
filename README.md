@@ -114,7 +114,7 @@ Each selector type supports options for advanced filtering and matching.
 
 ### Regex
 
-Prefix & suffix by `/` to match by regex
+[TextMatch](https://testing-library.com/docs/queries/about#textmatch) from testing library allow regex matching, to use them prefix & suffix by `/`:
 ```rust
       By::text("/Hello.*/"),                       
       By::text("/hello world/i"),                  
@@ -124,6 +124,9 @@ Prefix & suffix by `/` to match by regex
       By::title("/click|tap/i"),                  
       By::test_id("/submit|send/"),                
       By::display_value("/[0-9]+%/"),              
+      
+      By::role("button").name("/submit|send/i"),   
+      By::role("textbox").description("/enter.*here/"), 
 ```
 
 ## How It Works

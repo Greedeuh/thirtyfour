@@ -878,15 +878,17 @@ mod tests {
     #[test]
     fn test_regex_functionality_examples() {
         // Test that our TextMatch From implementation works correctly
-        let exact_text = TextMatch::from("Hello World");
-        assert!(matches!(exact_text, TextMatch::Exact(_)));
-        assert_eq!(exact_text.text_value(), "Hello World");
-        assert!(!exact_text.is_regex());
+        let string_text = TextMatch::from("Hello World");
+        assert!(matches!(string_text, TextMatch::String(_)));
+        assert_eq!(string_text.text_value(), "Hello World");
+        assert!(!string_text.is_regex());
+        assert!(string_text.is_string());
 
         let regex_text = TextMatch::from("/hello/i");
         assert!(matches!(regex_text, TextMatch::Regex(_)));
         assert_eq!(regex_text.text_value(), "/hello/i");
         assert!(regex_text.is_regex());
+        assert!(!regex_text.is_string());
     }
 
     #[test]

@@ -46,12 +46,11 @@ impl Serialize for RawJavaScript {
 
 /// Represents text matching options for Testing Library queries
 /// Supports both string and regex patterns like the JavaScript Testing Library
+/// Exact vs substring behavior is controlled by the `exact` option on queries
 #[derive(Debug, Clone)]
 pub enum TextMatch {
-    /// Exact string match
-    Exact(String),
-    /// Substring match
-    Substring(String),
+    /// String match (exact vs substring controlled by query options)
+    String(String),
     /// Regular expression match
     Regex(String),
 }
@@ -62,8 +61,7 @@ impl Serialize for TextMatch {
         S: Serializer,
     {
         match self {
-            TextMatch::Exact(s) => s.serialize(serializer),
-            TextMatch::Substring(s) => s.serialize(serializer),
+            TextMatch::String(s) => s.serialize(serializer),
             TextMatch::Regex(pattern) => {
                 // Use RawJavaScript wrapper to indicate this should be raw JS
                 RawJavaScript(pattern.clone()).serialize(serializer)
@@ -107,15 +105,14 @@ impl TextMatch {
     /// Get the text value for string matches or pattern for regex matches
     pub fn text_value(&self) -> &str {
         match self {
-            TextMatch::Exact(text) => text,
-            TextMatch::Substring(text) => text,
+            TextMatch::String(text) => text,
             TextMatch::Regex(pattern) => pattern,
         }
     }
 
-    /// Check if this is an exact match
-    pub fn is_exact(&self) -> bool {
-        matches!(self, TextMatch::Exact(_))
+    /// Check if this is a string match
+    pub fn is_string(&self) -> bool {
+        matches!(self, TextMatch::String(_))
     }
 
     /// Check if this is a regex match
@@ -133,7 +130,7 @@ impl From<&str> for TextMatch {
                 }
             }
         }
-        Self::Exact(text.to_string())
+        Self::String(text.to_string())
     }
 }
 

@@ -265,7 +265,7 @@ mod tests {
             min: Some(0),
             max: Some(100),
             now: Some(50),
-            text: Some(TextMatch::Exact("medium".to_string())),
+            text: Some(TextMatch::String("medium".to_string())),
         };
 
         let options = ByRoleOptions::new().value(value_opts);
@@ -345,9 +345,9 @@ mod tests {
         let invalid_pattern = TextMatch::Regex("/[/".to_string());
         assert!(invalid_pattern.validate_regex().is_err());
 
-        // Non-regex variants should always be valid
-        let exact_match = TextMatch::Exact("test".to_string());
-        assert!(exact_match.validate_regex().is_ok());
+        // String variants should always be valid
+        let string_match = TextMatch::String("test".to_string());
+        assert!(string_match.validate_regex().is_ok());
     }
 
     #[test]

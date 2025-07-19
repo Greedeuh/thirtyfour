@@ -1,6 +1,6 @@
 [package]
 name = "thirtyfour-testing-library-ext"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Greedeuh <adrien.olivon.dev@gmail.com>"]
 edition = "2021"
 license = "MIT OR Apache-2.0"
